@@ -1,0 +1,155 @@
+/* 
+    Created on : Oct 21, 2016, 6:07:50 PM
+    Author     : ibrahimradwan
+*/
+
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	height: 100%;
+	/* May cause problem later for jquery scrollTop function*/
+}
+
+.text-muted {
+	font-family: 'Raleway', helvetica;
+	font-size: 15px;
+	font-weight: lighter;
+	color: #777;
+}
+
+.container {
+	width: 100%;
+	max-width: 1200px;
+	margin: 0 auto;
+	height: 100%;
+	padding: 0;
+}
+
+header {
+	padding: 5px 20px;
+	-webkit-box-shadow: 0px 8px 10px -6px #4a4a9d;
+	-moz-box-shadow: 0px 8px 10px -6px #4a4a9d;
+	box-shadow: 0px 8px 10px -6px #4a4a9d;
+}
+
+.header-leftside {
+	display: inline-block;
+	width: 60%;
+	text-align: left;
+}
+
+.header-title {
+	font-size: 40px;
+	margin: 0;
+	font-family: 'News Cycle', sans-serif;
+}
+
+.header-title-link {
+	cursor: pointer;
+	text-decoration: none;
+	color: inherit;
+}
+
+.header-title-O {
+	color: #4a4a9d;
+}
+
+.header-title-Market {}
+
+.header-rightside {
+	display: inline-block;
+	width: 39%;
+	text-align: right;
+}
+
+.header-links a {
+	font-family: 'Raleway', helvetica;
+	text-decoration: none;
+}
+
+.header-links a {
+	padding: 0;
+	color: #5f5c5c;
+	font-size: 15px;
+	transition: 0.5s;
+	text-decoration: none;
+	cursor: pointer;
+	transition: 0.5s;
+}
+
+.header-links a:hover {
+	color: #4a4a9d;
+	transition: 0.5s;
+	text-decoration: underline;
+}
+
+.header-links--login {
+	margin-right: 0;
+	margin-right: 5px;
+}
+
+.header-links--signup {
+	margin-left: 0;
+	margin-right: 5px;
+	margin-left: 15px;
+}
+
+.header-logout {
+	margin-right: 5px;
+}
+
+.header-cartamount,
+.header-carticon {
+	color: #9a0b0b;
+}
+
+.header-username {
+	margin: 0 10px 0 20px;
+	font-style: italic;
+}
+
+.header-username::after {
+	content: ',';
+}
+
+.header-search-input {
+	width: 200px;
+	border: 1px solid #d1d1d1;
+	font: lighter 12px Arial, Helvetica, Sans-serif;
+	color: rgba(0, 0, 0, 0.97);
+	margin: 10px auto;
+	padding: 6px 30px 6px 20px;
+	-webkit-border-radius: 20px;
+	-moz-border-radius: 20px;
+	border-radius: 20px;
+	-webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) inset;
+	-moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) inset;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) inset;
+	-webkit-transition: all 0.7s ease 0s;
+	-moz-transition: all 0.7s ease 0s;
+	-o-transition: all 0.7s ease 0s;
+	transition: all 0.7s ease 0s;
+	outline: none;
+	background: url(../img/search-icon.png) no-repeat right 10px center;
+	background-size: 15px 15px;
+}
+
+.header-search-input::-webkit-input-placeholder {
+	color: #bebebe;
+}
+
+.header-search {
+	position: relative;
+}
+
+.search-img img {
+	position: absolute;
+	right: calc(11px);
+	top: calc(50% - 7px);
+	width: 15px;
+	height: 15px;
+	cursor: pointer;
+}
