@@ -26,14 +26,52 @@
                             <i class="fa fa-shopping-cart header-carticon" aria-hidden="true"></i>
                         </a>
 					<a href="#" class="header-username"><span>Ibrahim</span></a>
-					<a href="#" class="header-logout"><span>Log out</span></a>
+					<a href="#" class="header-logout"><span>Logout</span></a>
 				</div>
 
 				<div class="header-search"><input placeholder="Search..." type="text" class="header-search-input">
-					<a class="search-img"><img src="img/search-icon-nocolor.png"></a>
+					<a class="search-img" title="Search"><img src="img/search-icon-nocolor.png"></a>
 				</div>
 			</div>
 		</header>
+		<div id="content" class="content">
+			<section class="left-menu" id="left-menu">
+				<ul class="left-menu--list">
+					<li class="left-menu--listitem"><a href="#">&#187; Computers, IT &amp; Networking</a></li>
+					<li class="left-menu--listitem"><a href="#">&#187; Mobile Phones, Tablets &amp; Accessories</a></li>
+					<li class="left-menu--listitem"><a href="#">&#187; Car Electronics &amp; Accessories</a></li>
+					<li class="left-menu--listitem"><a href="#">&#187; Books</a></li>
+					<li class="left-menu--listitem"><a href="#">&#187; Gaming</a></li>
+					<li class="left-menu--listitem"><a href="#">&#187; Electronic</a>s</li>
+					<li class="left-menu--listitem"><a href="#">&#187; Sports &amp; Fitness</a></li>
+					<li class="left-menu--listitem"><a href="#">&#187; Perfumes &amp; Fragrances</a></li>
+					<li class="left-menu--listitem"><a href="#">&#187; Health &amp; Personal Care</a></li>
+					<li class="left-menu--listitem"><a href="#">&#187; Furniture</a></li>
+					<li class="left-menu--listitem"><a href="#">&#187; Apparel, Shoes &amp; Accessories</a></li>
+					<li class="left-menu--listitem"><a href="#">&#187; Appliances</a></li>
+					<li class="left-menu--listitem"><a href="#">&#187; Art, Crafts &amp; Collectables</a></li>
+					<li class="left-menu--listitem"><a href="#">&#187; Baby</a></li>
+					<li class="left-menu--listitem"><a href="#">&#187; Bed &amp; Bath</a></li>
+					<li class="left-menu--listitem"><a href="#">&#187; Kitchen &amp; Home Supplies</a></li>
+					<li class="left-menu--listitem"><a href="#">&#187; Toys</a></li>
+				</ul>
+			</section>
+			<section class="main-content" id="main-content">
+				<div class="category-items-short">
+					<a href="#" class="category-items-short--title">Computers, IT &amp; Networking</a>
+				</div>
+				<div class="category-items-short">
+					<a href="#" class="category-items-short--title">Mobile Phones, Tablets &amp; Accessories</a>
+				</div>
+				<div class="category-items-short">
+					<a href="#" class="category-items-short--title">Books</a>
+				</div>
+				<div class="category-items-short">
+					<a href="#" class="category-items-short--title">Furniture</a>
+				</div>
+			</section>
+		</div>
+		
 	</div>
 	<script src="js/main.js"></script>
 </body>
