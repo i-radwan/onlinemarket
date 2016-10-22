@@ -4,6 +4,7 @@
  * This file contains all the functions that will deal with the DB
  * @author ibrahimradwan
  */
+include_once '../utilities/Constants.php';
 class SQLOperations implements SQLOperationsInterface {
 
     // =========================================================================================================
@@ -20,5 +21,6 @@ class SQLOperations implements SQLOperationsInterface {
      */
     public function signUpUser($email, $pass1, $pass2, $role) {
         
+        return Constants::SIGNUP_FAILED;
     }
 }
