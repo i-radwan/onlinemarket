@@ -4,7 +4,7 @@
  * This file contains all the functions that will deal with the DB
  * @author ibrahimradwan
  */
-include_once '../utilities/Constants.php';
+include_once 'utilities/Constants.php';
 class SQLOperations implements SQLOperationsInterface {
 
     // =========================================================================================================
