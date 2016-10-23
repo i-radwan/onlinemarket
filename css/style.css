@@ -187,11 +187,18 @@ header {
 	margin: 15px 0;
 }
 
-.left-menu--listitem:hover {
+.left-menu--listitem:not(.selected):hover {
 	color: #4a4a9d;
 	transition: 0.5s;
 	margin-left: 15px;
 }
+
+.left-menu--listitem.selected {
+	color: #ff0000;
+	cursor: default;
+	margin-left: 15px;
+}
+
 
 /*	Main Content*/
 

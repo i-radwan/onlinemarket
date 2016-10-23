@@ -20,6 +20,8 @@ function productModel(product) {
 	self.price = product.price;
 	self.rate = product.rate;
 	self.image = product.image;
+	self.more = product.more || [];
+	self.isMoreDivVisible = ko.observable(false);
 }
 /*	View Models	 */
 var onlineMarketMVVM;
@@ -31,10 +33,12 @@ function onlineMarketViewModel() {
 		This function initializes the categoriesArray array
 	*/
 	self.init = function () {
+		// Get all categories from API and add them to the array
 		getCategoriesArray().forEach(function (category) {
 			self.categoriesArray.push(new categoryModel(category));
 		});
 
+		// Get top categories and top produdcts in every category from the API and add them to array
 		var topCategories = getTopCategories(TOP_CATEGOIRES_COUNT);
 
 		topCategories.forEach(function (topCategory) {
@@ -44,9 +48,28 @@ function onlineMarketViewModel() {
 			});
 			self.topCategoriesArray.push(new categoryModel(topCategory));
 		});
-
-		console.log(self.topCategoriesArray);
 	}();
+
+	/**
+	 * This function handles category item click
+	 * @param {object} item  clicked category
+	 * @param {object} event click event
+	 */
+	self.categoryClick = function (item, event) {
+		//Reset all categories to not selected
+		categoriesArray.forEach(function (category, index) {
+			category.selected(false);
+		});
+		item.selected(true);
+	};
+	/**
+	 * This function handles product load more click
+	 * @param {object} item  clicked category
+	 * @param {object} event click event
+	 */
+	self.loadMoreClick = function (item, event) {
+		item.isMoreDivVisible(true);
+	}
 }
 
 
@@ -175,6 +198,12 @@ function getCategoryTopProducts(categoryID) {
 			price: 500,
 			rate: 4.5,
 			image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/IPhone_7_Jet_Black.svg/2000px-IPhone_7_Jet_Black.svg.png",
+			more: [
+				{
+					name: "Origin",
+					value: "Apple"
+				}
+			]
 		},
 		{
 			id: 0,
@@ -182,6 +211,16 @@ function getCategoryTopProducts(categoryID) {
 			price: 500,
 			rate: 4.6,
 			image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/IPhone_7_Jet_Black.svg/2000px-IPhone_7_Jet_Black.svg.png",
+			more: [
+				{
+					name: "Origin",
+					value: "Apple"
+				},
+				{
+					name: "Sold items",
+					value: "100"
+				}
+			]
 
 		},
 		{
@@ -190,7 +229,12 @@ function getCategoryTopProducts(categoryID) {
 			price: 500,
 			rate: 4.5,
 			image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/IPhone_7_Jet_Black.svg/2000px-IPhone_7_Jet_Black.svg.png",
-
+			more: [
+				{
+					name: "Origin",
+					value: "Apple"
+				}
+			]
 		}
 	];
 }

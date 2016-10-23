@@ -38,7 +38,7 @@
 		<div id="content" class="content">
 			<section class="left-menu" id="left-menu">
 				<ul class="left-menu--list" data-bind="foreach: categoriesArray">
-					<li class="left-menu--listitem" data-bind="text: name"></li>
+					<li class="left-menu--listitem" data-bind="text: name, css:{'selected': $data.selected()}, click: categoryClick"></li>
 				</ul>
 			</section>
 			<section class="main-content" id="main-content" data-bind="foreach: topCategoriesArray">
@@ -54,10 +54,15 @@
 								<p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Rate:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text:rate"></span>/5</span>
 								</p>
 							</div>
-							<div class="categories-single-item--load-more">
+							<div class="categories-single-item--load-more" data-bind="click: loadMoreClick, visible: !isMoreDivVisible()">
 								<i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i> <span class="categories-single-item--load-more--text">more</span>
 								<i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i>
 							</div>
+							<div data-bind="foreach: more, visible:isMoreDivVisible()">
+								<p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key"><span data-bind="text:name"></span>:</strong><span class="categories-single-item--visible-details--spec--val" data-bind="text:value"></span>
+								</p>
+							</div>
+
 							<div class="categories-single-item--invisible-details"></div>
 							<a href="#"><button class="categories-single-item--buy">Add to Cart</button></a>
 
