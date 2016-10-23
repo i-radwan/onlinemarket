@@ -171,6 +171,7 @@ header {
 }
 
 .left-menu--listitem {
+	cursor: pointer;
 	font-family: 'Raleway', helvetica;
 	font-size: 13px;
 	color: #777;
@@ -186,17 +187,11 @@ header {
 	margin: 15px 0;
 }
 
-.left-menu--listitem a:hover {
+.left-menu--listitem:hover {
 	color: #4a4a9d;
 	transition: 0.5s;
 	margin-left: 15px;
 }
-
-.left-menu--listitem a {
-	text-decoration: none;
-	color: inherit;
-}
-
 
 /*	Main Content*/
 

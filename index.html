@@ -37,36 +37,22 @@
 		</header>
 		<div id="content" class="content">
 			<section class="left-menu" id="left-menu">
-				<ul class="left-menu--list">
-					<li class="left-menu--listitem"><a href="#">Computers, IT &amp; Networking</a></li>
-					<li class="left-menu--listitem"><a href="#">Mobile Phones, Tablets &amp; Accessories</a></li>
-					<li class="left-menu--listitem"><a href="#">Car Electronics &amp; Accessories</a></li>
-					<li class="left-menu--listitem"><a href="#">Books</a></li>
-					<li class="left-menu--listitem"><a href="#">Gaming</a></li>
-					<li class="left-menu--listitem"><a href="#">Electronic</a>s</li>
-					<li class="left-menu--listitem"><a href="#">Sports &amp; Fitness</a></li>
-					<li class="left-menu--listitem"><a href="#">Perfumes &amp; Fragrances</a></li>
-					<li class="left-menu--listitem"><a href="#">Health &amp; Personal Care</a></li>
-					<li class="left-menu--listitem"><a href="#">Furniture</a></li>
-					<li class="left-menu--listitem"><a href="#">Apparel, Shoes &amp; Accessories</a></li>
-					<li class="left-menu--listitem"><a href="#">Appliances</a></li>
-					<li class="left-menu--listitem"><a href="#">Art, Crafts &amp; Collectables</a></li>
-					<li class="left-menu--listitem"><a href="#">Baby</a></li>
-					<li class="left-menu--listitem"><a href="#">Bed &amp; Bath</a></li>
-					<li class="left-menu--listitem"><a href="#">Kitchen &amp; Home Supplies</a></li>
-					<li class="left-menu--listitem"><a href="#">Toys</a></li>
+				<ul class="left-menu--list" data-bind="foreach: categoriesArray">
+					<li class="left-menu--listitem" data-bind="text: name"></li>
 				</ul>
 			</section>
-			<section class="main-content" id="main-content">
+			<section class="main-content" id="main-content" data-bind="foreach: topCategoriesArray">
 				<div class="category-items-short">
-					<a href="#" class="category-items-short--title">Computers, IT &amp; Networking</a>
-					<div class="categories-items-container">
+					<a href="#" class="category-items-short--title" data-bind="text: name"></a>
+					<div class="categories-items-container" data-bind="foreach: products">
 						<div class="categories-single-item">
-							<h2 class="categories-single-item--title">IPhone 6S</h2>
-							<img class="categories-single-item--img" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/IPhone_7_Jet_Black.svg/2000px-IPhone_7_Jet_Black.svg.png">
+							<h2 class="categories-single-item--title" data-bind="text: name"></h2>
+							<img class="categories-single-item--img" data-bind="attr:{src: image}">
 							<div class="categories-single-item--visible-details">
-								<p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Price:</strong><span class="categories-single-item--visible-details--spec--val">500$</span></p>
-								<p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Rate:</strong><span class="categories-single-item--visible-details--spec--val">4.5/5</span></p>
+								<p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Price:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text:price"></span>$</span>
+								</p>
+								<p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Rate:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text:rate"></span>/5</span>
+								</p>
 							</div>
 							<div class="categories-single-item--load-more">
 								<i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i> <span class="categories-single-item--load-more--text">more</span>
@@ -76,192 +62,15 @@
 							<a href="#"><button class="categories-single-item--buy">Add to Cart</button></a>
 
 						</div>
-						<div class="categories-single-item">
-							<h2 class="categories-single-item--title">IPhone 6S</h2>
-							<img class="categories-single-item--img" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/IPhone_7_Jet_Black.svg/2000px-IPhone_7_Jet_Black.svg.png">
-							<div class="categories-single-item--visible-details">
-								<p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Price:</strong><span class="categories-single-item--visible-details--spec--val">500$</span></p>
-								<p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Rate:</strong><span class="categories-single-item--visible-details--spec--val">4.5/5</span></p>
-							</div>
-							<div class="categories-single-item--load-more">
-								<i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i> <span class="categories-single-item--load-more--text">more</span>
-								<i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i>
-							</div>
-							<div class="categories-single-item--invisible-details"></div>
-							<a href="#"><button class="categories-single-item--buy">Add to Cart</button></a>
 
-						</div>
-						<div class="categories-single-item">
-							<h2 class="categories-single-item--title">IPhone 6S</h2>
-							<img class="categories-single-item--img" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/IPhone_7_Jet_Black.svg/2000px-IPhone_7_Jet_Black.svg.png">
-							<div class="categories-single-item--visible-details">
-								<p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Price:</strong><span class="categories-single-item--visible-details--spec--val">500$</span></p>
-								<p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Rate:</strong><span class="categories-single-item--visible-details--spec--val">4.5/5</span></p>
-							</div>
-							<div class="categories-single-item--load-more">
-								<i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i> <span class="categories-single-item--load-more--text">more</span>
-								<i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i>
-							</div>
-							<div class="categories-single-item--invisible-details"></div>
-							<a href="#"><button class="categories-single-item--buy">Add to Cart</button></a>
-
-						</div>
-					</div>
-				</div>
-				<div class="category-items-short">
-					<a href="#" class="category-items-short--title">Mobile Phones, Tablets &amp; Accessories</a>
-					<div class="categories-items-container">
-						<div class="categories-single-item">
-							<h2 class="categories-single-item--title">IPhone 6S</h2>
-							<img class="categories-single-item--img" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/IPhone_7_Jet_Black.svg/2000px-IPhone_7_Jet_Black.svg.png">
-							<div class="categories-single-item--visible-details">
-								<p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Price:</strong><span class="categories-single-item--visible-details--spec--val">500$</span></p>
-								<p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Rate:</strong><span class="categories-single-item--visible-details--spec--val">4.5/5</span></p>
-							</div>
-							<div class="categories-single-item--load-more">
-								<i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i> <span class="categories-single-item--load-more--text">more</span>
-								<i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i>
-							</div>
-							<div class="categories-single-item--invisible-details"></div>
-							<a href="#"><button class="categories-single-item--buy">Add to Cart</button></a>
-
-						</div>
-						<div class="categories-single-item">
-							<h2 class="categories-single-item--title">IPhone 6S</h2>
-							<img class="categories-single-item--img" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/IPhone_7_Jet_Black.svg/2000px-IPhone_7_Jet_Black.svg.png">
-							<div class="categories-single-item--visible-details">
-								<p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Price:</strong><span class="categories-single-item--visible-details--spec--val">500$</span></p>
-								<p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Rate:</strong><span class="categories-single-item--visible-details--spec--val">4.5/5</span></p>
-							</div>
-							<div class="categories-single-item--load-more">
-								<i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i> <span class="categories-single-item--load-more--text">more</span>
-								<i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i>
-							</div>
-							<div class="categories-single-item--invisible-details"></div>
-							<a href="#"><button class="categories-single-item--buy">Add to Cart</button></a>
-
-						</div>
-						<div class="categories-single-item">
-							<h2 class="categories-single-item--title">IPhone 6S</h2>
-							<img class="categories-single-item--img" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/IPhone_7_Jet_Black.svg/2000px-IPhone_7_Jet_Black.svg.png">
-							<div class="categories-single-item--visible-details">
-								<p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Price:</strong><span class="categories-single-item--visible-details--spec--val">500$</span></p>
-								<p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Rate:</strong><span class="categories-single-item--visible-details--spec--val">4.5/5</span></p>
-							</div>
-							<div class="categories-single-item--load-more">
-								<i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i> <span class="categories-single-item--load-more--text">more</span>
-								<i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i>
-							</div>
-							<div class="categories-single-item--invisible-details"></div>
-							<a href="#"><button class="categories-single-item--buy">Add to Cart</button></a>
-
-						</div>
-					</div>
-				</div>
-				<div class="category-items-short">
-					<a href="#" class="category-items-short--title">Books</a>
-					<div class="categories-items-container">
-						<div class="categories-single-item">
-							<h2 class="categories-single-item--title">IPhone 6S</h2>
-							<img class="categories-single-item--img" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/IPhone_7_Jet_Black.svg/2000px-IPhone_7_Jet_Black.svg.png">
-							<div class="categories-single-item--visible-details">
-								<p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Price:</strong><span class="categories-single-item--visible-details--spec--val">500$</span></p>
-								<p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Rate:</strong><span class="categories-single-item--visible-details--spec--val">4.5/5</span></p>
-							</div>
-							<div class="categories-single-item--load-more">
-								<i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i> <span class="categories-single-item--load-more--text">more</span>
-								<i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i>
-							</div>
-							<div class="categories-single-item--invisible-details"></div>
-							<a href="#"><button class="categories-single-item--buy">Add to Cart</button></a>
-
-						</div>
-						<div class="categories-single-item">
-							<h2 class="categories-single-item--title">IPhone 6S</h2>
-							<img class="categories-single-item--img" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/IPhone_7_Jet_Black.svg/2000px-IPhone_7_Jet_Black.svg.png">
-							<div class="categories-single-item--visible-details">
-								<p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Price:</strong><span class="categories-single-item--visible-details--spec--val">500$</span></p>
-								<p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Rate:</strong><span class="categories-single-item--visible-details--spec--val">4.5/5</span></p>
-							</div>
-							<div class="categories-single-item--load-more">
-								<i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i> <span class="categories-single-item--load-more--text">more</span>
-								<i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i>
-							</div>
-							<div class="categories-single-item--invisible-details"></div>
-							<a href="#"><button class="categories-single-item--buy">Add to Cart</button></a>
-
-						</div>
-						<div class="categories-single-item">
-							<h2 class="categories-single-item--title">IPhone 6S</h2>
-							<img class="categories-single-item--img" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/IPhone_7_Jet_Black.svg/2000px-IPhone_7_Jet_Black.svg.png">
-							<div class="categories-single-item--visible-details">
-								<p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Price:</strong><span class="categories-single-item--visible-details--spec--val">500$</span></p>
-								<p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Rate:</strong><span class="categories-single-item--visible-details--spec--val">4.5/5</span></p>
-							</div>
-							<div class="categories-single-item--load-more">
-								<i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i> <span class="categories-single-item--load-more--text">more</span>
-								<i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i>
-							</div>
-							<div class="categories-single-item--invisible-details"></div>
-							<a href="#"><button class="categories-single-item--buy">Add to Cart</button></a>
-
-						</div>
-					</div>
-				</div>
-				<div class="category-items-short">
-					<a href="#" class="category-items-short--title">Furniture</a>
-					<div class="categories-items-container">
-						<div class="categories-single-item">
-							<h2 class="categories-single-item--title">IPhone 6S</h2>
-							<img class="categories-single-item--img" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/IPhone_7_Jet_Black.svg/2000px-IPhone_7_Jet_Black.svg.png">
-							<div class="categories-single-item--visible-details">
-								<p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Price:</strong><span class="categories-single-item--visible-details--spec--val">500$</span></p>
-								<p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Rate:</strong><span class="categories-single-item--visible-details--spec--val">4.5/5</span></p>
-							</div>
-							<div class="categories-single-item--load-more">
-								<i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i> <span class="categories-single-item--load-more--text">more</span>
-								<i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i>
-							</div>
-							<div class="categories-single-item--invisible-details"></div>
-							<a href="#"><button class="categories-single-item--buy">Add to Cart</button></a>
-
-						</div>
-						<div class="categories-single-item">
-							<h2 class="categories-single-item--title">IPhone 6S</h2>
-							<img class="categories-single-item--img" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/IPhone_7_Jet_Black.svg/2000px-IPhone_7_Jet_Black.svg.png">
-							<div class="categories-single-item--visible-details">
-								<p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Price:</strong><span class="categories-single-item--visible-details--spec--val">500$</span></p>
-								<p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Rate:</strong><span class="categories-single-item--visible-details--spec--val">4.5/5</span></p>
-							</div>
-							<div class="categories-single-item--load-more">
-								<i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i> <span class="categories-single-item--load-more--text">more</span>
-								<i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i>
-							</div>
-							<div class="categories-single-item--invisible-details"></div>
-							<a href="#"><button class="categories-single-item--buy">Add to Cart</button></a>
-
-						</div>
-						<div class="categories-single-item">
-							<h2 class="categories-single-item--title">IPhone 6S</h2>
-							<img class="categories-single-item--img" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/IPhone_7_Jet_Black.svg/2000px-IPhone_7_Jet_Black.svg.png">
-							<div class="categories-single-item--visible-details">
-								<p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Price:</strong><span class="categories-single-item--visible-details--spec--val">500$</span></p>
-								<p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Rate:</strong><span class="categories-single-item--visible-details--spec--val">4.5/5</span></p>
-							</div>
-							<div class="categories-single-item--load-more">
-								<i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i> <span class="categories-single-item--load-more--text">more</span>
-								<i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i>
-							</div>
-							<div class="categories-single-item--invisible-details"></div>
-							<a href="#"><button class="categories-single-item--buy">Add to Cart</button></a>
-
-						</div>
 					</div>
 				</div>
 			</section>
 		</div>
 
 	</div>
+	<!--Scripts-->
+	<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/knockout/knockout-3.3.0.js"></script>
 	<script src="js/main.js"></script>
 </body>
 
