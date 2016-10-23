@@ -215,6 +215,7 @@ header {
 /* Categories items short div*/
 
 .category-items-short {
+	padding: 0 15px;
 	width: 100%;
 	border: 1px solid rgba(198, 196, 196, 0.66);
 	min-height: 400px;

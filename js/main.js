@@ -1,8 +1,12 @@
+// ==========================================================================================================
 /*	Constants	 */
-const TOP_CATEGOIRES_COUNT = 4; // The number of top categories to be shown in the main page
-/*	Data Arrays	 */
+// ==========================================================================================================
 
+const TOP_CATEGOIRES_COUNT = 4; // The number of top categories to be shown in the main page
+
+// ==========================================================================================================
 /*	Data Models	 */
+// ==========================================================================================================
 
 function categoryModel(category) {
 	var self = this;
@@ -23,33 +27,26 @@ function productModel(product) {
 	self.more = product.more || [];
 	self.isMoreDivVisible = ko.observable(false);
 }
+
+// ==========================================================================================================
 /*	View Models	 */
+// ==========================================================================================================
+
 var onlineMarketMVVM;
 
-function onlineMarketViewModel() {
+
+function leftMenuViewModel() {
+
 	self.categoriesArray = [];
-	self.topCategoriesArray = [];
 	/**
-		This function initializes the categoriesArray array
+		This function initializes the categoriesArray
 	*/
 	self.init = function () {
 		// Get all categories from API and add them to the array
 		getCategoriesArray().forEach(function (category) {
 			self.categoriesArray.push(new categoryModel(category));
 		});
-
-		// Get top categories and top produdcts in every category from the API and add them to array
-		var topCategories = getTopCategories(TOP_CATEGOIRES_COUNT);
-
-		topCategories.forEach(function (topCategory) {
-			var topProducts = getCategoryTopProducts();
-			topProducts.forEach(function (topProduct) {
-				topCategory.products.push(new productModel(topProduct));
-			});
-			self.topCategoriesArray.push(new categoryModel(topCategory));
-		});
 	}();
-
 	/**
 	 * This function handles category item click
 	 * @param {object} item  clicked category
@@ -62,6 +59,30 @@ function onlineMarketViewModel() {
 		});
 		item.selected(true);
 	};
+}
+
+function topCategoriesViewModel() {
+
+	self.topCategoriesArray = [];
+	/**
+		This function initializes the categoriesArray
+	*/
+	self.init = function () {
+		// Get top categories and top produdcts in every category from the API and add them to array
+		var topCategories = getTopCategories(TOP_CATEGOIRES_COUNT);
+
+		topCategories.forEach(function (topCategory) {
+			var topProducts = getCategoryTopProducts();
+			topProducts.forEach(function (topProduct) {
+				topCategory.products.push(new productModel(topProduct));
+			});
+			self.topCategoriesArray.push(new categoryModel(topCategory));
+		});
+	}();
+}
+
+function productViewModel() {
+
 	/**
 	 * This function handles product load more click
 	 * @param {object} item  clicked category
@@ -70,16 +91,54 @@ function onlineMarketViewModel() {
 	self.loadMoreClick = function (item, event) {
 		item.isMoreDivVisible(true);
 	}
+
+	/**
+	 * This function handles product add to cart click
+	 * @param {object} item  clicked category
+	 * @param {object} event click event
+	 */
+	self.addToCart = function (item, event) {
+		onlineMarketMVVM.increaseCartAmount(item.price);
+	}
 }
 
+function headerViewModel(self) {
 
+	self.cartAmount = ko.observable(0.0);
+
+	self.checkIfSignedIn = function () {
+		// should check the localstorage
+		return true;
+	}
+}
+
+function onlineMarketViewModel() {
+	var self = this;
+
+	self.leftMenuMVVM = new leftMenuViewModel(self);
+
+	self.headerMVVM = new headerViewModel(self);
+
+	self.topCategoriesMVVM = new topCategoriesViewModel(self);
+
+	self.productMVVM = new productViewModel(self);
+
+	self.increaseCartAmount = function (price) {
+		self.cartAmount(self.cartAmount() + price);
+	}
+}
+
+// ==========================================================================================================
 /*	App  Logic	 */
-
-
+// ==========================================================================================================
 
 onlineMarketMVVM = new onlineMarketViewModel();
 ko.applyBindings(onlineMarketMVVM);
+
+// ==========================================================================================================
 /*	API	Requests */
+// ==========================================================================================================
+
 /**
  * This function retrieves all the the categories from the server
  * @returns {Array} Categories array -> contains categories objects
@@ -208,7 +267,7 @@ function getCategoryTopProducts(categoryID) {
 		{
 			id: 0,
 			name: "IPhone 6S",
-			price: 500,
+			price: 200,
 			rate: 4.6,
 			image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/IPhone_7_Jet_Black.svg/2000px-IPhone_7_Jet_Black.svg.png",
 			more: [
