@@ -73,7 +73,7 @@ function topCategoriesViewModel(params) {
 		var topCategories = getTopCategories(TOP_CATEGOIRES_COUNT);
 
 		topCategories.forEach(function (topCategory) {
-			var topProducts = getCategoryTopProducts();
+			var topProducts = getCategoryProducts(0, 3);
 			topProducts.forEach(function (topProduct) {
 				topCategory.products.push(new productModel(topProduct));
 			});
@@ -156,7 +156,7 @@ function onlineMarketViewModel() {
 
 	//	self.topCategoriesMVVM = new topCategoriesViewModel(self);
 
-//	self.productMVVM = new productViewModel(self);
+	//	self.productMVVM = new productViewModel(self);
 
 	self.increaseCartAmount = function (price) {
 		self.cartAmount(self.cartAmount() + price);
@@ -283,7 +283,7 @@ function getTopCategories(count) {
  * @param   {number} categoryID required category id to get its top products
  * @returns {Array}  [[Description]]
  */
-function getCategoryTopProducts(categoryID) {
+function getCategoryProducts(categoryID, limit) {
 	//dummy data till the API is ready
 	return [
 		{
