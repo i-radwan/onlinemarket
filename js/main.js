@@ -62,8 +62,8 @@ function leftMenuViewModel(params) {
 	};
 }
 
-function topCategoriesViewModel() {
-
+function topCategoriesViewModel(params) {
+	var self = this;
 	self.topCategoriesArray = [];
 	/**
 		This function initializes the categoriesArray
@@ -116,7 +116,7 @@ function headerViewModel(params) {
 function onlineMarketViewModel() {
 	var self = this;
 	self.cartAmount = ko.observable(0.0);
-	
+
 	ko.components.register('left-menu', {
 		template: {
 			element: 'left-menu'
@@ -130,14 +130,22 @@ function onlineMarketViewModel() {
 		},
 		viewModel: headerViewModel
 	});
-	
+
 	ko.components.register('content', {
 		template: {
 			element: 'main-page-content'
 		}
 	});
 
-	self.topCategoriesMVVM = new topCategoriesViewModel(self);
+	ko.components.register('top-categories', {
+		template: {
+			element: 'top-categories'
+		},
+		viewModel: topCategoriesViewModel
+
+	});
+
+	//	self.topCategoriesMVVM = new topCategoriesViewModel(self);
 
 	self.productMVVM = new productViewModel(self);
 
