@@ -83,13 +83,15 @@ function topCategoriesViewModel(params) {
 }
 
 function productViewModel(params) {
+	var self = this;
+	self.params = params.value;
 	/**
 	 * This function handles product load more click
 	 * @param {object} item  clicked category
 	 * @param {object} event click event
 	 */
 	self.loadMoreClick = function (item, event) {
-		item.isMoreDivVisible(true);
+		self.params.isMoreDivVisible(true);
 	}
 
 	/**
@@ -97,8 +99,8 @@ function productViewModel(params) {
 	 * @param {object} item  clicked category
 	 * @param {object} event click event
 	 */
-	self.addToCart = function (item, event) {
-		onlineMarketMVVM.increaseCartAmount(item.price);
+	self.addToCart = function () {
+		onlineMarketMVVM.increaseCartAmount(self.params.price);
 	}
 }
 
@@ -137,6 +139,13 @@ function onlineMarketViewModel() {
 		}
 	});
 
+	ko.components.register('product-container', {
+		template: {
+			element: 'single-product-view'
+		},
+		viewModel: productViewModel
+	});
+
 	ko.components.register('top-categories', {
 		template: {
 			element: 'top-categories'
@@ -147,7 +156,7 @@ function onlineMarketViewModel() {
 
 	//	self.topCategoriesMVVM = new topCategoriesViewModel(self);
 
-	self.productMVVM = new productViewModel(self);
+//	self.productMVVM = new productViewModel(self);
 
 	self.increaseCartAmount = function (price) {
 		self.cartAmount(self.cartAmount() + price);
