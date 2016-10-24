@@ -49,7 +49,7 @@ class SQLOperations implements SQLOperationsInterface {
     }
 
     function __destruct() {
-        mysqli_close($this->db_link);
+        $this->db_link)->close();
     }
 
 }
