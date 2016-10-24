@@ -1,40 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      <meta charset="UTF-8">
-      <title>OMarket</title>
-      <link href="css/font-awesome/css/font-awesome.min.css" rel="stylesheet">
-      <!--	<link href="https://fonts.googleapis.com/css?family=Comfortaa|News+Cycle|Raleway" rel="stylesheet">-->
-      <link href="css/style.css" rel="stylesheet">
-      <script src="js/jquery.min.js"></script>
-   </head>
-   <body>
-      <div class="container">
-         <header id="header" params="cartAmount: cartAmount">
-            <div class="header-leftside">
-               <h1 class="header-title"><a href="#" class="header-title-link"><span class="header-title-O">O</span><span class="header-title-Market">Market</span></a></h1>
-            </div>
-            <div class="header-rightside">
-               <div class="header-links" data-bind="if: !checkIfSignedIn()">
-                  <a href="#" class="header-links--login">Login</a>, <a href="#" class="header-links--signup">Sign up</a>
-               </div>
-               <div class="header-links" data-bind="if: checkIfSignedIn()">
-                  <a href="#" class="header-cart"><span class="header-cartamount"><span data-bind="text:cartAmount()"  ></span> $</span>
+
+<head>
+	<meta charset="UTF-8">
+	<title>OMarket</title>
+	<link href="css/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Comfortaa|News+Cycle|Raleway" rel="stylesheet">
+	<link href="css/style.css" rel="stylesheet">
+	<script src="js/jquery.min.js"></script>
+</head>
+
+<body>
+	<div class="container">
+		<header id="header" params="cartAmount: cartAmount">
+			<div class="header-leftside">
+				<h1 class="header-title"><a href="#" class="header-title-link"><span class="header-title-O">O</span><span class="header-title-Market">Market</span></a></h1>
+			</div>
+			<div class="header-rightside">
+				<div class="header-links" data-bind="if: !checkIfSignedIn()">
+					<a href="#" class="header-links--login">Login</a>, <a href="#" class="header-links--signup">Sign up</a>
+				</div>
+				<div class="header-links" data-bind="if: checkIfSignedIn()">
+					<a href="#" class="header-cart"><span class="header-cartamount"><span data-bind="text:cartAmount()"  ></span> $</span>
                   <i class="fa fa-shopping-cart header-carticon" aria-hidden="true"></i>
                   </a>
-                  <a href="#" class="header-username"><span>Ibrahim</span></a>
-                  <a href="#" class="header-logout"><span>Logout</span></a>
-               </div>
-               <div class="header-search"><input placeholder="Search..." type="text" class="header-search-input">
-                  <a class="search-img" title="Search"><img src="img/search-icon-nocolor.png"></a>
-               </div>
-            </div>
-         </header>
-         <content id="content" class="content">
-         </content>
-      </div>
-      <!--Templates-->
-      <template id="main-page-content">
+					<a href="#" class="header-username"><span>Ibrahim</span></a>
+					<a href="#" class="header-logout"><span>Logout</span></a>
+				</div>
+				<div class="header-search"><input placeholder="Search..." type="text" class="header-search-input">
+					<a class="search-img" title="Search"><img src="img/search-icon-nocolor.png"></a>
+				</div>
+			</div>
+		</header>
+		<content id="content" class="content">
+		</content>
+		<footer>
+			Footer
+		</footer>
+
+	</div>
+	<!--Templates-->
+	<template id="main-page-content">
          <left-menu class="left-menu" id="left-menu">
             <ul class="left-menu--list" data-bind="foreach: categoriesArray">
                <li class="left-menu--listitem" data-bind="text: name, css:{'selected': $data.selected()}, click: $parent.categoryClick"></li>
@@ -51,7 +57,7 @@
             </section>
          </top-categories>
       </template>
-      <template id="single-product-view">
+	<template id="single-product-view">
          <div>
             <h2 class="categories-single-item--title" data-bind="text: params.name"></h2>
             <img class="categories-single-item--img" data-bind="attr:{src: params.image}">
@@ -74,8 +80,9 @@
          </div>
          </div>
       </template>
-      <!--Scripts-->
-      <script type="text/javascript" src="js/knockout-3.3.0.js"></script>
-      <script src="js/main.js"></script>
-   </body>
+	<!--Scripts-->
+	<script type="text/javascript" src="js/knockout-3.3.0.js"></script>
+	<script src="js/main.js"></script>
+</body>
+
 </html>
