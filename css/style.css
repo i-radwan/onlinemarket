@@ -30,17 +30,6 @@ body {
 	padding-bottom: 160px;
 }
 
-footer {
-	background: rgba(240, 239, 239, 0.46);
-	text-align: center;
-	position: absolute;
-	bottom: 0;
-	width: 100%;
-	border-top: 40px solid #fff;
-	height: 160px;
-}
-
-
 /* Header  */
 
 header {
@@ -347,3 +336,13 @@ header {
 
 
 /*	Footer   */
+
+footer {
+	background: rgba(240, 239, 239, 0.46);
+	text-align: center;
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	border-top: 40px solid #fff;
+	height: 160px;
+}
