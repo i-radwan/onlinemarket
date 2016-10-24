@@ -5,7 +5,7 @@
 	<meta charset="UTF-8">
 	<title>OMarket</title>
 	<link href="css/font-awesome/css/font-awesome.min.css" rel="stylesheet">
-	<link href="https://fonts.googleapis.com/css?family=Comfortaa|News+Cycle|Raleway" rel="stylesheet">
+	<!--	<link href="https://fonts.googleapis.com/css?family=Comfortaa|News+Cycle|Raleway" rel="stylesheet">-->
 	<link href="css/style.css" rel="stylesheet">
 
 	<script src="js/jquery.min.js"></script>
@@ -14,7 +14,7 @@
 <body>
 	<div class="container">
 
-		<header>
+		<header id="header" params="cartAmount: cartAmount">
 			<div class="header-leftside">
 				<h1 class="header-title"><a href="#" class="header-title-link"><span class="header-title-O">O</span><span class="header-title-Market">Market</span></a></h1>
 			</div>
@@ -35,12 +35,16 @@
 				</div>
 			</div>
 		</header>
-		<div id="content" class="content">
-			<section class="left-menu" id="left-menu">
+		<content id="content" class="content">
+
+		</content>
+	</div>
+	<template id="main-page-content">
+		<left-menu class="left-menu" id="left-menu">
 				<ul class="left-menu--list" data-bind="foreach: categoriesArray">
-					<li class="left-menu--listitem" data-bind="text: name, css:{'selected': $data.selected()}, click: categoryClick"></li>
+					<li class="left-menu--listitem" data-bind="text: name, css:{'selected': $data.selected()}, click: $parent.categoryClick"></li>
 				</ul>
-			</section>
+			</left-menu>
 			<section class="main-content" id="main-content" data-bind="foreach: topCategoriesArray">
 				<div class="category-items-short">
 					<a href="#" class="category-items-short--title" data-bind="text: name"></a>
@@ -71,11 +75,9 @@
 					</div>
 				</div>
 			</section>
-		</div>
-
-	</div>
+	</template>
 	<!--Scripts-->
-	<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/knockout/knockout-3.3.0.js"></script>
+	<script type="text/javascript" src="js/knockout-3.3.0.js"></script>
 	<script src="js/main.js"></script>
 </body>
 

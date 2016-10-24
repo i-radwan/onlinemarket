@@ -35,7 +35,8 @@ function productModel(product) {
 var onlineMarketMVVM;
 
 
-function leftMenuViewModel() {
+function leftMenuViewModel(params) {
+	var self = this;
 
 	self.categoriesArray = [];
 	/**
@@ -54,7 +55,7 @@ function leftMenuViewModel() {
 	 */
 	self.categoryClick = function (item, event) {
 		//Reset all categories to not selected
-		categoriesArray.forEach(function (category, index) {
+		self.categoriesArray.forEach(function (category, index) {
 			category.selected(false);
 		});
 		item.selected(true);
@@ -81,8 +82,7 @@ function topCategoriesViewModel() {
 	}();
 }
 
-function productViewModel() {
-
+function productViewModel(params) {
 	/**
 	 * This function handles product load more click
 	 * @param {object} item  clicked category
@@ -102,9 +102,10 @@ function productViewModel() {
 	}
 }
 
-function headerViewModel(self) {
+function headerViewModel(params) {
+	var self = this;
 
-	self.cartAmount = ko.observable(0.0);
+	self.cartAmount = params.cartAmount;
 
 	self.checkIfSignedIn = function () {
 		// should check the localstorage
@@ -114,10 +115,27 @@ function headerViewModel(self) {
 
 function onlineMarketViewModel() {
 	var self = this;
+	self.cartAmount = ko.observable(0.0);
+	
+	ko.components.register('left-menu', {
+		template: {
+			element: 'left-menu'
+		},
+		viewModel: leftMenuViewModel
+	});
 
-	self.leftMenuMVVM = new leftMenuViewModel(self);
-
-	self.headerMVVM = new headerViewModel(self);
+	ko.components.register('header', {
+		template: {
+			element: 'header'
+		},
+		viewModel: headerViewModel
+	});
+	
+	ko.components.register('content', {
+		template: {
+			element: 'main-page-content'
+		}
+	});
 
 	self.topCategoriesMVVM = new topCategoriesViewModel(self);
 
@@ -256,7 +274,7 @@ function getCategoryTopProducts(categoryID) {
 			name: "IPhone 6S",
 			price: 500,
 			rate: 4.5,
-			image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/IPhone_7_Jet_Black.svg/2000px-IPhone_7_Jet_Black.svg.png",
+			image: "img/img.png",
 			more: [
 				{
 					name: "Origin",
@@ -269,7 +287,7 @@ function getCategoryTopProducts(categoryID) {
 			name: "IPhone 6S",
 			price: 200,
 			rate: 4.6,
-			image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/IPhone_7_Jet_Black.svg/2000px-IPhone_7_Jet_Black.svg.png",
+			image: "img/img.png",
 			more: [
 				{
 					name: "Origin",
@@ -287,7 +305,7 @@ function getCategoryTopProducts(categoryID) {
 			name: "IPhone 6S",
 			price: 500,
 			rate: 4.5,
-			image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/IPhone_7_Jet_Black.svg/2000px-IPhone_7_Jet_Black.svg.png",
+			image: "img/img.png",
 			more: [
 				{
 					name: "Origin",
