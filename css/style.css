@@ -357,17 +357,17 @@ header {
 /*	Footer   */
 
 footer {
-	background: rgba(240, 239, 239, 0.46);
+/*	background: rgba(240, 239, 239, 0.46);*/
 	text-align: center;
 	position: absolute;
 	bottom: 0;
 	width: 100%;
-	border-top: 40px solid #fff;
-	height: 200px;
-	padding-bottom: 20px;
-	padding-top: 10px;
-	background: rgb(68, 68, 68);
-	color: #fff;
+	border-top: 20px solid #fff;
+	height: 90px;
+	color: rgb(68, 68, 68);
+	-webkit-box-shadow: 0 -4px 14px -7px #4a4a9d;
+	-moz-box-shadow: 0 -4px 14px -7px #4a4a9d;
+	box-shadow: 0 -4px 14px -7px #4a4a9d;
 }
 
 .bio {
