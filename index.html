@@ -41,12 +41,12 @@
 	</div>
 	<!--Templates-->
 	<template id="main-page-content">
-         <left-menu class="left-menu" id="left-menu">
+         <left-menu class="left-menu" id="left-menu" params="categoryID: $parent.categoryID">
             <ul class="left-menu--list" data-bind="foreach: categoriesArray">
                <li class="left-menu--listitem" data-bind="text: name, css:{'selected': $data.selected()}, click: $parent.categoryClick"></li>
             </ul>
          </left-menu>
-         <top-categories id="top-categories">
+         <products id="products" params="products: $parent.products, categoryID: $parent.categoryID">
             <section class="main-content" id="main-content" data-bind="foreach: topCategoriesArray">
                <div class="category-items-short">
                   <a href="#" class="category-items-short--title" data-bind="text: name"></a>
@@ -55,7 +55,7 @@
                   </div>
                </div>
             </section>
-         </top-categories>
+         </products>
       </template>
 	<template id="single-product-view">
          <div>

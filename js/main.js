@@ -10,6 +10,7 @@ const TOP_CATEGOIRES_COUNT = 4; // The number of top categories to be shown in t
 
 function categoryModel(category) {
 	var self = this;
+	self.id = category.id;
 	self.name = category.name;
 	if (category.products) {
 		self.products = category.products;
@@ -47,6 +48,11 @@ function leftMenuViewModel(params) {
 		getCategoriesArray().forEach(function (category) {
 			self.categoriesArray.push(new categoryModel(category));
 		});
+
+		// Notify the shouter
+		params.categoryID.subscribe(function (newValue) {
+			shouter.notifySubscribers(newValue, "changedCategoryID");
+		});
 	}();
 	/**
 	 * This function handles category item click
@@ -59,27 +65,54 @@ function leftMenuViewModel(params) {
 			category.selected(false);
 		});
 		item.selected(true);
+		params.categoryID(item.id);
+
 	};
+
+
 }
 
 function topCategoriesViewModel(params) {
 	var self = this;
-	self.topCategoriesArray = [];
+
+	self.topCategoriesArray = ko.observableArray(); // make observable
 	/**
 		This function initializes the categoriesArray
 	*/
 	self.init = function () {
-		// Get top categories and top produdcts in every category from the API and add them to array
-		var topCategories = getTopCategories(TOP_CATEGOIRES_COUNT);
+		if (params.categoryID() == 0) {
+			// Get top categories and top produdcts in every category from the API and add them to array
+			var topCategories = getTopCategories(TOP_CATEGOIRES_COUNT);
 
-		topCategories.forEach(function (topCategory) {
-			var topProducts = getCategoryProducts(0, 3);
-			topProducts.forEach(function (topProduct) {
-				topCategory.products.push(new productModel(topProduct));
+			topCategories.forEach(function (topCategory) {
+				var topProducts = getCategoryProducts(0, 3);
+				topProducts.forEach(function (topProduct) {
+					topCategory.products.push(new productModel(topProduct));
+				});
+				self.topCategoriesArray.push(new categoryModel(topCategory));
 			});
-			self.topCategoriesArray.push(new categoryModel(topCategory));
-		});
+		} else {
+			self.changeProductsViewContent(params.categoryID());
+		}
+		// handle categoryID changed from the leftpanel module
+		shouter.subscribe(function (newCategoryID) {
+			params.categoryID(newCategoryID);
+			self.changeProductsViewContent(params.categoryID());
+		}, self, "changedCategoryID");
 	}();
+
+	self.changeProductsViewContent = function (categoryID) {
+		var category = {};
+		category.id = categoryID;
+		category.name = getCategoryName(categoryID);
+		category.products = [];
+		var products = getCategoryProducts(categoryID, 0);
+		products.forEach(function (product) {
+			category.products.push(new productModel(product));
+		});
+		self.topCategoriesArray.removeAll();
+		self.topCategoriesArray.push(new categoryModel(category));
+	}
 }
 
 function productViewModel(params) {
@@ -118,6 +151,8 @@ function headerViewModel(params) {
 function onlineMarketViewModel() {
 	var self = this;
 	self.cartAmount = ko.observable(0.0);
+	self.products = ko.observableArray();
+	self.categoryID = ko.observable(0); // when zero, get top products, else get specific category products
 
 	ko.components.register('left-menu', {
 		template: {
@@ -146,17 +181,19 @@ function onlineMarketViewModel() {
 		viewModel: productViewModel
 	});
 
-	ko.components.register('top-categories', {
+	ko.components.register('products', {
 		template: {
-			element: 'top-categories'
+			element: 'products'
 		},
 		viewModel: topCategoriesViewModel
 
 	});
+	// Testing purpose
 
-	//	self.topCategoriesMVVM = new topCategoriesViewModel(self);
 
-	//	self.productMVVM = new productViewModel(self);
+	self.retrieveCategoryProducts = function (categoryID) {
+		self.categoryID(categoryID);
+	}
 
 	self.increaseCartAmount = function (price) {
 		self.cartAmount(self.cartAmount() + price);
@@ -166,6 +203,7 @@ function onlineMarketViewModel() {
 // ==========================================================================================================
 /*	App  Logic	 */
 // ==========================================================================================================
+var shouter = new ko.subscribable();
 
 onlineMarketMVVM = new onlineMarketViewModel();
 ko.applyBindings(onlineMarketMVVM);
@@ -186,19 +224,19 @@ function getCategoriesArray() {
 			name: "Computers, IT & Networking"
 		},
 		{
-			id: 0,
+			id: 1,
 			name: "Mobile Phones, Tablets & Accessories"
 		},
 		{
-			id: 0,
+			id: 2,
 			name: "Car Electronics & Accessories"
 		},
 		{
-			id: 0,
+			id: 3,
 			name: "Books"
 		},
 		{
-			id: 0,
+			id: 4,
 			name: "Gaming"
 		},
 		{
@@ -259,25 +297,35 @@ function getTopCategories(count) {
 			id: 0,
 			name: "Computers, IT & Networking",
 			products: []
-		},
+			},
 		{
 			id: 0,
 			name: "Mobile Phones, Tablets & Accessories",
 			products: []
-		},
+			},
 		{
 			id: 0,
 			name: "Books",
 			products: []
-		},
+			},
 		{
 			id: 0,
 			name: "Furniture",
 			products: []
-		}
-	];
+			}
+		];
+	//	return [
+	//		{
+	//			id: 0,
+	//			name: "Computers, IT & Networking",
+	//			products: []
+	//		}
+	//	];
 }
 
+function getCategoryName(categoryID) {
+	return "Computers, IT & Networking2";
+}
 /**
  * This function gets top products of the required id
  * @param   {number} categoryID required category id to get its top products
@@ -285,50 +333,165 @@ function getTopCategories(count) {
  */
 function getCategoryProducts(categoryID, limit) {
 	//dummy data till the API is ready
-	return [
-		{
-			id: 0,
-			name: "IPhone 6S",
-			price: 500,
-			rate: 4.5,
-			image: "img/img.png",
-			more: [
-				{
-					name: "Origin",
-					value: "Apple"
+
+	if (categoryID == 0) {
+		return [
+			{
+				id: 0,
+				name: "IPhone 6S",
+				price: 500,
+				rate: 4.5,
+				image: "img/img.png",
+				more: [
+					{
+						name: "Origin",
+						value: "Apple"
+					}
+				]
+			},
+			{
+				id: 0,
+				name: "IPhone 6S",
+				price: 200,
+				rate: 4.6,
+				image: "img/img.png",
+				more: [
+					{
+						name: "Origin",
+						value: "Apple"
+					},
+					{
+						name: "Sold items",
+						value: "100"
+					}
+				]
+
+			},
+			{
+				id: 0,
+				name: "IPhone 6S",
+				price: 500,
+				rate: 4.5,
+				image: "img/img.png",
+				more: [
+					{
+						name: "Origin",
+						value: "Apple"
+					}
+				]
+			}
+		];
+	} else {
+		return [
+			{
+				id: 0,
+				name: "IPhone 6S",
+				price: 500,
+				rate: 4.5,
+				image: "img/img.png",
+				more: [
+					{
+						name: "Origin",
+						value: "Apple"
 				}
 			]
 		},
-		{
-			id: 0,
-			name: "IPhone 6S",
-			price: 200,
-			rate: 4.6,
-			image: "img/img.png",
-			more: [
-				{
-					name: "Origin",
-					value: "Apple"
+			{
+				id: 0,
+				name: "IPhone 6S",
+				price: 200,
+				rate: 4.6,
+				image: "img/img.png",
+				more: [
+					{
+						name: "Origin",
+						value: "Apple"
 				},
-				{
-					name: "Sold items",
-					value: "100"
+					{
+						name: "Sold items",
+						value: "100"
 				}
 			]
 
 		},
-		{
-			id: 0,
-			name: "IPhone 6S",
-			price: 500,
-			rate: 4.5,
-			image: "img/img.png",
-			more: [
-				{
-					name: "Origin",
-					value: "Apple"
+			{
+				id: 0,
+				name: "IPhone 6S",
+				price: 500,
+				rate: 4.5,
+				image: "img/img.png",
+				more: [
+					{
+						name: "Origin",
+						value: "Apple"
+				}
+			]
+		},
+			{
+				id: 0,
+				name: "IPhone 6S",
+				price: 500,
+				rate: 4.5,
+				image: "img/img.png",
+				more: [
+					{
+						name: "Origin",
+						value: "Apple"
+				}
+			]
+		},
+			{
+				id: 0,
+				name: "IPhone 6S",
+				price: 500,
+				rate: 4.5,
+				image: "img/img.png",
+				more: [
+					{
+						name: "Origin",
+						value: "Apple"
+				}
+			]
+		},
+			{
+				id: 0,
+				name: "IPhone 6S",
+				price: 500,
+				rate: 4.5,
+				image: "img/img.png",
+				more: [
+					{
+						name: "Origin",
+						value: "Apple"
+				}
+			]
+		},
+			{
+				id: 0,
+				name: "IPhone 6S",
+				price: 500,
+				rate: 4.5,
+				image: "img/img.png",
+				more: [
+					{
+						name: "Origin",
+						value: "Apple"
+				}
+			]
+		},
+			{
+				id: 0,
+				name: "IPhone 6S",
+				price: 500,
+				rate: 4.5,
+				image: "img/img.png",
+				more: [
+					{
+						name: "Origin",
+						value: "Apple"
 				}
 			]
 		}
 	];
+	}
 }

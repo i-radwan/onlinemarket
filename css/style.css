@@ -30,6 +30,7 @@ body {
 	padding-bottom: 160px;
 }
 
+
 /* Header  */
 
 header {
@@ -332,6 +333,19 @@ header {
 
 .categories-single-item--buy:hover {
 	background: #866d08;
+}
+
+
+/*	Category Products  */
+
+.main-products-container {
+	padding: 0 15px;
+	width: 100%;
+	border: 1px solid rgba(198, 196, 196, 0.66);
+	min-height: 400px;
+	border-radius: 20px;
+	position: relative;
+	margin-top: 20px;
 }
 
 
