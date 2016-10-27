@@ -26,6 +26,7 @@ function productModel(product) {
 	self.rate = product.rate;
 	self.image = product.image;
 	self.more = product.more || [];
+	self.quantity = ko.observable(product.quantity || 1);
 	self.isMoreDivVisible = ko.observable(false);
 }
 
@@ -82,7 +83,7 @@ function leftMenuViewModel(params) {
 	}
 }
 
-function topCategoriesViewModel(params) {
+function productsCollectionViewModel(params) {
 	var self = this;
 	self.topCategoriesArray = ko.observableArray(); // make observable
 
@@ -126,12 +127,52 @@ function topCategoriesViewModel(params) {
 		}, self, "changedCategoryID");
 	}();
 
+	self.expandCategory = function (item) {
+		sammyApp.setLocation('#/' + item.id);
+	}
+
+}
+
+function cartProductsViewModel(params) {
+	var self = this;
+	self.cartProductsArray = ko.observableArray(); // make observable
+	/**
+		This function initializes the categoriesArray
+	*/
+	self.init = function () {
+		var cartProducts = getCartProducts();
+		cartProducts.forEach(function (product) {
+			product.quantity = 1;
+			self.cartProductsArray.push(new productModel(product));
+		});
+	}();
+
+	self.cancelProduct = function (product) {
+		if (confirm("Do you want to remove this product for sure ?")) {
+			self.cartProductsArray.remove(product.params);
+			return true;
+		}
+	}
+
+	shouter.subscribe(function (newProduct) {
+		var added = false;
+		ko.utils.arrayForEach(self.cartProductsArray(), function (product, index) {
+			if (newProduct.id == product.id) {
+				product.quantity(product.quantity() + 1);
+				added = true;
+			}
+		});
+		if (!added) {
+			self.cartProductsArray.push(newProduct);
+		}
+	}, self, "addProductToCart");
 
 }
 
 function productViewModel(params) {
 	var self = this;
 	self.params = params.value;
+	self.params.cart = params.cart;
 	/**
 	 * This function handles product load more click
 	 * @param {object} item  clicked category
@@ -146,9 +187,24 @@ function productViewModel(params) {
 	 * @param {object} item  clicked category
 	 * @param {object} event click event
 	 */
-	self.addToCart = function () {
-		onlineMarketMVVM.increaseCartAmount(self.params.price);
+	self.addToCart = function (product) {
+		onlineMarketMVVM.increaseCartAmount(product.params.price);
+		shouter.notifySubscribers(product.params, "addProductToCart");
 	}
+
+	self.increaseQuantity = function () {
+		// ToDo check if available
+		self.params.quantity(self.params.quantity() + 1);
+		return true;
+
+	}
+	self.decreaseQuantity = function () {
+		if (self.params.quantity() > 1) {
+			self.params.quantity(self.params.quantity() - 1);
+			return true;
+		}
+	}
+
 }
 
 function headerViewModel(params) {
@@ -177,12 +233,12 @@ function headerViewModel(params) {
 function onlineMarketViewModel() {
 	var self = this;
 	self.cartAmount = ko.observable(0.0);
-	self.products = ko.observableArray();
 	self.categoryID = ko.observable(0); // when zero, get top products, else get specific category products
 	self.isMainContentVisible = ko.observable(true);
 	self.isCartVisible = ko.observable(false);
 	self.isProfileVisible = ko.observable(false);
 
+	// Register main-view components
 	ko.components.register('left-menu', {
 		template: {
 			element: 'left-menu'
@@ -214,15 +270,24 @@ function onlineMarketViewModel() {
 		template: {
 			element: 'products'
 		},
-		viewModel: topCategoriesViewModel
-
+		viewModel: productsCollectionViewModel
 	});
 
+	// Register cart components
+
+	ko.components.register('cart', {
+		template: {
+			element: 'cart-page-content'
+		},
+		viewModel: cartProductsViewModel
+	});
+
+	// Utils functions
 	self.increaseCartAmount = function (price) {
 		self.cartAmount(self.cartAmount() + price);
 	}
 
-	self.changeContentVisibility = function(isCartVisible, isMainContentVisible, isProfileVisible) {
+	self.changeContentVisibility = function (isCartVisible, isMainContentVisible, isProfileVisible) {
 		onlineMarketMVVM.isCartVisible(isCartVisible);
 		onlineMarketMVVM.isMainContentVisible(isMainContentVisible);
 		onlineMarketMVVM.isProfileVisible(isProfileVisible);
@@ -359,22 +424,22 @@ function getTopCategories(count) {
 	//dummy data till the API is ready
 	return [
 		{
-			id: 0,
+			id: 1,
 			name: "Computers, IT & Networking",
 			products: []
 			},
 		{
-			id: 0,
+			id: 2,
 			name: "Mobile Phones, Tablets & Accessories",
 			products: []
 			},
 		{
-			id: 0,
+			id: 3,
 			name: "Books",
 			products: []
 			},
 		{
-			id: 0,
+			id: 10,
 			name: "Furniture",
 			products: []
 			}
@@ -400,9 +465,10 @@ function getCategoryProducts(categoryID, limit) {
 	//dummy data till the API is ready
 	// return top items by categoryID and satisfy limits
 	if (categoryID == 0) {
+
 		return [
 			{
-				id: 0,
+				id: 1,
 				name: "IPhone 6S",
 				price: 500,
 				rate: 4.5,
@@ -415,8 +481,8 @@ function getCategoryProducts(categoryID, limit) {
 				]
 			},
 			{
-				id: 0,
-				name: "IPhone 6S",
+				id: 2,
+				name: "IPhone 4S",
 				price: 200,
 				rate: 4.6,
 				image: "img/img.png",
@@ -433,9 +499,9 @@ function getCategoryProducts(categoryID, limit) {
 
 			},
 			{
-				id: 0,
-				name: "IPhone 6S",
-				price: 500,
+				id: 3,
+				name: "IPhone 3S",
+				price: 100,
 				rate: 4.5,
 				image: "img/img.png",
 				more: [
@@ -559,4 +625,142 @@ function getCategoryProducts(categoryID, limit) {
 		}
 	];
 	}
+}
+
+function getCartProducts() {
+	return [];
+	return [
+		{
+			id: 0,
+			name: "IPhone 1",
+			price: 500,
+			rate: 4.5,
+			image: "img/img.png",
+			more: [
+				{
+					name: "Origin",
+					value: "Apple"
+					}
+				]
+			},
+		{
+			id: 0,
+			name: "IPhone 1S",
+			price: 200,
+			rate: 4.6,
+			image: "img/img.png",
+			more: [
+				{
+					name: "Origin",
+					value: "Apple"
+					},
+				{
+					name: "Sold items",
+					value: "100"
+					}
+				]
+
+			},
+		{
+			id: 0,
+			name: "IPhone 2",
+			price: 500,
+			rate: 4.5,
+			image: "img/img.png",
+			more: [
+				{
+					name: "Origin",
+					value: "Apple"
+					}
+				]
+			},
+		{
+			id: 0,
+			name: "IPhone 2S",
+			price: 500,
+			rate: 4.5,
+			image: "img/img.png",
+			more: [
+				{
+					name: "Origin",
+					value: "Apple"
+					}
+				]
+			},
+		{
+			id: 0,
+			name: "IPhone 3",
+			price: 200,
+			rate: 4.6,
+			image: "img/img.png",
+			more: [
+				{
+					name: "Origin",
+					value: "Apple"
+					},
+				{
+					name: "Sold items",
+					value: "100"
+					}
+				]
+
+			},
+		{
+			id: 0,
+			name: "IPhone 3S",
+			price: 500,
+			rate: 4.5,
+			image: "img/img.png",
+			more: [
+				{
+					name: "Origin",
+					value: "Apple"
+					}
+				]
+			},
+		{
+			id: 0,
+			name: "IPhone 4",
+			price: 500,
+			rate: 4.5,
+			image: "img/img.png",
+			more: [
+				{
+					name: "Origin",
+					value: "Apple"
+					}
+				]
+			},
+		{
+			id: 0,
+			name: "IPhone 4S",
+			price: 200,
+			rate: 4.6,
+			image: "img/img.png",
+			more: [
+				{
+					name: "Origin",
+					value: "Apple"
+					},
+				{
+					name: "Sold items",
+					value: "100"
+					}
+				]
+
+			},
+		{
+			id: 0,
+			name: "IPhone 5",
+			price: 500,
+			rate: 4.5,
+			image: "img/img.png",
+			more: [
+				{
+					name: "Origin",
+					value: "Apple"
+					}
+				]
+			}
+		];
 }

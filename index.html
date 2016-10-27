@@ -22,8 +22,8 @@
 				</div>
 				<div class="header-links" data-bind="if: checkIfSignedIn()">
 					<a class="header-cart" data-bind="click: cartClicked"><span class="header-cartamount"><span data-bind="text:cartAmount()"  ></span> $</span>
-                  	<i class="fa fa-shopping-cart header-carticon" aria-hidden="true"></i>
-                  </a>
+                            <i class="fa fa-shopping-cart header-carticon" aria-hidden="true"></i>
+                        </a>
 					<a class="header-username" data-bind="click: profileClicked"><span>Ibrahim</span></a>
 					<a href="#" class="header-logout"><span>Logout</span></a>
 				</div>
@@ -35,9 +35,11 @@
 
 		<content id="content" class="content" data-bind="visible: isMainContentVisible">
 		</content>
-		<cart data-bind="visible: isCartVisible">CART</cart>
+		<cart data-bind="visible: isCartVisible">
+
+		</cart>
 		<profile data-bind="visible: isProfileVisible">PROFILE</profile>
-		
+
 		<footer>
 			<p class="copy">All copyrights are reserved, OMarket ® 2016</p>
 			<p class="devby">Developed by CMP-2019</p>
@@ -45,48 +47,73 @@
 
 	</div>
 	<!--Templates-->
-	<template id="cart-page-content">CART</template>
+	<template id="cart-page-content">
+        <cart-products id="cart-products">
+            <div class="category-items-short cart-items-short">
+                <a class="category-items-short--title">Cart</a>
+				<p class="no-items" data-bind="if: !cartProductsArray().length">No Items</p>
+                <div class="categories-items-container" data-bind="foreach: cartProductsArray">
+                    <product-container class="categories-single-item categories-single-cartitem" params="value: $data, cart: true"></product-container>
+                </div>
+            </div>
+            <div style="width: 100%; text-align:center;">
+				<button data-bind="visible: cartProductsArray().length" class="cart-checkout">Checkout <span data-bind="text: $parent.cartAmount()"></span> $</button>
+			</div>
+        </cart-products>
+    </template>
 	<template id="profile-page-content">PROFILE</template>
 	<template id="main-page-content">
-         <left-menu class="left-menu" id="left-menu" params="categoryID: $parent.categoryID">
+        <left-menu class="left-menu" id="left-menu" params="categoryID: $parent.categoryID">
             <ul class="left-menu--list" data-bind="foreach: categoriesArray">
-               <li class="left-menu--listitem" data-bind="text: name, css:{'selected': $data.selected()}, click: $parent.categoryClick"></li>
+                <li class="left-menu--listitem" data-bind="text: name, css:{'selected': $data.selected()}, click: $parent.categoryClick"></li>
             </ul>
-         </left-menu>
-         <products id="products" params="products: $parent.products, categoryID: $parent.categoryID">
-            <section class="main-content" id="main-content" data-bind="foreach: topCategoriesArray">
-               <div class="category-items-short">
-                  <a href="#" class="category-items-short--title" data-bind="text: name"></a>
-                  <div class="categories-items-container" data-bind="foreach: products">
-					  <product-container  class="categories-single-item" params="value: $data"></product-container>
-                  </div>
-               </div>
+        </left-menu>
+        <products id="products" params="categoryID: $parent.categoryID">
+            <section class="main-content" data-bind="foreach: topCategoriesArray">
+                <div class="category-items-short">
+                    <a class="category-items-short--title" data-bind="text: name, click: $parent.expandCategory"></a>
+                    <p class="no-items" data-bind="if: !$data.products.length">No Items</p>
+					<div class="categories-items-container" data-bind="foreach: products">
+                        <product-container  class="categories-single-item" params="value: $data, cart:false"></product-container>
+                    </div>
+                </div>
             </section>
-         </products>
-      </template>
+        </products>
+    </template>
 	<template id="single-product-view">
-         <div>
+        <div>
             <h2 class="categories-single-item--title" data-bind="text: params.name"></h2>
             <img class="categories-single-item--img" data-bind="attr:{src: params.image}">
             <div class="categories-single-item--visible-details">
-               <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Price:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params.price"></span>$</span>
-               </p>
-               <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Rate:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params.rate"></span>/5</span>
-               </p>
+                <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Price:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params.price"></span>$</span>
+                </p>
+                <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Rate:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params.rate"></span>/5</span>
+                </p>
             </div>
             <div class="categories-single-item--load-more" data-bind="click: loadMoreClick, visible: !params.isMoreDivVisible()">
-               <i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i> <span class="categories-single-item--load-more--text">more</span>
-               <i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i>
+                <i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i> <span class="categories-single-item--load-more--text">more</span>
+                <i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i>
             </div>
             <div data-bind="foreach: params.more, visible:params.isMoreDivVisible()">
-               <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key"><span data-bind="text:name"></span>:</strong><span class="categories-single-item--visible-details--spec--val" data-bind="text:value"></span>
-               </p>
+                <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key"><span data-bind="text:name"></span>:</strong><span class="categories-single-item--visible-details--spec--val" data-bind="text:value"></span>
+                </p>
             </div>
             <div class="categories-single-item--invisible-details"></div>
-            <button class="categories-single-item--buy" data-bind="click:addToCart">Add to Cart</button>
-         </div>
-         </div>
-      </template>
+            <div data-bind="if: !params.cart">
+                <button class="categories-single-item--buy" data-bind="click:addToCart">Add to Cart</button>
+            </div>
+            <div data-bind="if: params.cart">
+				<div data-bind="css:{'cart-single-item--buy': params.cart}" class="categories-single-item--buy" >
+					<i class="fa fa-minus cart-button-icon" data-bind="click: function(){if(decreaseQuantity())$parents[2].increaseCartAmount(-params.price);}"></i>
+					<span class="cart-button-text">Quantity: <span data-bind="text: params.quantity"></span></span>
+					<i class="fa fa-plus cart-button-icon"  data-bind="click: function(){if(increaseQuantity())$parents[2].increaseCartAmount(params.price);}"></i>
+
+				</div>
+				<p data-bind="click: function(){if($parents[1].cancelProduct($data))$parents[2].increaseCartAmount(-params.price * params.quantity());}" class="cart-cancel-product">cancel</p>
+        	</div>
+        </div>
+    </div>
+</template>
 	<!--Scripts-->
 	<script type="text/javascript" src="js/jquery.min.js"></script>
 	<script type="text/javascript" src="js/knockout-3.3.0.js"></script>
