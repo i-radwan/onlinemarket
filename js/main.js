@@ -48,11 +48,6 @@ function leftMenuViewModel(params) {
 		getCategoriesArray().forEach(function (category) {
 			self.categoriesArray.push(new categoryModel(category));
 		});
-
-		// Notify the shouter
-		params.categoryID.subscribe(function (newValue) {
-			shouter.notifySubscribers(newValue, "changedCategoryID");
-		});
 	}();
 	/**
 	 * This function handles category item click
@@ -60,27 +55,41 @@ function leftMenuViewModel(params) {
 	 * @param {object} event click event
 	 */
 	self.categoryClick = function (item, event) {
+		sammyApp.setLocation('#/' + item.id);
+	};
+
+	shouter.subscribe(function (newCategoryID) {
+		if (newCategoryID == 0) {
+			self.selectOneCategory(null);
+		} else {
+			self.categoriesArray.forEach(function (category, index) {
+				if (category.id == newCategoryID) {
+
+					self.selectOneCategory(category);
+					params.categoryID(category.id);
+				}
+			});
+		}
+	}, self, "changedCategoryID");
+
+	self.selectOneCategory = function (item) {
 		//Reset all categories to not selected
 		self.categoriesArray.forEach(function (category, index) {
 			category.selected(false);
 		});
-		item.selected(true);
-		params.categoryID(item.id);
-
-	};
-
-
+		if (item != null)
+			item.selected(true);
+	}
 }
 
 function topCategoriesViewModel(params) {
 	var self = this;
-
 	self.topCategoriesArray = ko.observableArray(); // make observable
-	/**
-		This function initializes the categoriesArray
-	*/
-	self.init = function () {
-		if (params.categoryID() == 0) {
+
+	self.changeProductsViewContent = function (categoryID) {
+		self.topCategoriesArray.removeAll();
+
+		if (categoryID == 0) {
 			// Get top categories and top produdcts in every category from the API and add them to array
 			var topCategories = getTopCategories(TOP_CATEGOIRES_COUNT);
 
@@ -92,27 +101,32 @@ function topCategoriesViewModel(params) {
 				self.topCategoriesArray.push(new categoryModel(topCategory));
 			});
 		} else {
-			self.changeProductsViewContent(params.categoryID());
+			var category = {};
+			category.id = categoryID;
+			category.name = getCategoryName(categoryID);
+			category.products = [];
+			var products = getCategoryProducts(categoryID, 0);
+			products.forEach(function (product) {
+				category.products.push(new productModel(product));
+			});
+			self.topCategoriesArray.push(new categoryModel(category));
 		}
+	}
+
+	/**
+		This function initializes the categoriesArray
+	*/
+	self.init = function () {
+		self.changeProductsViewContent(params.categoryID());
 		// handle categoryID changed from the leftpanel module
 		shouter.subscribe(function (newCategoryID) {
+			// ToDo: if categoryID not found-> back to zero
 			params.categoryID(newCategoryID);
 			self.changeProductsViewContent(params.categoryID());
 		}, self, "changedCategoryID");
 	}();
 
-	self.changeProductsViewContent = function (categoryID) {
-		var category = {};
-		category.id = categoryID;
-		category.name = getCategoryName(categoryID);
-		category.products = [];
-		var products = getCategoryProducts(categoryID, 0);
-		products.forEach(function (product) {
-			category.products.push(new productModel(product));
-		});
-		self.topCategoriesArray.removeAll();
-		self.topCategoriesArray.push(new categoryModel(category));
-	}
+
 }
 
 function productViewModel(params) {
@@ -146,6 +160,18 @@ function headerViewModel(params) {
 		// should check the localstorage
 		return true;
 	}
+
+	self.cartClicked = function () {
+		sammyApp.setLocation('#/cart');
+	}
+
+	self.profileClicked = function () {
+		sammyApp.setLocation('#/profile');
+	}
+
+	self.logoClicked = function () {
+		sammyApp.setLocation('#/');
+	}
 }
 
 function onlineMarketViewModel() {
@@ -153,6 +179,9 @@ function onlineMarketViewModel() {
 	self.cartAmount = ko.observable(0.0);
 	self.products = ko.observableArray();
 	self.categoryID = ko.observable(0); // when zero, get top products, else get specific category products
+	self.isMainContentVisible = ko.observable(true);
+	self.isCartVisible = ko.observable(false);
+	self.isProfileVisible = ko.observable(false);
 
 	ko.components.register('left-menu', {
 		template: {
@@ -188,15 +217,15 @@ function onlineMarketViewModel() {
 		viewModel: topCategoriesViewModel
 
 	});
-	// Testing purpose
-
-
-	self.retrieveCategoryProducts = function (categoryID) {
-		self.categoryID(categoryID);
-	}
 
 	self.increaseCartAmount = function (price) {
 		self.cartAmount(self.cartAmount() + price);
+	}
+
+	self.changeContentVisibility = function(isCartVisible, isMainContentVisible, isProfileVisible) {
+		onlineMarketMVVM.isCartVisible(isCartVisible);
+		onlineMarketMVVM.isMainContentVisible(isMainContentVisible);
+		onlineMarketMVVM.isProfileVisible(isProfileVisible);
 	}
 }
 
@@ -205,8 +234,44 @@ function onlineMarketViewModel() {
 // ==========================================================================================================
 var shouter = new ko.subscribable();
 
+
 onlineMarketMVVM = new onlineMarketViewModel();
 ko.applyBindings(onlineMarketMVVM);
+
+
+// Routing
+var sammyApp;
+(function ($) {
+
+	sammyApp = $.sammy('#content', function () {
+		this.get('#/', function (context) {
+			onlineMarketMVVM.changeContentVisibility(false, true, false);
+			shouter.notifySubscribers('0', "changedCategoryID");
+		});
+		this.get('#/cart', function (context) {
+			onlineMarketMVVM.changeContentVisibility(true, false, false);
+		});
+		this.get('#/profile', function (context) {
+			onlineMarketMVVM.changeContentVisibility(false, false, true);
+		});
+		this.get('#/:categoryID', function (context) {
+			onlineMarketMVVM.changeContentVisibility(false, true, false);
+
+			var self = this;
+			setTimeout(function () {
+				shouter.notifySubscribers(self.params['categoryID'], "changedCategoryID");
+			}, 50);
+		});
+
+	});
+
+
+	$(function () {
+		sammyApp.run('#/');
+	});
+
+
+})(jQuery);
 
 // ==========================================================================================================
 /*	API	Requests */
@@ -220,67 +285,67 @@ function getCategoriesArray() {
 	//dummy data till the API is ready
 	return [
 		{
-			id: 0,
+			id: 1,
 			name: "Computers, IT & Networking"
 		},
 		{
-			id: 1,
+			id: 2,
 			name: "Mobile Phones, Tablets & Accessories"
 		},
 		{
-			id: 2,
+			id: 3,
 			name: "Car Electronics & Accessories"
 		},
 		{
-			id: 3,
+			id: 4,
 			name: "Books"
 		},
 		{
-			id: 4,
+			id: 5,
 			name: "Gaming"
 		},
 		{
-			id: 0,
+			id: 6,
 			name: "Electronic"
 		},
 		{
-			id: 0,
+			id: 7,
 			name: "Sports & Fitness"
 		},
 		{
-			id: 0,
+			id: 8,
 			name: "Perfumes & Fragrances"
 		},
 		{
-			id: 0,
+			id: 9,
 			name: "Health & Personal Care"
 		},
 		{
-			id: 0,
+			id: 10,
 			name: "Furniture"
 		},
 		{
-			id: 0,
+			id: 11,
 			name: "Apparel, Shoes & Accessories"
 		},
 		{
-			id: 0,
+			id: 12,
 			name: "Appliances"
 		},
 		{
-			id: 0,
+			id: 13,
 			name: "Art, Crafts & Collectables"
 		},
 		{
-			id: 0,
+			id: 14,
 			name: "Baby"
 		},
 		{
-			id: 0,
+			id: 15,
 			name: "Kitchen & Home Supplies"
 		},
 		{
-			id: 0,
+			id: 16,
 			name: "Toys"
 		}
 	];
@@ -333,7 +398,7 @@ function getCategoryName(categoryID) {
  */
 function getCategoryProducts(categoryID, limit) {
 	//dummy data till the API is ready
-
+	// return top items by categoryID and satisfy limits
 	if (categoryID == 0) {
 		return [
 			{

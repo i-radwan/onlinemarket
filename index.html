@@ -14,17 +14,17 @@
 	<div class="container">
 		<header id="header" params="cartAmount: cartAmount">
 			<div class="header-leftside">
-				<h1 class="header-title"><a href="#" class="header-title-link"><span class="header-title-O">O</span><span class="header-title-Market">Market</span></a></h1>
+				<h1 class="header-title"><a  data-bind="click: logoClicked" class="header-title-link"><span class="header-title-O">O</span><span class="header-title-Market">Market</span></a></h1>
 			</div>
 			<div class="header-rightside">
 				<div class="header-links" data-bind="if: !checkIfSignedIn()">
 					<a href="#" class="header-links--login">Login</a>, <a href="#" class="header-links--signup">Sign up</a>
 				</div>
 				<div class="header-links" data-bind="if: checkIfSignedIn()">
-					<a href="#" class="header-cart"><span class="header-cartamount"><span data-bind="text:cartAmount()"  ></span> $</span>
-                  <i class="fa fa-shopping-cart header-carticon" aria-hidden="true"></i>
+					<a class="header-cart" data-bind="click: cartClicked"><span class="header-cartamount"><span data-bind="text:cartAmount()"  ></span> $</span>
+                  	<i class="fa fa-shopping-cart header-carticon" aria-hidden="true"></i>
                   </a>
-					<a href="#" class="header-username"><span>Ibrahim</span></a>
+					<a class="header-username" data-bind="click: profileClicked"><span>Ibrahim</span></a>
 					<a href="#" class="header-logout"><span>Logout</span></a>
 				</div>
 				<div class="header-search"><input placeholder="Search..." type="text" class="header-search-input">
@@ -32,22 +32,21 @@
 				</div>
 			</div>
 		</header>
-		<content id="content" class="content">
+
+		<content id="content" class="content" data-bind="visible: isMainContentVisible">
 		</content>
+		<cart data-bind="visible: isCartVisible">CART</cart>
+		<profile data-bind="visible: isProfileVisible">PROFILE</profile>
+		
 		<footer>
-<!--
-			<p class="bio"><strong></strong>is simple web market that allows users from all over the world to order any products, and get them shipped directly to their doorstep. OMarket makes it even easier by simplifying the user interface while keeping into account the great provided user experience</p>
-			<div class="clearfloat"></div>
--->
-
 			<p class="copy">All copyrights are reserved, OMarket ® 2016</p>
-
 			<p class="devby">Developed by CMP-2019</p>
-
 		</footer>
 
 	</div>
 	<!--Templates-->
+	<template id="cart-page-content">CART</template>
+	<template id="profile-page-content">PROFILE</template>
 	<template id="main-page-content">
          <left-menu class="left-menu" id="left-menu" params="categoryID: $parent.categoryID">
             <ul class="left-menu--list" data-bind="foreach: categoriesArray">
@@ -89,7 +88,9 @@
          </div>
       </template>
 	<!--Scripts-->
+	<script type="text/javascript" src="js/jquery.min.js"></script>
 	<script type="text/javascript" src="js/knockout-3.3.0.js"></script>
+	<script type="text/javascript" src="js/sammy-latest.min.js"></script>
 	<script src="js/main.js"></script>
 </body>
 
