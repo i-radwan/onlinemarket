@@ -54,7 +54,7 @@
                 </div>
             </div>
             <div style="width: 100%; text-align:center;">
-                <button data-bind="visible: cartProductsArray().length" class="cart-checkout">Checkout <span data-bind="text: $parent.cartAmount()"></span> $</button>
+                <button data-bind="visible: cartProductsArray().length, click: function(){ $data.checkoutOrder();$parent.cartAmount(0);}" class="cart-checkout">Checkout <span data-bind="text: $parent.cartAmount()"></span> $</button>
             </div>
         </cart-products>
     </template>
@@ -101,7 +101,7 @@
 			<p><strong>Total</strong>: <span data-bind="text: params.cost"></span>$</p>
 		</div>
 		<div class="order-actions">
-			<p><strong>Total Items</strong>: <span data-bind="text: params.products.length"></span></p>
+			<p><strong>Total Items</strong>: <span data-bind="text: params.totalItemsCount"></span></p>
 			<p><strong>Status</strong>: <span data-bind="text: params.status"></span></p>
 			<span class="order-cancel" data-bind="if: params.status == 'Pending'">cancel</span>
 		</div>
@@ -122,7 +122,7 @@
             <div class="categories-single-item--visible-details">
                 <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Price:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params.price"></span>$</span>
                 </p>
-                 <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Quantity:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params.quantity"></span></span>
+                <p class="categories-single-item--visible-details--spec" data-bind="if: params.order"><strong class="categories-single-item--visible-details--spec--key">Quantity:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params.quantity()"></span></span>
                 </p>
                 <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Rate:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params.rate"></span>/5</span>
                 </p>

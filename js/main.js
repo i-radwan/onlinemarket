@@ -164,6 +164,19 @@ function cartProductsViewModel(params) {
 		}
 	}
 
+	self.checkoutOrder = function () {
+		if (confirm("Are you sure, the amount will be withdrawed from your CC ?")) {
+			console.log(self.cartProductsArray());
+			var cartProducts = [];
+			ko.utils.arrayForEach(self.cartProductsArray(), function (product, index) {
+				product.quantity = product.quantity();
+				cartProducts.push(product);
+			});
+			shouter.notifySubscribers(cartProducts, "addOrder");
+			self.cartProductsArray.removeAll();
+		}
+	}
+
 	shouter.subscribe(function (newProduct) {
 		var added = false;
 		ko.utils.arrayForEach(self.cartProductsArray(), function (product, index) {
@@ -176,7 +189,6 @@ function cartProductsViewModel(params) {
 			self.cartProductsArray.push(newProduct);
 		}
 	}, self, "addProductToCart");
-
 }
 
 function productViewModel(params) {
@@ -185,10 +197,10 @@ function productViewModel(params) {
 	self.params.cart = params.cart;
 	self.params.order = params.order;
 	self.params.userRate = ko.observable(getUserRate(self.params.id));
-	
-	self.params.formattedRate = ko.computed(function(){
-        return (self.params.userRate()).toFixed(1);
-    });
+
+	self.params.formattedRate = ko.computed(function () {
+		return (self.params.userRate()).toFixed(1);
+	});
 	/**
 	 * This function handles product load more click
 	 * @param {object} item  clicked category
@@ -247,6 +259,20 @@ function profileViewModel(params) {
 			self.ordersArray.push(new orderModel(order));
 		});
 	}();
+
+	shouter.subscribe(function (products) {
+		// ToDo to be retrieved from API
+		var order = {};
+		order.id = 4;
+		order.date = "2016-10-28";
+		order.cost = onlineMarketMVVM.cartAmount();
+		order.status = "Delivered"; // ToDo pending
+		order.products = products;
+		self.ordersArray.push(new orderModel(order));
+		console.log(products, order, new orderModel(order));
+		alert("Order added successfully!");
+		sammyApp.setLocation("#/profile");
+	}, self, "addOrder");
 }
 
 function orderViewModel(params) {
@@ -254,12 +280,15 @@ function orderViewModel(params) {
 	self.params = params.value;
 	self.params.cart = params.cart;
 	self.params.productsArray = [];
+	self.params.totalItemsCount = 0;
+
 	self.loadMoreClick = function (item, event) {
 		self.params.isMoreDivVisible(!self.params.isMoreDivVisible());
 	}
 	self.init = function () {
 		var products = self.params.products;
 		products.forEach(function (product) {
+			self.params.totalItemsCount += product.quantity;
 			self.params.productsArray.push(new productModel(product));
 		});
 	}();
@@ -425,7 +454,7 @@ function getUserRate(productID) {
 	if (true) {
 		return 4.5;
 	} else {
-//		return avg_rate;
+		//		return avg_rate;
 	}
 }
 
