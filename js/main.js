@@ -143,6 +143,17 @@ function productsCollectionViewModel(params) {
 
 }
 
+function searchProductsViewModel(params) {
+	var self = this;
+	self.params = params.value;
+	self.params.searchWord = params.searchWord;
+	self.searchProductsArray = ko.observableArray();
+	self.init = function () {
+		console.log(self.params.searchWord());
+		//		var products = getSearchProducts(self.params.searchWord())
+	}();
+}
+
 function cartProductsViewModel(params) {
 	var self = this;
 	self.cartProductsArray = ko.observableArray(); // make observable
@@ -166,7 +177,6 @@ function cartProductsViewModel(params) {
 
 	self.checkoutOrder = function () {
 		if (confirm("Are you sure, the amount will be withdrawed from your CC ?")) {
-			console.log(self.cartProductsArray());
 			var cartProducts = [];
 			ko.utils.arrayForEach(self.cartProductsArray(), function (product, index) {
 				product.quantity = product.quantity();
@@ -253,6 +263,8 @@ function productViewModel(params) {
 function profileViewModel(params) {
 	var self = this;
 	self.ordersArray = ko.observableArray();
+	self.userModel = getUserModel();
+
 	self.init = function () {
 		var orders = getUserOrders();
 		orders.forEach(function (order) {
@@ -260,16 +272,24 @@ function profileViewModel(params) {
 		});
 	}();
 
+	self.saveProfile = function () {
+		// ToDo save profile using API
+		console.log(self.userModel.address());
+		console.log(self.userModel.ccmonth());
+		console.log(self.userModel.ccyear());
+		console.log(self.userModel.ccnumber());
+		console.log(self.userModel.currentPass());
+		console.log(self.userModel.newPass());
+	}
 	shouter.subscribe(function (products) {
 		// ToDo to be retrieved from API
 		var order = {};
 		order.id = 4;
 		order.date = "2016-10-28";
 		order.cost = onlineMarketMVVM.cartAmount();
-		order.status = "Delivered"; // ToDo pending
+		order.status = "Pending";
 		order.products = products;
 		self.ordersArray.push(new orderModel(order));
-		console.log(products, order, new orderModel(order));
 		alert("Order added successfully!");
 		sammyApp.setLocation("#/profile");
 	}, self, "addOrder");
@@ -324,6 +344,9 @@ function onlineMarketViewModel() {
 	self.isMainContentVisible = ko.observable(true);
 	self.isCartVisible = ko.observable(false);
 	self.isProfileVisible = ko.observable(false);
+	self.isSearchVisible = ko.observable(false);
+	self.searchWord = ko.observable("");
+	self.tmpSearchWord = ko.observable("");
 
 	// Register main-view components
 	ko.components.register('left-menu', {
@@ -384,15 +407,26 @@ function onlineMarketViewModel() {
 		viewModel: orderViewModel
 	});
 
+
+	// Register search components
+
+	ko.components.register('search', {
+		template: {
+			element: 'search-page-content'
+		},
+		viewModel: searchProductsViewModel
+	});
+
 	// Utils functions
 	self.increaseCartAmount = function (price) {
 		self.cartAmount(self.cartAmount() + price);
 	}
 
-	self.changeContentVisibility = function (isCartVisible, isMainContentVisible, isProfileVisible) {
+	self.changeContentVisibility = function (isCartVisible, isMainContentVisible, isProfileVisible, isSearchVisible) {
 		onlineMarketMVVM.isCartVisible(isCartVisible);
 		onlineMarketMVVM.isMainContentVisible(isMainContentVisible);
 		onlineMarketMVVM.isProfileVisible(isProfileVisible);
+		onlineMarketMVVM.isSearchVisible(isSearchVisible);
 	}
 }
 
@@ -412,17 +446,20 @@ var sammyApp;
 
 	sammyApp = $.sammy('#content', function () {
 		this.get('#/', function (context) {
-			onlineMarketMVVM.changeContentVisibility(false, true, false);
+			onlineMarketMVVM.changeContentVisibility(false, true, false, false);
 			shouter.notifySubscribers('0', "changedCategoryID");
 		});
 		this.get('#/cart', function (context) {
-			onlineMarketMVVM.changeContentVisibility(true, false, false);
+			onlineMarketMVVM.changeContentVisibility(true, false, false, false);
 		});
 		this.get('#/profile', function (context) {
-			onlineMarketMVVM.changeContentVisibility(false, false, true);
+			onlineMarketMVVM.changeContentVisibility(false, false, true, false);
+		});
+		this.get('#/search', function (context) {
+			onlineMarketMVVM.changeContentVisibility(false, false, false, true);
 		});
 		this.get('#/:categoryID', function (context) {
-			onlineMarketMVVM.changeContentVisibility(false, true, false);
+			onlineMarketMVVM.changeContentVisibility(false, true, false, false);
 
 			var self = this;
 			setTimeout(function () {
@@ -443,7 +480,21 @@ var sammyApp;
 // ==========================================================================================================
 /*	API	Requests */
 // ==========================================================================================================
-
+/**
+ * This function returns the user model
+ * @returns {object} user model
+ */
+function getUserModel() {
+	var user = {};
+	user.address = ko.observable("Permanent Address Thomas Nolan Kaszas II 5322 Otter Lane Middleberge FL 32068");
+	user.ccnumber = ko.observable("512xxxxx241");
+	user.ccmonth = ko.observable(10);
+	user.ccyear = ko.observable(2016);
+	user.currentPass = ko.observable("");
+	user.newPass = ko.observable("");
+	user.changePass = ko.observable(false);
+	return user;
+}
 /**
  * This function returns the user rate for specific product
  * @param   {number} productID product_id to search for

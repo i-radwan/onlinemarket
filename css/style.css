@@ -509,6 +509,144 @@ header {
 }
 
 
+/*	Account   */
+
+.account-details {
+	font-family: 'Raleway', helvetica;
+	padding: 20px;
+	text-align: center;
+	max-width: 530px;
+	margin: 0 auto;
+	overflow: auto;
+}
+
+.account-div {
+	margin-top: 30px;
+	width: 100%;
+	text-align: center;
+	display: inline-block;
+}
+
+.account-addresstext,
+.account-cctext,
+.account-expdate,
+.account-passtext {
+	display: inline-block;
+	margin: 0;
+	float: left;
+	text-align: left;
+	width: 130px;
+}
+
+.account-addresstextarea {
+	display: inline-block;
+	width: 350px;
+	height: 100px;
+	resize: none;
+}
+
+.account-ccinput {
+	width: 350px;
+}
+
+.account-dateinputs {
+	text-align: left;
+}
+
+.account-yearinput {
+	width: 90px;
+	margin-left: 5px;
+}
+
+.account-monthinput {
+	width: 50px;
+}
+
+.account-expdate,
+.account-passtext {}
+
+.account-editpasstext {
+	margin: 0;
+	padding: 0;
+}
+
+.account-currentpassinput,
+.account-newpassinput {
+	width: 350px;
+}
+
+.account-save {
+	margin-top: 20px;
+}
+
+.account-editpasstext {
+	cursor: pointer;
+}
+
+.account-editpasstext:hover {
+	text-decoration: underline;
+}
+
+.account-details p {
+	padding: 8px;
+}
+
+.account-details input,
+textarea {
+	font-size: 13px;
+	padding: 8px;
+	outline: 0 none;
+	border: 1px solid rgba(178, 167, 167, 0.28);
+	border-radius: 5px;
+	font-family: 'Raleway', helvetica;
+	transition: 0.5s;
+}
+
+.account-details input:focus,
+textarea:focus {
+	box-shadow: 0 0 5px rgba(81, 203, 238, 1);
+	border: 1px solid rgba(81, 203, 238, 1);
+	transition: 0.5s;
+}
+
+
+/*
+
+
+.account-expdate,
+.account-cctext {
+	margin-left: 20px;
+}
+
+.account-expdate {
+	margin-top: 10px;
+}
+
+.account-div-right {}
+
+
+/*
+  <div class="category-items-short cart-items-short">
+            <a class="category-items-short--title">Account</a>
+			<div class="account-details">
+				<div class="account-div">		
+					<p>Address </p><textarea value="Address"></textarea><br>
+				</div>
+				<div class="account-div">
+				<p>Credit Card: </p><input type="text" value="51xxxxxx421"><br>
+				<p>Expiry Date: </p><input type="text" value="2018"> <input type="text" value="10"><br>
+
+				</div>
+				<div class="account-editpass"><p class="account-editpasstext">edit password</p><input type="password" placeholder="Enter your NEW password..." class="account-newpassinput account-input"></div>
+				<div class="account-currentpass"><input type="password" placeholder="Enter your CURRENT password..." class="account-currentpassinput account-input"></div>
+				<div class="account-save"><button class="cart-checkout">Save</button></div>
+			</div>
+        </div>
+    </template>
+	<template id="main-pa
+*/
+
+
 /*	Footer   */
 
 footer {
