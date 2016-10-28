@@ -255,7 +255,7 @@ function orderViewModel(params) {
 	self.params.cart = params.cart;
 	self.params.productsArray = [];
 	self.loadMoreClick = function (item, event) {
-		self.params.isMoreDivVisible(true);
+		self.params.isMoreDivVisible(!self.params.isMoreDivVisible());
 	}
 	self.init = function () {
 		var products = self.params.products;
@@ -543,7 +543,7 @@ function getUserOrders() {
 			id: 3,
 			date: "2016-08-13",
 			cost: 1300,
-			status: "Shipped",
+			status: "Delivered",
 			products: [{
 					id: 1,
 					name: "IPhone 6S",

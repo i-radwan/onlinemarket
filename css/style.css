@@ -441,11 +441,13 @@ header {
 	display: inline-block;
 	float: left;
 }
+
 .order-thumb img {
 	max-width: 100%;
 	max-height: 300px;
 	padding: 20px;
 }
+
 .order-details {
 	padding: 20px;
 	float: left;
@@ -483,19 +485,30 @@ header {
 	text-decoration: underline;
 }
 
-.order-more{
+.order-more {
 	clear: both;
 	text-align: center;
 	margin-bottom: 10px;
 	margin-top: 10px;
 }
 
-.order-single-item--quantity{
+.order-single-item--quantity {
 	cursor: default;
 }
-.order-single-item--quantity:hover{
+
+.order-single-item--quantity:hover {
 	background: #bc9a0f;
 }
+
+.fa-arrow-down-upsidedown {
+	-webkit-transform: rotate(180deg);
+	-moz-transform: rotate(180deg);
+	-o-transform: rotate(180deg);
+	-ms-transform: rotate(180deg);
+	transform: rotate(180deg);
+}
+
+
 /*	Footer   */
 
 footer {
