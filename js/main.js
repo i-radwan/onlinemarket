@@ -30,6 +30,16 @@ function productModel(product) {
 	self.isMoreDivVisible = ko.observable(false);
 }
 
+function orderModel(order) {
+	var self = this;
+	self.id = order.id;
+	self.date = order.date;
+	self.cost = order.cost;
+	self.status = order.status;
+	self.products = order.products;
+	self.isMoreDivVisible = ko.observable(false);
+}
+
 // ==========================================================================================================
 /*	View Models	 */
 // ==========================================================================================================
@@ -173,12 +183,15 @@ function productViewModel(params) {
 	var self = this;
 	self.params = params.value;
 	self.params.cart = params.cart;
+	self.params.order = params.order;
+
 	/**
 	 * This function handles product load more click
 	 * @param {object} item  clicked category
 	 * @param {object} event click event
 	 */
 	self.loadMoreClick = function (item, event) {
+		console.log(self.params);
 		self.params.isMoreDivVisible(true);
 	}
 
@@ -205,6 +218,33 @@ function productViewModel(params) {
 		}
 	}
 
+}
+
+function profileViewModel(params) {
+	var self = this;
+	self.ordersArray = ko.observableArray();
+	self.init = function () {
+		var orders = getUserOrders();
+		orders.forEach(function (order) {
+			self.ordersArray.push(new orderModel(order));
+		});
+	}();
+}
+
+function orderViewModel(params) {
+	var self = this;
+	self.params = params.value;
+	self.params.cart = params.cart;
+	self.params.productsArray = [];
+	self.loadMoreClick = function (item, event) {
+		self.params.isMoreDivVisible(true);
+	}
+	self.init = function () {
+		var products = self.params.products;
+		products.forEach(function (product) {
+			self.params.productsArray.push(new productModel(product));
+		});
+	}();
 }
 
 function headerViewModel(params) {
@@ -281,6 +321,21 @@ function onlineMarketViewModel() {
 		},
 		viewModel: cartProductsViewModel
 	});
+	// Register profile components
+
+	ko.components.register('profile', {
+		template: {
+			element: 'profile-page-content'
+		},
+		viewModel: profileViewModel
+	});
+
+	ko.components.register('order-container', {
+		template: {
+			element: 'single-order-view'
+		},
+		viewModel: orderViewModel
+	});
 
 	// Utils functions
 	self.increaseCartAmount = function (price) {
@@ -341,6 +396,171 @@ var sammyApp;
 // ==========================================================================================================
 /*	API	Requests */
 // ==========================================================================================================
+
+/**
+ * This function returns user orders
+ * @returns {Array} user orders
+ */
+function getUserOrders() {
+	return [{
+			id: 1,
+			date: "2016-08-10",
+			cost: 1200,
+			status: "Pending",
+			products: [{
+					id: 1,
+					name: "IPhone 6S",
+					price: 500,
+					rate: 4.5,
+					image: "img/img.png",
+					quantity: 10,
+					more: [
+						{
+							name: "Origin",
+							value: "Apple"
+					}
+				]
+			},
+				{
+					id: 2,
+					name: "IPhone 4S",
+					price: 200,
+					rate: 4.6,
+					image: "img/img.png",
+					quantity: 20,
+					more: [
+						{
+							name: "Origin",
+							value: "Apple"
+					},
+						{
+							name: "Sold items",
+							value: "100"
+					}
+				]
+
+			},
+				{
+					id: 3,
+					name: "IPhone 3S",
+					price: 100,
+					rate: 4.5,
+					image: "img/img.png",
+					quantity: 30,
+					more: [
+						{
+							name: "Origin",
+							value: "Apple"
+					}
+				]
+			}]
+	}, {
+			id: 2,
+			date: "2016-08-12",
+			cost: 1000,
+			status: "Picked",
+			products: [{
+					id: 1,
+					name: "IPhone 6S",
+					price: 500,
+					rate: 4.5,
+					image: "img/img.png",
+					quantity: 10,
+					more: [
+						{
+							name: "Origin",
+							value: "Apple"
+					}
+				]
+			},
+				{
+					id: 2,
+					name: "IPhone 4S",
+					price: 200,
+					rate: 4.6,
+					image: "img/img.png",
+					quantity: 20,
+					more: [
+						{
+							name: "Origin",
+							value: "Apple"
+					},
+						{
+							name: "Sold items",
+							value: "100"
+					}
+				]
+
+			},
+				{
+					id: 3,
+					name: "IPhone 3S",
+					price: 100,
+					rate: 4.5,
+					image: "img/img.png",
+					quantity: 30,
+					more: [
+						{
+							name: "Origin",
+							value: "Apple"
+					}
+				]
+			}]
+	},
+		{
+			id: 3,
+			date: "2016-08-13",
+			cost: 1300,
+			status: "Shipped",
+			products: [{
+					id: 1,
+					name: "IPhone 6S",
+					price: 500,
+					rate: 4.5,
+					image: "img/img.png",
+					quantity: 10,
+					more: [
+						{
+							name: "Origin",
+							value: "Apple"
+					}
+				]
+			},
+				{
+					id: 2,
+					name: "IPhone 4S",
+					price: 200,
+					rate: 4.6,
+					image: "img/img.png",
+					quantity: 20,
+					more: [
+						{
+							name: "Origin",
+							value: "Apple"
+					},
+						{
+							name: "Sold items",
+							value: "100"
+					}
+				]
+
+			},
+				{
+					id: 3,
+					name: "IPhone 3S",
+					price: 100,
+					rate: 4.5,
+					image: "img/img.png",
+					quantity: 30,
+					more: [
+						{
+							name: "Origin",
+							value: "Apple"
+					}
+				]
+			}]
+	}];
+}
 
 /**
  * This function retrieves all the the categories from the server
@@ -444,15 +664,13 @@ function getTopCategories(count) {
 			products: []
 			}
 		];
-	//	return [
-	//		{
-	//			id: 0,
-	//			name: "Computers, IT & Networking",
-	//			products: []
-	//		}
-	//	];
 }
 
+/**
+ * This function returns the category name using its ID (from the array of categories)
+ * @param   {number} categoryID required category 
+ * @returns {string} category name
+ */
 function getCategoryName(categoryID) {
 	return "Computers, IT & Networking2";
 }
@@ -627,6 +845,10 @@ function getCategoryProducts(categoryID, limit) {
 	}
 }
 
+/**
+ * This function returns the user current cart products
+ * @returns {Array} cart products
+ */
 function getCartProducts() {
 	return [];
 	return [

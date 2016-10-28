@@ -426,6 +426,76 @@ header {
 }
 
 
+/*	Profile   */
+
+.order-single-item {
+	display: block;
+	width: 100%;
+	margin: 20px;
+	box-shadow: 0px 0px 5px #888888;
+	font-family: 'Raleway', helvetica;
+}
+
+.order-thumb {
+	width: 10%;
+	display: inline-block;
+	float: left;
+}
+.order-thumb img {
+	max-width: 100%;
+	max-height: 300px;
+	padding: 20px;
+}
+.order-details {
+	padding: 20px;
+	float: left;
+	width: 39%;
+	display: inline-block;
+}
+
+.order-actions {
+	padding: 20px;
+	float: right;
+	text-align: right;
+	width: 39%;
+	display: inline-block;
+}
+
+.order-loadmore {
+	clear: both;
+	float: none;
+	text-align: center;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	background: rgb(250, 250, 250);
+	cursor: pointer;
+}
+
+.order-loadmore:hover {
+	background: rgb(245, 245, 245);
+}
+
+.order-cancel {
+	cursor: pointer;
+}
+
+.order-cancel:hover {
+	text-decoration: underline;
+}
+
+.order-more{
+	clear: both;
+	text-align: center;
+	margin-bottom: 10px;
+	margin-top: 10px;
+}
+
+.order-single-item--quantity{
+	cursor: default;
+}
+.order-single-item--quantity:hover{
+	background: #bc9a0f;
+}
 /*	Footer   */
 
 footer {
