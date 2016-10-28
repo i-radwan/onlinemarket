@@ -184,14 +184,17 @@ function productViewModel(params) {
 	self.params = params.value;
 	self.params.cart = params.cart;
 	self.params.order = params.order;
-
+	self.params.userRate = ko.observable(getUserRate(self.params.id));
+	
+	self.params.formattedRate = ko.computed(function(){
+        return (self.params.userRate()).toFixed(1);
+    });
 	/**
 	 * This function handles product load more click
 	 * @param {object} item  clicked category
 	 * @param {object} event click event
 	 */
 	self.loadMoreClick = function (item, event) {
-		console.log(self.params);
 		self.params.isMoreDivVisible(true);
 	}
 
@@ -218,6 +221,21 @@ function productViewModel(params) {
 		}
 	}
 
+
+	self.increaseRate = function () {
+		if (self.params.userRate() + 0.5 <= 5) {
+			self.params.userRate(self.params.userRate() + 0.5);
+			return true;
+		}
+		return false;
+	}
+	self.decreaseRate = function () {
+		if (self.params.userRate() - 0.5 >= 0) {
+			self.params.userRate(self.params.userRate() - 0.5);
+			return true;
+		}
+		return false;
+	}
 }
 
 function profileViewModel(params) {
@@ -396,6 +414,20 @@ var sammyApp;
 // ==========================================================================================================
 /*	API	Requests */
 // ==========================================================================================================
+
+/**
+ * This function returns the user rate for specific product
+ * @param   {number} productID product_id to search for
+ * @returns {number} user rate for this product
+ */
+function getUserRate(productID) {
+	// ToDo fetch from API
+	if (true) {
+		return 4.5;
+	} else {
+//		return avg_rate;
+	}
+}
 
 /**
  * This function returns user orders
