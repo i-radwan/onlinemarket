@@ -150,7 +150,10 @@ function searchProductsViewModel(params) {
 	self.searchProductsArray = ko.observableArray();
 	self.init = function () {
 		console.log(self.params.searchWord());
-		//		var products = getSearchProducts(self.params.searchWord())
+		var products = getSearchProducts(self.params.searchWord());
+		products.forEach(function (product) {
+			self.searchProductsArray.push(new productModel(product));
+		});
 	}();
 }
 
@@ -184,7 +187,9 @@ function cartProductsViewModel(params) {
 			});
 			shouter.notifySubscribers(cartProducts, "addOrder");
 			self.cartProductsArray.removeAll();
+			return true;
 		}
+		return false;
 	}
 
 	shouter.subscribe(function (newProduct) {
@@ -480,6 +485,63 @@ var sammyApp;
 // ==========================================================================================================
 /*	API	Requests */
 // ==========================================================================================================
+
+/**
+ * This function returns the products that match the search word
+ * @param   {string} searchWord search text word
+ * @returns {Array}  products that match the search word
+ */
+function getSearchProducts(searchWord) {
+	// ToDo get from API
+	return [{
+			id: 1,
+			name: "IPhone 6S",
+			price: 500,
+			rate: 4.5,
+			image: "img/img.png",
+			quantity: 10,
+			more: [
+				{
+					name: "Origin",
+					value: "Apple"
+					}
+				]
+			},
+		{
+			id: 2,
+			name: "IPhone 4S",
+			price: 200,
+			rate: 4.6,
+			image: "img/img.png",
+			quantity: 20,
+			more: [
+				{
+					name: "Origin",
+					value: "Apple"
+					},
+				{
+					name: "Sold items",
+					value: "100"
+					}
+				]
+
+			},
+		{
+			id: 3,
+			name: "IPhone 3S",
+			price: 100,
+			rate: 4.5,
+			image: "img/img.png",
+			quantity: 30,
+			more: [
+				{
+					name: "Origin",
+					value: "Apple"
+					}
+				]
+			}];
+}
+
 /**
  * This function returns the user model
  * @returns {object} user model

@@ -28,7 +28,7 @@
                         <a href="#" class="header-logout"><span>Logout</span></a>
                     </div>
                     <div class="header-search"><input data-bind="textInput: $parent.tmpSearchWord" placeholder="Search..." type="text" class="header-search-input" >
-                        <a class="search-img" title="Search" data-bind="click: function(){ $parent.searchWord($parent.tmpSearchWord());sammyApp.setLocation('#/search');}"><img src="img/search-icon-nocolor.png"></a>
+                        <a class="search-img" title="Search" data-bind="click: function(){ if($parent.tmpSearchWord()){ $parent.searchWord($parent.tmpSearchWord());sammyApp.setLocation('#/search');}}"><img src="img/search-icon-nocolor.png"></a>
                     </div>
                 </div>
             </header>
@@ -64,7 +64,7 @@
                 </div>
             </div>
             <div style="width: 100%; text-align:center;">
-                <button data-bind="visible: cartProductsArray().length, click: function(){ $data.checkoutOrder();$parent.cartAmount(0);}" class="cart-checkout">Checkout <span data-bind="text: $parent.cartAmount()"></span> $</button>
+                <button data-bind="visible: cartProductsArray().length, click: function(){ if($data.checkoutOrder())$parent.cartAmount(0);}" class="cart-checkout">Checkout <span data-bind="text: $parent.cartAmount()"></span> $</button>
             </div>
         </cart-products>
     </template>
