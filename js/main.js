@@ -441,7 +441,7 @@ ko.applyBindings(onlineMarketMVVM);
 // Check for login
 function checkIfSignedIn() {
 	// should check the localstorage
-	return !true;
+	return true;
 }
 
 // Routing

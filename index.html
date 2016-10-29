@@ -18,7 +18,7 @@
                 </div>
                 <div class="header-rightside">
                     <div class="header-links" data-bind="if: !checkIfSignedIn()">
-                        <a href="#" class="header-links--login">Login</a>, <a href="#" class="header-links--signup">Sign up</a>
+                        <a href="login.html" class="header-links--login">Login</a>, <a href="login.html" class="header-links--signup">Sign up</a>
                     </div>
                     <div class="header-links" data-bind="if: checkIfSignedIn()">
                         <a class="header-cart" data-bind="click: cartClicked"><span class="header-cartamount"><span data-bind="text:cartAmount()"  ></span> $</span>
@@ -27,7 +27,7 @@
                         <a class="header-username" data-bind="click: profileClicked"><span>Ibrahim</span></a>
                         <a href="#" class="header-logout"><span>Logout</span></a>
                     </div>
-                    <div class="header-search"><input data-bind="textInput: $parent.tmpSearchWord" placeholder="Search..." type="text" class="header-search-input" >
+                    <div class="header-search"><input data-bind="textInput: $parent.tmpSearchWord" placeholder="Search..." type="text" class="header-search-input">
                         <a class="search-img" title="Search" data-bind="click: function(){ if($parent.tmpSearchWord()){ $parent.searchWord($parent.tmpSearchWord());sammyApp.setLocation('#/search');}}"><img src="img/search-icon-nocolor.png"></a>
                     </div>
                 </div>
@@ -86,27 +86,26 @@
                 </div>
                 <div class="account-div">
                     <p class="account-cctext">Credit Card: </p><input class="account-ccinput" type="text" value="51xxxxxx421" data-bind="textInput: userModel.ccnumber">
-
-                    <div class="account-div">
-                        <p class="account-expdate">Expiry Date: </p>
-                        <div class="account-dateinputs">
-                            <input type="number" max="2024" min="2016" class="account-yearinput"  data-bind="textInput: userModel.ccyear"><input type="number" max="12" min="1" class="account-monthinput" data-bind="textInput: userModel.ccmonth">
-                        </div>
-                        <div class="account-div">
-
-                            <div class="account-editpass"><p class="account-editpasstext" data-bind="visible: !userModel.changePass(), click: function(){userModel.changePass(!userModel.changePass());}">edit password</p>
-                            </div>
-                            <div class="account-div">
-                                <p class="account-passtext" data-bind="visible: userModel.changePass()">New Pass: </p>
-                                <input type="password" data-bind="visible: userModel.changePass(), textInput: userModel.newPass" placeholder="•••••••••••" class="account-newpassinput account-input">
-                            </div>
-                        </div>
-                        <div class="account-div">
-                            <div class="account-currentpass"><p class="account-passtext">Current Pass: </p><input type="password" data-bind="textInput: userModel.currentPass" placeholder="•••••••••••" class="account-currentpassinput account-input"></div>
-                        </div>
-                        <div class="account-save"><button class="cart-checkout account-save" data-bind="click: saveProfile">Save</button></div>
+                </div>
+                <div class="account-div">
+                    <p class="account-expdate">Expiry Date: </p>
+                    <div class="account-dateinputs">
+                        <input type="number" max="2024" min="2016" class="account-yearinput"  data-bind="textInput: userModel.ccyear"><input type="number" max="12" min="1" class="account-monthinput" data-bind="textInput: userModel.ccmonth">
                     </div>
                 </div>
+                <div class="account-div">
+
+                    <div class="account-editpass"><p class="account-editpasstext" data-bind="visible: !userModel.changePass(), click: function(){userModel.changePass(!userModel.changePass());}">edit password</p>
+                    </div>
+                    <div class="account-div" data-bind="visible: userModel.changePass()">
+                        <p class="account-passtext">New Pass: </p>
+                        <input type="password" data-bind="textInput: userModel.newPass" placeholder="•••••••••••" class="account-newpassinput account-input">
+                    </div>
+                </div>
+                <div class="account-div">
+                    <div class="account-currentpass"><p class="account-passtext">Current Pass: </p><input type="password" data-bind="textInput: userModel.currentPass" placeholder="•••••••••••" class="account-currentpassinput account-input"></div>
+                </div>
+                <div class="account-save"><button class="cart-checkout account-save" data-bind="click: saveProfile">Save</button></div>
             </div>
         </div>
     </template>

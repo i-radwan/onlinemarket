@@ -560,6 +560,7 @@ header {
 
 .account-monthinput {
 	width: 50px;
+	margin-left: 10px;
 }
 
 .account-expdate,
@@ -610,41 +611,118 @@ textarea:focus {
 }
 
 
-/*
+/*	LOGIN SECTION*/
 
-
-.account-expdate,
-.account-cctext {
-	margin-left: 20px;
+.login-container {
+	text-align: center;
+	position: relative;
 }
 
-.account-expdate {
-	margin-top: 10px;
+.login-container--contentarea {
+	background: rgba(255, 255, 255, 0.88);
+	display: inline-block;
+	padding: 30px;
+	margin-top: 28vh;
+	box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+	margin-bottom: 10px;
 }
 
-.account-div-right {}
+.login-container--icon {
+	background: #4a4a9d;
+	border-radius: 50%;
+	height: 60px;
+	width: 60px;
+	text-align: center;
+	position: absolute;
+	top: calc(28vh - 30px);
+	left: calc(50% - 30px);
+	-webkit-box-shadow: 0 -4px 6px -3px black;
+	-moz-box-shadow: 0 -4px 6px -3px black;
+	box-shadow: 0 -4px 6px -3px black;
+}
 
+.login-container--icon i {
+	color: #fff;
+	cursor: default;
+	margin-top: 18px;
+	font-size: 22px;
+}
 
-/*
-  <div class="category-items-short cart-items-short">
-            <a class="category-items-short--title">Account</a>
-			<div class="account-details">
-				<div class="account-div">		
-					<p>Address </p><textarea value="Address"></textarea><br>
-				</div>
-				<div class="account-div">
-				<p>Credit Card: </p><input type="text" value="51xxxxxx421"><br>
-				<p>Expiry Date: </p><input type="text" value="2018"> <input type="text" value="10"><br>
+.login-container--title {
+	text-align: center;
+	color: #533a3a;
+	font-family: 'News Cycle', sans-serif;
+	font-size: 45px;
+	margin-top: 15px;
+	margin-bottom: 15px;
+	font-weight: lighter;
+	cursor: default;
+}
 
-				</div>
-				<div class="account-editpass"><p class="account-editpasstext">edit password</p><input type="password" placeholder="Enter your NEW password..." class="account-newpassinput account-input"></div>
-				<div class="account-currentpass"><input type="password" placeholder="Enter your CURRENT password..." class="account-currentpassinput account-input"></div>
-				<div class="account-save"><button class="cart-checkout">Save</button></div>
-			</div>
-        </div>
-    </template>
-	<template id="main-pa
-*/
+.login-container--username,
+.login-container--password {
+	font-size: 13px;
+	padding: 10px 4px 10px 40px;
+	display: block;
+	margin: 10px auto;
+	width: 200px;
+	background: rgb(250, 254, 192);
+	outline: 0 none;
+	border: 1px solid rgba(178, 167, 167, 0.28);
+	border-radius: 5px;
+	font-family: 'Raleway', helvetica;
+	transition: 0.5s;
+}
+
+.login-container--username:focus,
+.login-container--password:focus {
+	box-shadow: 0 0 5px rgba(81, 203, 238, 1);
+	border: 1px solid rgba(81, 203, 238, 1);
+	transition: 0.5s;
+}
+
+.login-container--login-button {
+	display: block;
+	margin: 18px auto;
+	width: 120px;
+	border-radius: 5px;
+	background: #4a4a9d;
+	border: 0;
+	color: #fff;
+	font-size: 14px;
+	padding: 10px 0;
+	cursor: pointer;
+	transition: 0.3s;
+	font-family: 'Raleway', helvetica;
+}
+
+.login-container--login-button:hover {
+	background: rgb(49, 49, 121);
+	color: rgba(183, 244, 47, 1);
+}
+
+.login-container--msg {
+	margin: 0 auto;
+	font-family: 'Raleway', helvetica;
+	font-size: 12px;
+	color: #ad0606;
+	max-width: 200px;
+	word-wrap: break-word;
+	text-align: center;
+}
+
+.login-container--username-div,
+.login-container--pass-div {
+	position: relative;
+}
+
+.login-container--pass-icon,
+.login-container--user-icon {
+	position: absolute;
+	left: 10px;
+	top: 9px;
+	color: #4a4a9d;
+}
 
 
 /*	Footer   */
