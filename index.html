@@ -35,7 +35,7 @@
             <content id="content" class="content" data-bind="visible: isMainContentVisible"></content>
             <cart data-bind="visible: isCartVisible"></cart>
             <profile data-bind="visible: isProfileVisible"></profile>
-			<search data-bind="visible: isSearchVisible" params="searchWord: searchWord, value: $data"></search>
+            <search data-bind="visible: isSearchVisible" params="searchWord: searchWord, value: $data"></search>
             <footer>
                 <p class="copy">All copyrights are reserved, OMarket ® 2016</p>
                 <p class="devby">Developed by CMP-2019</p>
@@ -92,7 +92,6 @@
                         <div class="account-dateinputs">
                             <input type="number" max="2024" min="2016" class="account-yearinput"  data-bind="textInput: userModel.ccyear"><input type="number" max="12" min="1" class="account-monthinput" data-bind="textInput: userModel.ccmonth">
                         </div>
-
                         <div class="account-div">
 
                             <div class="account-editpass"><p class="account-editpasstext" data-bind="visible: !userModel.changePass(), click: function(){userModel.changePass(!userModel.changePass());}">edit password</p>
@@ -108,98 +107,100 @@
                         <div class="account-save"><button class="cart-checkout account-save" data-bind="click: saveProfile">Save</button></div>
                     </div>
                 </div>
-                </template>
-                <template id="main-page-content">
-                    <left-menu class="left-menu" id="left-menu" params="categoryID: $parent.categoryID">
-                        <ul class="left-menu--list" data-bind="foreach: categoriesArray">
-                            <li class="left-menu--listitem" data-bind="text: name, css:{'selected': $data.selected()}, click: $parent.categoryClick"></li>
-                        </ul>
-                    </left-menu>
-                    <products id="products" params="categoryID: $parent.categoryID">
-                        <section class="main-content" data-bind="foreach: topCategoriesArray">
-                            <div class="category-items-short">
-                                <a class="category-items-short--title" data-bind="text: name, click: $parent.expandCategory"></a>
-                                <p class="no-items" data-bind="if: !$data.products.length">No Products</p>
-                                <div class="categories-items-container" data-bind="foreach: products">
-                                    <product-container  class="categories-single-item" params="value: $data, cart:false"></product-container>
-                                </div>
-                            </div>
-                        </section>
-                    </products>
-                </template>
-                <template id="single-order-view">
-                    <div class="order-thumb">
-                        <img src="img/img.png">
+            </div>
+        </div>
+    </template>
+    <template id="main-page-content">
+        <left-menu class="left-menu" id="left-menu" params="categoryID: $parent.categoryID">
+            <ul class="left-menu--list" data-bind="foreach: categoriesArray">
+                <li class="left-menu--listitem" data-bind="text: name, css:{'selected': $data.selected()}, click: $parent.categoryClick"></li>
+            </ul>
+        </left-menu>
+        <products id="products" params="categoryID: $parent.categoryID">
+            <section class="main-content" data-bind="foreach: topCategoriesArray">
+                <div class="category-items-short">
+                    <a class="category-items-short--title" data-bind="text: name, click: $parent.expandCategory"></a>
+                    <p class="no-items" data-bind="if: !$data.products.length">No Products</p>
+                    <div class="categories-items-container" data-bind="foreach: products">
+                        <product-container  class="categories-single-item" params="value: $data, cart:false"></product-container>
                     </div>
-                    <div class="order-details">
-                        <p><strong>Order</strong>: #<span data-bind="text: params.id"></span></p>
-                        <p><strong>Date</strong>: <span data-bind="text: params.date"></span></p>
-                        <p><strong>Total</strong>: <span data-bind="text: params.cost"></span>$</p>
-                    </div>
-                    <div class="order-actions">
-                        <p><strong>Total Items</strong>: <span data-bind="text: params.totalItemsCount"></span></p>
-                        <p><strong>Status</strong>: <span data-bind="text: params.status"></span></p>
-                        <span class="order-cancel" data-bind="if: params.status == 'Pending'">cancel</span>
-                    </div>
+                </div>
+            </section>
+        </products>
+    </template>
+    <template id="single-order-view">
+        <div class="order-thumb">
+            <img src="img/img.png">
+        </div>
+        <div class="order-details">
+            <p><strong>Order</strong>: #<span data-bind="text: params.id"></span></p>
+            <p><strong>Date</strong>: <span data-bind="text: params.date"></span></p>
+            <p><strong>Total</strong>: <span data-bind="text: params.cost"></span>$</p>
+        </div>
+        <div class="order-actions">
+            <p><strong>Total Items</strong>: <span data-bind="text: params.totalItemsCount"></span></p>
+            <p><strong>Status</strong>: <span data-bind="text: params.status"></span></p>
+            <span class="order-cancel" data-bind="if: params.status == 'Pending'">cancel</span>
+        </div>
 
 
-                    <div class="order-more" data-bind="visible: params.isMoreDivVisible()">
-                        <div class="categories-items-container" data-bind="foreach: params.productsArray">
-                            <product-container  class="categories-single-item" params="value: $data, cart:false, order:true"></product-container>
-                        </div>
-                    </div>
+        <div class="order-more" data-bind="visible: params.isMoreDivVisible()">
+            <div class="categories-items-container" data-bind="foreach: params.productsArray">
+                <product-container  class="categories-single-item" params="value: $data, cart:false, order:true"></product-container>
+            </div>
+        </div>
 
-                    <div class="order-loadmore"  data-bind="click: loadMoreClick"><strong class="order-loadmore--link"><i class="fa fa-arrow-down categories-single-item--load-more--arrow" data-bind="css:{'fa-arrow-down-upsidedown': params.isMoreDivVisible()}" aria-hidden="true"></i> Load <span data-bind="text: !params.isMoreDivVisible() ? 'more':'less'">more</span> <i class="fa fa-arrow-down categories-single-item--load-more--arrow" data-bind="css:{'fa-arrow-down-upsidedown': params.isMoreDivVisible()}" aria-hidden="true"></i> </strong></div>
-                </template>
-                <template id="single-product-view">
-                    <div>
-                        <h2 class="categories-single-item--title" data-bind="text: params.name"></h2>
-                        <img class="categories-single-item--img" data-bind="attr:{src: params.image}">
-                        <div class="categories-single-item--visible-details">
-                            <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Price:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params.price"></span>$</span>
-                            </p>
-                            <p class="categories-single-item--visible-details--spec" data-bind="if: params.order"><strong class="categories-single-item--visible-details--spec--key">Quantity:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params.quantity()"></span></span>
-                            </p>
-                            <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Rate:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params.rate"></span>/5</span>
-                            </p>
-                        </div>
-                        <div class="categories-single-item--load-more" data-bind="click: loadMoreClick, visible: !params.isMoreDivVisible()">
-                            <i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i> <span class="categories-single-item--load-more--text">more</span>
-                            <i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i>
-                        </div>
-                        <div data-bind="foreach: params.more, visible:params.isMoreDivVisible">
-                            <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key"><span data-bind="text:name"></span>:</strong><span class="categories-single-item--visible-details--spec--val" data-bind="text:value"></span>
-                            </p>
-                        </div>
-                        <div class="categories-single-item--invisible-details"></div>
-                        <div data-bind="if: !params.cart && !params.order">
-                            <button class="categories-single-item--buy" data-bind="click:addToCart">Add to Cart</button>
-                        </div>
-                        <div data-bind="if: params.cart">
-                            <div data-bind="css:{'cart-single-item--buy': params.cart}" class="categories-single-item--buy" >
-                                <i class="fa fa-minus cart-button-icon" data-bind="click: function(){if(decreaseQuantity())$parents[2].increaseCartAmount(-params.price);}"></i>
-                                <span class="cart-button-text">Quantity: <span data-bind="text: params.quantity"></span></span>
-                                <i class="fa fa-plus cart-button-icon"  data-bind="click: function(){if(increaseQuantity())$parents[2].increaseCartAmount(params.price);}"></i>
+        <div class="order-loadmore"  data-bind="click: loadMoreClick"><strong class="order-loadmore--link"><i class="fa fa-arrow-down categories-single-item--load-more--arrow" data-bind="css:{'fa-arrow-down-upsidedown': params.isMoreDivVisible()}" aria-hidden="true"></i> Load <span data-bind="text: !params.isMoreDivVisible() ? 'more':'less'">more</span> <i class="fa fa-arrow-down categories-single-item--load-more--arrow" data-bind="css:{'fa-arrow-down-upsidedown': params.isMoreDivVisible()}" aria-hidden="true"></i> </strong></div>
+    </template>
+    <template id="single-product-view">
+        <div>
+            <h2 class="categories-single-item--title" data-bind="text: params.name"></h2>
+            <img class="categories-single-item--img" data-bind="attr:{src: params.image}">
+            <div class="categories-single-item--visible-details">
+                <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Price:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params.price"></span>$</span>
+                </p>
+                <p class="categories-single-item--visible-details--spec" data-bind="if: params.order"><strong class="categories-single-item--visible-details--spec--key">Quantity:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params.quantity()"></span></span>
+                </p>
+                <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Rate:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params.rate"></span>/5</span>
+                </p>
+            </div>
+            <div class="categories-single-item--load-more" data-bind="click: loadMoreClick, visible: !params.isMoreDivVisible()">
+                <i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i> <span class="categories-single-item--load-more--text">more</span>
+                <i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i>
+            </div>
+            <div data-bind="foreach: params.more, visible:params.isMoreDivVisible">
+                <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key"><span data-bind="text:name"></span>:</strong><span class="categories-single-item--visible-details--spec--val" data-bind="text:value"></span>
+                </p>
+            </div>
+            <div class="categories-single-item--invisible-details"></div>
+            <div data-bind="if: !params.cart && !params.order">
+                <button class="categories-single-item--buy" data-bind="click:addToCart">Add to Cart</button>
+            </div>
+            <div data-bind="if: params.cart">
+                <div data-bind="css:{'cart-single-item--buy': params.cart}" class="categories-single-item--buy" >
+                    <i class="fa fa-minus cart-button-icon" data-bind="click: function(){if(decreaseQuantity())$parents[2].increaseCartAmount(-params.price);}"></i>
+                    <span class="cart-button-text">Quantity: <span data-bind="text: params.quantity"></span></span>
+                    <i class="fa fa-plus cart-button-icon"  data-bind="click: function(){if(increaseQuantity())$parents[2].increaseCartAmount(params.price);}"></i>
 
-                            </div>
-                            <p data-bind="click: function(){if($parents[1].cancelProduct($data))$parents[2].increaseCartAmount(-params.price * params.quantity());}" class="cart-cancel-product">cancel</p>
-                        </div>
+                </div>
+                <p data-bind="click: function(){if($parents[1].cancelProduct($data))$parents[2].increaseCartAmount(-params.price * params.quantity());}" class="cart-cancel-product">cancel</p>
+            </div>
 
-                        <div data-bind="if: params.order && ($parents[2].status == 'Delivered')">
-                            <div data-bind="css:{'cart-single-item--buy': params.order}" class="categories-single-item--buy" >
-                                <i class="fa fa-minus cart-button-icon" data-bind="click: decreaseRate"></i>
-                                <span class="cart-button-text">Rate: <span data-bind="text: params.formattedRate"></span></span>
-                                <i class="fa fa-plus cart-button-icon" data-bind="click: increaseRate"></i>
+            <div data-bind="if: params.order && ($parents[2].status == 'Delivered')">
+                <div data-bind="css:{'cart-single-item--buy': params.order}" class="categories-single-item--buy" >
+                    <i class="fa fa-minus cart-button-icon" data-bind="click: decreaseRate"></i>
+                    <span class="cart-button-text">Rate: <span data-bind="text: params.formattedRate"></span></span>
+                    <i class="fa fa-plus cart-button-icon" data-bind="click: increaseRate"></i>
 
-                            </div>
-                        </div>
-                    </div>
-                </template>
-                <!--Scripts-->
-                <script type="text/javascript" src="js/jquery.min.js"></script>
-                <script type="text/javascript" src="js/knockout-3.3.0.js"></script>
-                <script type="text/javascript" src="js/sammy-latest.min.js"></script>
-                <script src="js/main.js"></script>
-                </body>
+                </div>
+            </div>
+        </div>
+    </template>
+    <!--Scripts-->
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/knockout-3.3.0.js"></script>
+    <script type="text/javascript" src="js/sammy-latest.min.js"></script>
+    <script src="js/main.js"></script>
+</body>
 
-                </html>
+</html>

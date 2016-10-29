@@ -149,7 +149,6 @@ function searchProductsViewModel(params) {
 	self.params.searchWord = params.searchWord;
 	self.searchProductsArray = ko.observableArray();
 	self.init = function () {
-		console.log(self.params.searchWord());
 		var products = getSearchProducts(self.params.searchWord());
 		products.forEach(function (product) {
 			self.searchProductsArray.push(new productModel(product));
