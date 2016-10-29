@@ -323,11 +323,6 @@ function headerViewModel(params) {
 
 	self.cartAmount = params.cartAmount;
 
-	self.checkIfSignedIn = function () {
-		// should check the localstorage
-		return true;
-	}
-
 	self.cartClicked = function () {
 		sammyApp.setLocation('#/cart');
 	}
@@ -386,32 +381,32 @@ function onlineMarketViewModel() {
 		},
 		viewModel: productsCollectionViewModel
 	});
+	if (checkIfSignedIn()) {
+		// Register cart components
 
-	// Register cart components
+		ko.components.register('cart', {
+			template: {
+				element: 'cart-page-content'
+			},
+			viewModel: cartProductsViewModel
+		});
+		// Register profile components
 
-	ko.components.register('cart', {
-		template: {
-			element: 'cart-page-content'
-		},
-		viewModel: cartProductsViewModel
-	});
-	// Register profile components
+		ko.components.register('profile', {
+			template: {
+				element: 'profile-page-content'
+			},
+			viewModel: profileViewModel
+		});
 
-	ko.components.register('profile', {
-		template: {
-			element: 'profile-page-content'
-		},
-		viewModel: profileViewModel
-	});
+		ko.components.register('order-container', {
+			template: {
+				element: 'single-order-view'
+			},
+			viewModel: orderViewModel
+		});
 
-	ko.components.register('order-container', {
-		template: {
-			element: 'single-order-view'
-		},
-		viewModel: orderViewModel
-	});
-
-
+	}
 	// Register search components
 
 	ko.components.register('search', {
@@ -443,6 +438,11 @@ var shouter = new ko.subscribable();
 onlineMarketMVVM = new onlineMarketViewModel();
 ko.applyBindings(onlineMarketMVVM);
 
+// Check for login
+function checkIfSignedIn() {
+	// should check the localstorage
+	return !true;
+}
 
 // Routing
 var sammyApp;
@@ -454,10 +454,12 @@ var sammyApp;
 			shouter.notifySubscribers('0', "changedCategoryID");
 		});
 		this.get('#/cart', function (context) {
-			onlineMarketMVVM.changeContentVisibility(true, false, false, false);
+			if (checkIfSignedIn())
+				onlineMarketMVVM.changeContentVisibility(true, false, false, false);
 		});
 		this.get('#/profile', function (context) {
-			onlineMarketMVVM.changeContentVisibility(false, false, true, false);
+			if (checkIfSignedIn())
+				onlineMarketMVVM.changeContentVisibility(false, false, true, false);
 		});
 		this.get('#/search', function (context) {
 			onlineMarketMVVM.changeContentVisibility(false, false, false, true);

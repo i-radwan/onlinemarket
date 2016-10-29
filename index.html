@@ -173,7 +173,7 @@
                 </p>
             </div>
             <div class="categories-single-item--invisible-details"></div>
-            <div data-bind="if: !params.cart && !params.order">
+            <div data-bind="if: !params.cart && !params.order && checkIfSignedIn()">
                 <button class="categories-single-item--buy" data-bind="click:addToCart">Add to Cart</button>
             </div>
             <div data-bind="if: params.cart">
