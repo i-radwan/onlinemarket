@@ -16,11 +16,11 @@
 		}
 		
 		.auth-container--contentarea {
-			margin-top: 16vh;
+			margin-top: 6vh;
 		}
 		
 		.auth-container--icon {
-			top: calc(16vh - 30px);
+			top: calc(6vh - 30px);
 		}
 
 	</style>
@@ -28,30 +28,49 @@
 
 <body>
 	<div>
-		<section id="auth-container" class="auth-container">
+		<section id="auth-container-signup" class="auth-container">
 			<div class="auth-container--contentarea">
 				<span class="auth-container--icon"><i class="fa fa-user"></i></span>
 				<h1 class="auth-container--title"><span class="header-title-O">O</span><span class="header-title-Market">Market</span></h1>
 				<form autocomplete="off">
 					<div class="auth-container--input-div">
 						<i class="fa fa-user auth-container--inputicon"></i>
-						<input type="text" class="auth-container--input" placeholder="Name" required></div>
+						<input type="text" class="auth-container--input" placeholder="Name" required data-bind="textInput: userModel.name"></div>
 					<div class="auth-container--input-div">
 						<i class="fa fa-envelope auth-container--inputicon"></i>
-						<input type="email" class="auth-container--input" placeholder="example@ex.com" required></div>
+						<input data-bind="textInput: userModel.email" type="email" class="auth-container--input" placeholder="example@ex.com" required></div>
 					<div class="auth-container--input-div">
 						<i class="fa fa-lock auth-container--inputicon"></i>
-						<input type="password" id="auth-container-password" class="auth-container--input" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" required></div>
+						<input type="password" class="auth-container--input" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" required data-bind="textInput: userModel.pass1"></div>
 					<div class="auth-container--input-div">
 						<i class="fa fa-lock auth-container--inputicon"></i>
-						<input type="password" id="auth-container-password" class="auth-container--input" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" required></div>
-
+						<input type="password" class="auth-container--input" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" required  data-bind="textInput: userModel.pass2"></div>
 					<div class="auth-container--input-div">
 						<i class="fa fa-phone auth-container--inputicon"></i>
-						<input type="text" class="auth-container--input" placeholder="+2010xxxx856" required></div>
+						<input type="text" class="auth-container--input" placeholder="+2010xxxx856" required  data-bind="textInput: userModel.tel"></div>
 					<div class="auth-container--input-div">
 						<i class="fa fa-map-marker auth-container--inputicon"></i>
-						<input type="email" class="auth-container--input" placeholder="Address" required></div>
+						<input type="email" class="auth-container--input" placeholder="Address" required  data-bind="textInput: userModel.address"></div>
+					<div class="auth-container--input-div">
+						<div class="auth-container--radio-option"><input type="radio" name="type" class="auth-container-type" data-bind="checked: userModel.type" value="buyer" /> Buyer</div>
+						<div class="auth-container--radio-option auth-container--radio-option2"><input type="radio" name="type"  data-bind="checked: userModel.type" class="auth-container-type" value="seller" /> Seller</div>
+					</div>
+
+					<div class="auth-container--input-div" data-bind="visible: userModel.type() == 'buyer'">
+						<i class="fa fa-credit-card-alt auth-container--inputicon auth-container--inputicon-marginedtop"></i>
+						<input type="text" class="auth-container--input auth-container--ccnumber" placeholder="51xxxxxx871" required maxlength="11" data-bind="textInput: userModel.ccnumber">
+						<input type="text" class="auth-container--input auth-container--ccccv" maxlength="3" placeholder="CCV" required data-bind="textInput: userModel.ccccv">
+					</div>
+
+					<div class="auth-container--input-div auth-container--input-div-leftaligned" data-bind="visible: userModel.type() == 'buyer'">
+						<i class="fa fa-calendar auth-container--inputicon auth-container--inputicon-marginedtop"></i>
+						<input type="text" class="auth-container--input auth-container--ccyear" placeholder="2017" required maxlength="4" data-bind="textInput: userModel.ccyear">
+						<input type="text" class="auth-container--input auth-container--ccmonth" maxlength="2" placeholder="10" required data-bind="textInput: userModel.ccmonth">
+					</div>
+					<div class="auth-container--input-div" data-bind="visible: userModel.type() == 'seller'">
+						<i class="fa fa-usd auth-container--inputicon"></i>
+						<textarea class="auth-container--input auth-container--input-backaccount" placeholder="Back Account..." required  data-bind="textInput: userModel.bankAccount"></textarea></div>
+
 					<button class="auth-container--login-button">Signup</button>
 				</form>
 				<p class="auth-container--msg"></p>
@@ -62,7 +81,7 @@
 	<script type="text/javascript" src="js/jquery.min.js"></script>
 	<script type="text/javascript" src="js/knockout-3.3.0.js"></script>
 	<script type="text/javascript" src="js/sammy-latest.min.js"></script>
-	<script src="js/main.js"></script>
+	<script src="js/auth.js"></script>
 </body>
 
 </html>

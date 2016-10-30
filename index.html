@@ -1,49 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 
-    <head>
-        <meta charset="UTF-8">
-        <title>OMarket</title>
-        <link href="css/font-awesome/css/font-awesome.min.css" rel="stylesheet">
-        <link href="css/fonts.css" rel="stylesheet">
-        <link href="css/style.css" rel="stylesheet">
-        <script src="js/jquery.min.js"></script>
-    </head>
+<head>
+	<meta charset="UTF-8">
+	<title>OMarket</title>
+	<link href="css/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+	<link href="css/fonts.css" rel="stylesheet">
+	<link href="css/style.css" rel="stylesheet">
+	<script src="js/jquery.min.js"></script>
+</head>
 
-    <body>
-        <div class="container">
-            <header id="header" params="cartAmount: cartAmount">
-                <div class="header-leftside">
-                    <h1 class="header-title"><a  data-bind="click: logoClicked" class="header-title-link"><span class="header-title-O">O</span><span class="header-title-Market">Market</span></a></h1>
-                </div>
-                <div class="header-rightside">
-                    <div class="header-links" data-bind="if: !checkIfSignedIn()">
-                        <a href="login.html" class="header-links--login">Login</a>, <a href="login.html" class="header-links--signup">Sign up</a>
-                    </div>
-                    <div class="header-links" data-bind="if: checkIfSignedIn()">
-                        <a class="header-cart" data-bind="click: cartClicked"><span class="header-cartamount"><span data-bind="text:cartAmount()"  ></span> $</span>
+<body>
+	<div class="container" id="container">
+		<header id="header" params="cartAmount: cartAmount">
+			<div class="header-leftside">
+				<h1 class="header-title"><a  data-bind="click: logoClicked" class="header-title-link"><span class="header-title-O">O</span><span class="header-title-Market">Market</span></a></h1>
+			</div>
+			<div class="header-rightside">
+				<div class="header-links" data-bind="if: !checkIfSignedIn()">
+					<a href="login.html" class="header-links--login">Login</a>, <a href="login.html" class="header-links--signup">Sign up</a>
+				</div>
+				<div class="header-links" data-bind="if: checkIfSignedIn()">
+					<a class="header-cart" data-bind="click: cartClicked"><span class="header-cartamount"><span data-bind="text:cartAmount()"  ></span> $</span>
                             <i class="fa fa-shopping-cart header-carticon" aria-hidden="true"></i>
                         </a>
-                        <a class="header-username" data-bind="click: profileClicked"><span>Ibrahim</span></a>
-                        <a href="#" class="header-logout"><span>Logout</span></a>
-                    </div>
-                    <div class="header-search"><input data-bind="textInput: $parent.tmpSearchWord" placeholder="Search..." type="text" class="header-search-input">
-                        <a class="search-img" title="Search" data-bind="click: function(){ if($parent.tmpSearchWord()){ $parent.searchWord($parent.tmpSearchWord());sammyApp.setLocation('#/search');}}"><img src="img/search-icon-nocolor.png"></a>
-                    </div>
-                </div>
-            </header>
-            <content id="content" class="content" data-bind="visible: isMainContentVisible"></content>
-            <cart data-bind="visible: isCartVisible"></cart>
-            <profile data-bind="visible: isProfileVisible"></profile>
-            <search data-bind="visible: isSearchVisible" params="searchWord: searchWord, value: $data"></search>
-            <footer>
-                <p class="copy">All copyrights are reserved, OMarket ® 2016</p>
-                <p class="devby">Developed by CMP-2019</p>
-            </footer>
+					<a class="header-username" data-bind="click: profileClicked"><span>Ibrahim</span></a>
+					<a href="#" class="header-logout"><span>Logout</span></a>
+				</div>
+				<div class="header-search"><input data-bind="textInput: $parent.tmpSearchWord" placeholder="Search..." type="text" class="header-search-input">
+					<a class="search-img" title="Search" data-bind="click: function(){ if($parent.tmpSearchWord()){ $parent.searchWord($parent.tmpSearchWord());sammyApp.setLocation('#/search');}}"><img src="img/search-icon-nocolor.png"></a>
+				</div>
+			</div>
+		</header>
+		<content id="content" class="content" data-bind="visible: isMainContentVisible"></content>
+		<cart data-bind="visible: isCartVisible"></cart>
+		<profile data-bind="visible: isProfileVisible"></profile>
+		<search data-bind="visible: isSearchVisible" params="searchWord: searchWord, value: $data"></search>
+		<footer>
+			<p class="copy">All copyrights are reserved, OMarket ® 2016</p>
+			<p class="devby">Developed by CMP-2019</p>
+		</footer>
 
-        </div>
-        <!--Templates-->
-    <template id="search-page-content">
+	</div>
+	<!--Templates-->
+	<template id="search-page-content">
         <search-products id="search-products">
             <div class="category-items-short cart-items-short">
                 <a class="category-items-short--title" data-bind="text: (!params.searchWord())? 'Search' : params.searchWord"></a>
@@ -54,7 +54,7 @@
             </div>
         </search-products>
     </template>
-    <template id="cart-page-content">
+	<template id="cart-page-content">
         <cart-products id="cart-products">
             <div class="category-items-short cart-items-short">
                 <a class="category-items-short--title">Cart</a>
@@ -68,7 +68,7 @@
             </div>
         </cart-products>
     </template>
-    <template id="profile-page-content">
+	<template id="profile-page-content">
         <div class="category-items-short cart-items-short">
             <a class="category-items-short--title">Orders</a>
             <p class="no-items" data-bind="if: !ordersArray().length">No Orders</p>
@@ -82,10 +82,11 @@
             <a class="category-items-short--title">Account</a>
             <div class="account-details">
                 <div class="account-div">		
-                    <p class="account-addresstext">Address: </p><textarea class="account-addresstextarea" data-bind="textInput: userModel.address"></textarea>
+                    <p class="account-addresstext">Address: </p><textarea class="account-addresstextarea" data-bind="textInput: userModel.address" placeholder="Address..."></textarea>
                 </div>
                 <div class="account-div">
-                    <p class="account-cctext">Credit Card: </p><input class="account-ccinput" type="text" value="51xxxxxx421" data-bind="textInput: userModel.ccnumber">
+                    <p class="account-cctext">Credit Card: </p><input class="account-ccinput account-ccnumber" type="text" value="51xxxxxx421" data-bind="textInput: userModel.ccnumber" maxlength="11" placeholder="Credit Card No.">
+                    <input class="account-ccinput account-ccccv" type="text" value="xxx" data-bind="textInput: userModel.ccccv" maxlength="3" placeholder="CCV">
                 </div>
                 <div class="account-div">
                     <p class="account-expdate">Expiry Date: </p>
@@ -109,7 +110,7 @@
             </div>
         </div>
     </template>
-    <template id="main-page-content">
+	<template id="main-page-content">
         <left-menu class="left-menu" id="left-menu" params="categoryID: $parent.categoryID">
             <ul class="left-menu--list" data-bind="foreach: categoriesArray">
                 <li class="left-menu--listitem" data-bind="text: name, css:{'selected': $data.selected()}, click: $parent.categoryClick"></li>
@@ -127,7 +128,7 @@
             </section>
         </products>
     </template>
-    <template id="single-order-view">
+	<template id="single-order-view">
         <div class="order-thumb">
             <img src="img/img.png">
         </div>
@@ -151,7 +152,7 @@
 
         <div class="order-loadmore"  data-bind="click: loadMoreClick"><strong class="order-loadmore--link"><i class="fa fa-arrow-down categories-single-item--load-more--arrow" data-bind="css:{'fa-arrow-down-upsidedown': params.isMoreDivVisible()}" aria-hidden="true"></i> Load <span data-bind="text: !params.isMoreDivVisible() ? 'more':'less'">more</span> <i class="fa fa-arrow-down categories-single-item--load-more--arrow" data-bind="css:{'fa-arrow-down-upsidedown': params.isMoreDivVisible()}" aria-hidden="true"></i> </strong></div>
     </template>
-    <template id="single-product-view">
+	<template id="single-product-view">
         <div>
             <h2 class="categories-single-item--title" data-bind="text: params.name"></h2>
             <img class="categories-single-item--img" data-bind="attr:{src: params.image}">
@@ -195,11 +196,11 @@
             </div>
         </div>
     </template>
-    <!--Scripts-->
-    <script type="text/javascript" src="js/jquery.min.js"></script>
-    <script type="text/javascript" src="js/knockout-3.3.0.js"></script>
-    <script type="text/javascript" src="js/sammy-latest.min.js"></script>
-    <script src="js/main.js"></script>
+	<!--Scripts-->
+	<script type="text/javascript" src="js/jquery.min.js"></script>
+	<script type="text/javascript" src="js/knockout-3.3.0.js"></script>
+	<script type="text/javascript" src="js/sammy-latest.min.js"></script>
+	<script src="js/main.js"></script>
 </body>
 
 </html>

@@ -551,13 +551,21 @@ function getSearchProducts(searchWord) {
  */
 function getUserModel() {
 	var user = {};
+	user.name = ko.observable("Ibrahim");
+	user.email = ko.observable("i.radwan1996@gmail.com");
 	user.address = ko.observable("Permanent Address Thomas Nolan Kaszas II 5322 Otter Lane Middleberge FL 32068");
 	user.ccnumber = ko.observable("512xxxxx241");
+	user.ccccv = ko.observable("xxx");
 	user.ccmonth = ko.observable(10);
 	user.ccyear = ko.observable(2016);
 	user.currentPass = ko.observable("");
 	user.newPass = ko.observable("");
+	user.bacnkAccount = ko.observable("Bank account");
+	user.tel = ko.observable("002010997799856");
+
+	// Observables to control forms
 	user.changePass = ko.observable(false);
+	user.isBuyer = ko.observable(true);
 	return user;
 }
 /**

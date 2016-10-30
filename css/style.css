@@ -545,8 +545,12 @@ header {
 	resize: none;
 }
 
-.account-ccinput {
-	width: 350px;
+.account-ccnumber {
+	width: 250px;
+}
+
+.account-ccccv {
+	width: 100px;
 }
 
 .account-dateinputs {
@@ -709,15 +713,62 @@ textarea:focus {
 	text-align: center;
 }
 
-.auth-container--input-div{
+.auth-container--input-div {
 	position: relative;
+	font-family: 'Raleway', helvetica;
 }
 
-.auth-container--inputicon{
+.auth-container--inputicon {
 	position: absolute;
 	left: 10px;
 	top: 9px;
 	color: #4a4a9d;
+}
+
+.auth-container-type {}
+
+.auth-container--radio-option {
+	width: calc( 50% - 20px);
+	display: inline-block;
+	text-align: left;
+}
+
+.auth-container--radio-option2 {
+	text-align: right;
+}
+
+.auth-container--ccnumber {
+	display: inline-block;
+	width: 150px;
+}
+
+.auth-container--ccccv {
+	display: inline-block;
+	width: 46.5px;
+	padding-left: 5px;
+}
+
+.auth-container--inputicon-marginedtop {
+	top: 20px;
+}
+
+.auth-container--ccmonth {
+	display: inline-block;
+	width: 40px;
+	padding-left: 5px;
+}
+
+.auth-container--ccyear {
+	width: 80px;
+	display: inline-block;
+}
+
+.auth-container--input-div-leftaligned {
+	text-align: left;
+}
+
+.auth-container--input-backaccount {
+	resize: none;
 }
 
 
