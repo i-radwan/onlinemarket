@@ -613,12 +613,12 @@ textarea:focus {
 
 /*	LOGIN SECTION*/
 
-.login-container {
+.auth-container {
 	text-align: center;
 	position: relative;
 }
 
-.login-container--contentarea {
+.auth-container--contentarea {
 	background: rgba(255, 255, 255, 0.88);
 	display: inline-block;
 	padding: 30px;
@@ -627,7 +627,7 @@ textarea:focus {
 	margin-bottom: 10px;
 }
 
-.login-container--icon {
+.auth-container--icon {
 	background: #4a4a9d;
 	border-radius: 50%;
 	height: 60px;
@@ -641,14 +641,14 @@ textarea:focus {
 	box-shadow: 0 -4px 6px -3px black;
 }
 
-.login-container--icon i {
+.auth-container--icon i {
 	color: #fff;
 	cursor: default;
 	margin-top: 18px;
 	font-size: 22px;
 }
 
-.login-container--title {
+.auth-container--title {
 	text-align: center;
 	color: #533a3a;
 	font-family: 'News Cycle', sans-serif;
@@ -659,8 +659,7 @@ textarea:focus {
 	cursor: default;
 }
 
-.login-container--username,
-.login-container--password {
+.auth-container--input {
 	font-size: 13px;
 	padding: 10px 4px 10px 40px;
 	display: block;
@@ -674,14 +673,13 @@ textarea:focus {
 	transition: 0.5s;
 }
 
-.login-container--username:focus,
-.login-container--password:focus {
+.auth-container--input:focus {
 	box-shadow: 0 0 5px rgba(81, 203, 238, 1);
 	border: 1px solid rgba(81, 203, 238, 1);
 	transition: 0.5s;
 }
 
-.login-container--login-button {
+.auth-container--login-button {
 	display: block;
 	margin: 18px auto;
 	width: 120px;
@@ -696,12 +694,12 @@ textarea:focus {
 	font-family: 'Raleway', helvetica;
 }
 
-.login-container--login-button:hover {
+.auth-container--login-button:hover {
 	background: rgb(49, 49, 121);
 	color: rgba(183, 244, 47, 1);
 }
 
-.login-container--msg {
+.auth-container--msg {
 	margin: 0 auto;
 	font-family: 'Raleway', helvetica;
 	font-size: 12px;
@@ -711,13 +709,11 @@ textarea:focus {
 	text-align: center;
 }
 
-.login-container--username-div,
-.login-container--pass-div {
+.auth-container--input-div{
 	position: relative;
 }
 
-.login-container--pass-icon,
-.login-container--user-icon {
+.auth-container--inputicon{
 	position: absolute;
 	left: 10px;
 	top: 9px;

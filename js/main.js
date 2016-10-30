@@ -477,7 +477,9 @@ var sammyApp;
 
 
 	$(function () {
-		sammyApp.run('#/');
+		if (!sammyApp.getLocation().search("signup.html") && !sammyApp.getLocation().search("login.html") ) {
+			sammyApp.run('#/');
+		}
 	});
 
 

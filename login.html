@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>OMarket</title>
+	<link href="css/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+	<link href="css/fonts.css" rel="stylesheet">
+	<link href="css/style.css" rel="stylesheet">
+	<script src="js/jquery.min.js"></script>
+	<style>
+		body {
+			background: url(img/back.png) no-repeat;
+			height: 95vh;
+			background-size: 100% 100%;
+		}
+
+	</style>
+</head>
+
+<body>
+	<div>
+		<section id="auth-container" class="auth-container">
+			<div class="auth-container--contentarea">
+				<span class="auth-container--icon"><i class="fa fa-user"></i></span>
+				<h1 class="auth-container--title"><span class="header-title-O">O</span><span class="header-title-Market">Market</span></h1>
+				<form autocomplete="off">
+					<div class="auth-container--input-div">
+						<i class="fa fa-user auth-container--inputicon"></i>
+						<input type="email" name="auth-container-username" id="auth-container-username" class="auth-container--input" placeholder="Username" required></div>
+					<div class="auth-container--input-div">
+						<i class="fa fa-lock auth-container--inputicon"></i>
+						<input type="password" name="auth-container-password" id="auth-container-password" class="auth-container--input" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" required></div>
+					<button class="auth-container--login-button">Login</button>
+				</form>
+				<p class="auth-container--msg"></p>
+			</div>
+		</section>
+	</div>
+	<!--Scripts-->
+	<script type="text/javascript" src="js/jquery.min.js"></script>
+	<script type="text/javascript" src="js/knockout-3.3.0.js"></script>
+	<script type="text/javascript" src="js/sammy-latest.min.js"></script>
+	<script src="js/main.js"></script>
+</body>
+
+</html>
