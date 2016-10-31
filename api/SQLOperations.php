@@ -83,7 +83,11 @@ class SQLOperations implements SQLOperationsInterface {
                                             if (is_numeric($ccCCV) && strlen($ccCCV) == 3) {
                                                 if (is_numeric($ccMonth) && $ccMonth > 0 && $ccMonth < 13 && is_numeric($ccYear) && $ccYear >= date("Y") && $ccYear < date("Y") + 10) {
                                                     $result = $this->db_link->query("INSERT INTO `" . Constants::TBL_BUYERS . "` SET `" . Constants::BUYERS_FLD_ADDRESS . "` = '$address', `" . Constants::BUYERS_FLD_CCNUMBER . "` = '$ccNumber', `" . Constants::BUYERS_FLD_CC_CCV . "` = '$ccCCV',  `" . Constants::BUYERS_FLD_CC_MONTH . "` = '$ccMonth', `" . Constants::BUYERS_FLD_CC_YEAR . "` = '$ccYear', `" . Constants::BUYERS_FLD_USER_ID . "` = '$_id'");
-                                                    return $this->login($email, $pass1);
+                                                    if ($result) {
+                                                        return $this->login($email, $pass1);
+                                                    } else {
+                                                        return $this->returnError(Constants::SIGNUP_OPERATION_FAILED, "Please try again later!", $_id, Constants::USERS_FLD_ID, Constants::TBL_USERS);
+                                                    }
                                                 } else {
                                                     return $this->returnError(Constants::SIGNUP_INVALID_CCDATE, "Invalid credit card expiry date!", $_id, Constants::USERS_FLD_ID, Constants::TBL_USERS);
                                                 }
@@ -100,24 +104,40 @@ class SQLOperations implements SQLOperationsInterface {
                                 case Constants::USER_SELLER:
                                     $address = Utilities::makeInputSafe($extraData[Constants::SELLERS_FLD_ADDRESS]);
                                     $bankAccount = Utilities::makeInputSafe($extraData[Constants::SELLERS_FLD_BACK_ACCOUNT]);
-                                    if (strlen(trim($address)) != 0 && strlen(trim($ccNumber)) != 0) {
+                                    if (strlen(trim($address)) != 0 && strlen(trim($bankAccount)) != 0) {
                                         $result = $this->db_link->query("INSERT INTO `" . Constants::TBL_SELLERS . "` SET `" . Constants::SELLERS_FLD_ADDRESS . "` = '$address', `" . Constants::SELLERS_FLD_BACK_ACCOUNT . "` = '$bankAccount', `" . Constants::SELLERS_FLD_USER_ID . "` = '$_id'");
-                                        return $this->login($email, $pass1);
+                                        if ($result) {
+                                            return $this->login($email, $pass1);
+                                        } else {
+                                            return $this->returnError(Constants::SIGNUP_OPERATION_FAILED, "Please try again later!", $_id, Constants::USERS_FLD_ID, Constants::TBL_USERS);
+                                        }
                                     } else {
-                                        return $this->returnError(Constants::SIGNUP_EMPTY_DATA, "All fields are required!", 0, 0, 0);
+                                        return $this->returnError(Constants::SIGNUP_EMPTY_DATA, "All fields are required!", $_id, Constants::USERS_FLD_ID, Constants::TBL_USERS);
                                     }
                                     break;
                                 case Constants::USER_ADMIN:
                                     $result = $this->db_link->query("INSERT INTO `" . Constants::TBL_ADMINS . "` SET `" . Constants::ADMINS_FLD_USER_ID . "` = '$_id'");
-                                    return $this->login($email, $pass1);
+                                    if ($result) {
+                                        return $this->login($email, $pass1);
+                                    } else {
+                                        return $this->returnError(Constants::SIGNUP_OPERATION_FAILED, "Please try again later!", $_id, Constants::USERS_FLD_ID, Constants::TBL_USERS);
+                                    }
                                     break;
                                 case Constants::USER_ACCOUNTANT:
                                     $result = $this->db_link->query("INSERT INTO `" . Constants::TBL_ACCOUNTANTS . "` SET `" . Constants::ADMINS_FLD_USER_ID . "` = '$_id'");
-                                    return $this->login($email, $pass1);
+                                    if ($result) {
+                                        return $this->login($email, $pass1);
+                                    } else {
+                                        return $this->returnError(Constants::SIGNUP_OPERATION_FAILED, "Please try again later!", $_id, Constants::USERS_FLD_ID, Constants::TBL_USERS);
+                                    }
                                     break;
                                 case Constants::USER_DELIVERMAN:
                                     $result = $this->db_link->query("INSERT INTO `" . Constants::TBL_DELIVERYMEN . "` SET `" . Constants::ADMINS_FLD_USER_ID . "` = '$_id'");
-                                    return $this->login($email, $pass1);
+                                    if ($result) {
+                                        return $this->login($email, $pass1);
+                                    } else {
+                                        return $this->returnError(Constants::SIGNUP_OPERATION_FAILED, "Please try again later!", $_id, Constants::USERS_FLD_ID, Constants::TBL_USERS);
+                                    }
                                     break;
                             }
                             if (!$result) {
@@ -138,23 +158,6 @@ class SQLOperations implements SQLOperationsInterface {
         } else {
             return $this->returnError(Constants::SIGNUP_EMPTY_DATA, "All fields are required!", 0, 0, 0);
         }
-    }
-
-    /**
-     * This function generates the error json 
-     * @param type $code error code (Constants::)
-     * @param type $msg error msg
-     * @param type $idToDelete id to be deleted
-     * @param type $column column to check id against it
-     * @param type $tbl table to delete record form it
-     * @return string the json encoded error
-     */
-    function returnError($code, $msg, $idToDelete = 0, $column = 0, $tbl = 0) {
-        $error = new Error($code, $msg);
-        if ($idToDelete > 0) {
-            $result = $this->db_link->query("DELETE FROM `" . $tbl . "` WHERE `" . $column . "` = '$idToDelete'");
-        }
-        return json_encode($error);
     }
 
     /**
@@ -281,7 +284,7 @@ class SQLOperations implements SQLOperationsInterface {
      */
     function refreshUserHash($row, $pass) {
         $_id = $row[Constants::USERS_FLD_ID];
-// Regenerate and insert password
+        // Regenerate and insert password
         $newHash = Utilities::hashPassword($pass);
         $this->db_link->query("UPDATE `" . Constants::TBL_USERS . "` SET `" . Constants::USERS_FLD_PASS . "` = '$newHash' WHERE `" . Constants::USERS_FLD_ID . "` = '$_id' LIMIT 1");
     }
@@ -299,6 +302,23 @@ class SQLOperations implements SQLOperationsInterface {
                 
             }
         }
+    }
+
+    /**
+     * This function generates the error json 
+     * @param type $code error code (Constants::)
+     * @param type $msg error msg
+     * @param type $idToDelete id to be deleted
+     * @param type $column column to check id against it
+     * @param type $tbl table to delete record form it
+     * @return string the json encoded error
+     */
+    function returnError($code, $msg, $idToDelete = 0, $column = 0, $tbl = 0) {
+        $error = new Error($code, $msg);
+        if ($idToDelete > 0) {
+            $result = $this->db_link->query("DELETE FROM `" . $tbl . "` WHERE `" . $column . "` = '$idToDelete'");
+        }
+        return json_encode($error);
     }
 
     function __destruct() {
