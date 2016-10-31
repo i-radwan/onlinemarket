@@ -23,18 +23,22 @@
 		<section id="auth-container" class="auth-container">
 			<div class="auth-container--contentarea">
 				<span class="auth-container--icon"><i class="fa fa-user"></i></span>
-				<h1 class="auth-container--title"><span class="header-title-O">O</span><span class="header-title-Market">Market</span></h1>
-				<div class="auth-container--input-div">
-					<i class="fa fa-user auth-container--inputicon"></i>
-					<input type="email" name="auth-container-username" id="auth-container-username" class="auth-container--input" placeholder="Username" required data-bind="textInput: userModel.email"></div>
-				<div class="auth-container--input-div">
-					<i class="fa fa-lock auth-container--inputicon"></i>
-					<input type="password" name="auth-container-password" data-bind="textInput: userModel.pass1" id="auth-container-password" class="auth-container--input" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" required></div>
-				<i class="fa fa-spinner spinner-icon" data-bind="visible: loading()"></i>
+				<div class="main-data-container">
 
-				<button class="auth-container--login-button" data-bind="click: login, visible: !loading()">Login</button>
+					<h1 class="auth-container--title"><span class="header-title-O">O</span><span class="header-title-Market">Market</span></h1>
 
-				<p class="auth-container--msg" data-bind="text: errorMsg()"></p>
+					<div class="auth-container--input-div">
+						<i class="fa fa-user auth-container--inputicon"></i>
+						<input type="email" name="auth-container-username" id="auth-container-username" class="auth-container--input" placeholder="Username" required data-bind="textInput: userModel.email"></div>
+					<div class="auth-container--input-div">
+						<i class="fa fa-lock auth-container--inputicon"></i>
+						<input type="password" name="auth-container-password" data-bind="textInput: userModel.pass1" id="auth-container-password" class="auth-container--input" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" required></div>
+					<i class="fa fa-spinner spinner-icon" data-bind="visible: loading()"></i>
+
+					<button class="auth-container--login-button" data-bind="click: login, visible: !loading()">Login</button>
+
+					<p class="auth-container--msg" data-bind="text: errorMsg()"></p>
+				</div>
 			</div>
 		</section>
 	</div>

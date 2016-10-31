@@ -88,15 +88,28 @@ function authViewModel() {
 // Check if user already signed in
 $(function () {
 	if (localStorage.getItem("OMarket_JWT")) {
-//		window.location = "http://localhost/onlinemarket";
+		//		window.location = "http://localhost/onlinemarket";
 	}
+	$(".main-data-container").hide();
+	window.setTimeout(function () {
+		$(".auth-container-signup").addClass("auth-container-expanded");
+		$(".auth-container--contentarea").addClass("auth-container--contentarea-expanded");
+		var h = $(".main-data-container").height();
+		$(".main-data-container").height(0);
+		$(".main-data-container").animate({
+			height: h
+		}, 400);
+		$(".main-data-container").show();
+
+	}, 300);
+
 });
 
 // Animation handler
 ko.bindingHandlers.fadeVisible = {
 	init: function (element, valueAccessor) {
 		var value = !valueAccessor();
-		$(element).toggle(ko.unwrap(value)); 
+		$(element).toggle(ko.unwrap(value));
 	},
 	update: function (element, valueAccessor) {
 		var value = !valueAccessor();
