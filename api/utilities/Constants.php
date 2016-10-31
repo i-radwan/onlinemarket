@@ -18,6 +18,9 @@ class Constants {
     const SIGNUP_EMAIL_EXISTS = 14;
     const SIGNUP_OPERATION_FAILED = 15;
     const SIGNUP_EMPTY_DATA = 16;
+    const SIGNUP_INVALID_CCNUMBER = 17;
+    const SIGNUP_INVALID_CCCCV = 18;
+    const SIGNUP_INVALID_CCDATE = 19;
 
     /**
      * Login operation (2x) constants
