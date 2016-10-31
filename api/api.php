@@ -2,5 +2,6 @@
 require_once './SQLOperations.php';
 
 $sqlOperations = new SQLOperations();
-echo $sqlOperations->login("i.radwan1996@gmail.com", "20061996");
-//$sqlOperations->secure("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE0Nzc4NzMxMzUsImp0aSI6IlRvaVB0RHg4OFVES2FzWTVlQzExS0lIdjFoVnhWeTZhS2R4bFhzeURhZ25qNUpuMURDMktMV1wvOW8rK05qYktFQzNYMlZ6OVRwR292ZnFrQ2piNVwvMEE9PSIsImlzcyI6ImxvY2FsaG9zdCIsIm5iZiI6MTQ3Nzg3MzE0NSwiZXhwIjoxNDc3ODczMjA1LCJkYXRhIjp7Il9pZCI6IjEiLCJlbWFpbCI6ImkucmFkd2FuMTk5NkBnbWFpbC5jb20iLCJuYW1lIjoiSWJyYWhpbSIsInRlbCI6IjAxMDk3Nzk5ODU2IiwidXNlcl90eXBlIjoiMSJ9fQ.WjTVL6vbEcNe0cbSuKq_3OSgck7bz7PO30pn67yY-5otxE-WGykzJEds_KI4x_CaJOeCx8QyvVwRYnnT7KomvQ");
+//echo $sqlOperations->login("i.radwan1996@gmail.com", "2006");
+echo $sqlOperations->signUpUser("i.radwan1996@hotmail.coam", "2006", "2006", Constants::USER_BUYER, "Ibrahims", "00201097799856", [Constants::BUYERS_FLD_ADDRESS => "6B, Pyramids Gardens", Constants::BUYERS_FLD_CCNUMBER => "123141212", Constants::BUYERS_FLD_CC_CCV => "123", Constants::BUYERS_FLD_CC_MONTH => "12", Constants::BUYERS_FLD_CC_YEAR => "2019"]);
+//$sqlOperations->secure("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE0Nzc4OTM5MjQsImp0aSI6InJcL2RnNUNJYUxUZHZXZytcL3ZXdkEraHpkRU1WMnNWdnhtNGs4eTA3N1BjMFJwcTdYNGR3MmNuYU4wdFkySkNYclwvTDBMV2RhS0xmdVZhOFdZNURkbXlBPT0iLCJpc3MiOiJsb2NhbGhvc3QiLCJuYmYiOjE0Nzc4OTM5MzQsImV4cCI6MTQ3Nzg5Mzk5NCwiZGF0YSI6eyJfaWQiOiIxIn19.Ik-63WH1GXJE_9uazc2kcdWah4Mi_PSEJtiyA2TUDCnNrIkUdxjxuT5mZyAeB_8qCQb0ux_1yVvpcoQ83sDewA");

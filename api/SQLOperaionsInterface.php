@@ -10,7 +10,7 @@ interface SQLOperationsInterface {
     //                                          USERS FUNCTIONS
     // =========================================================================================================
 
-    function signUpUser($emial, $pass1, $pass2, $role);
+    function signUpUser($email, $pass1, $pass2, $role, $name, $tel, $extraData);
 
     function login($emial, $pass);
     

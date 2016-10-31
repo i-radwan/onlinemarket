@@ -17,6 +17,7 @@ class Constants {
     const SIGNUP_INVALID_ROLE = 13;
     const SIGNUP_EMAIL_EXISTS = 14;
     const SIGNUP_OPERATION_FAILED = 15;
+    const SIGNUP_EMPTY_DATA = 16;
 
     /**
      * Login operation (2x) constants
@@ -51,9 +52,20 @@ class Constants {
     const SELLERS_FLD_ADDRESS = 'address';
     const SELLERS_FLD_BACK_ACCOUNT = 'bankaccount';
 
+    const TBL_ADMINS = 'admins';
+    const ADMINS_FLD_USER_ID = 'user_id';
+
+    const TBL_ACCOUNTANTS = 'accountants';
+    const ACCOUNTANTS_FLD_USER_ID = 'user_id';
+    
+    const TBL_DELIVERYMEN = 'deliverymen';
+    const DELIVERYMEN_FLD_USER_ID = 'user_id';
+
     /**
-     * User types
+     * User types (related to db)
+     * Some checks in the code (signup function) depends on these values
      */
+    const USER_TYPES = array("1", "2", "3", "4", "5");
     const USER_BUYER = "1";
     const USER_SELLER = "2";
     const USER_ACCOUNTANT = "3";
