@@ -694,6 +694,7 @@ textarea:focus {
 	font-size: 14px;
 	padding: 10px 0;
 	cursor: pointer;
+	outline: 0;
 	transition: 0.3s;
 	font-family: 'Raleway', helvetica;
 }
@@ -769,6 +770,54 @@ textarea:focus {
 
 .auth-container--input-backaccount {
 	resize: none;
+}
+
+.spinner-icon {
+	margin-top: 10px;
+	margin-bottom: 10px;
+	font-size: 30px;
+	transition-property: transform;
+	transition-duration: 1s;
+	cursor: default;
+	-webkit-animation-name: rotate;
+	-webkit-animation-duration: 2s;
+	-webkit-animation-iteration-count: infinite;
+	-webkit-animation-timing-function: linear;
+	-moz-animation-name: rotate;
+	-moz-animation-duration: 2s;
+	-moz-animation-iteration-count: infinite;
+	-moz-animation-timing-function: linear;
+	animation-name: rotate;
+	animation-duration: 2s;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear;
+}
+
+@-webkit-keyframes rotate {
+	from {
+		-webkit-transform: rotate(0deg);
+	}
+	to {
+		-webkit-transform: rotate(360deg);
+	}
+}
+
+@-moz-keyframes rotate {
+	from {
+		-moz-transform: rotate(0deg);
+	}
+	to {
+		-moz-transform: rotate(360deg);
+	}
+}
+
+@keyframes rotate {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
 }
 
 
