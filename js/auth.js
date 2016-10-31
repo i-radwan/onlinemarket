@@ -79,6 +79,8 @@ function authViewModel() {
 			self.errorMsg(returnedData.errorMsg);
 		}
 	}
+
+
 }
 // ==========================================================================================================
 /*	App  Logic	 */
@@ -86,10 +88,21 @@ function authViewModel() {
 // Check if user already signed in
 $(function () {
 	if (localStorage.getItem("OMarket_JWT")) {
-//		window.location = "http://localhost/onlinemarket"; ToDo: to be enabled
+//		window.location = "http://localhost/onlinemarket";
 	}
 });
 
+// Animation handler
+ko.bindingHandlers.fadeVisible = {
+	init: function (element, valueAccessor) {
+		var value = !valueAccessor();
+		$(element).toggle(ko.unwrap(value)); 
+	},
+	update: function (element, valueAccessor) {
+		var value = !valueAccessor();
+		ko.unwrap(value) ? $(element).hide() : $(element).fadeIn();
+	}
+};
 
 authViewModel = new authViewModel();
 ko.applyBindings(authViewModel);
