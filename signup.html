@@ -9,20 +9,21 @@
 	<link href="css/style.css" rel="stylesheet">
 	<script src="js/jquery.min.js"></script>
 	<style>
+		html,
 		body {
+			background: red;
 			background: url(img/back.png) no-repeat;
-			height: 95vh;
-			background-size: 100% 100%;
+			height: 96vh;
 		}
 		
 		.auth-container--contentarea {
-			margin-top: 6vh;
+			margin-top: 8vh;
+			width: 300px;
 		}
 		
 		.auth-container--icon {
-			top: calc(6vh - 30px);
+			top: calc(8vh - 30px);
 		}
-
 	</style>
 </head>
 
@@ -52,8 +53,10 @@
 						<i class="fa fa-map-marker auth-container--inputicon"></i>
 						<input type="email" class="auth-container--input" placeholder="Address" required  data-bind="textInput: userModel.address"></div>
 					<div class="auth-container--input-div">
-						<div class="auth-container--radio-option"><input type="radio" name="type" class="auth-container-type" data-bind="checked: userModel.type" value="buyer" /> Buyer</div>
-						<div class="auth-container--radio-option auth-container--radio-option2"><input type="radio" name="type"  data-bind="checked: userModel.type" class="auth-container-type" value="seller" /> Seller</div>
+						<div class="auth-container--radio-option">
+						<label style="cursor:pointer"><input type="radio" name="type" class="auth-container-type" data-bind="checked: userModel.type" value="buyer" /> Buyer</label></div>
+						<div class="auth-container--radio-option auth-container--radio-option2">
+						<label style="cursor:pointer"><input type="radio" name="type"  data-bind="checked: userModel.type" class="auth-container-type" value="seller" /> Seller</label></div>
 					</div>
 
 					<div class="auth-container--input-div" data-bind="visible: userModel.type() == 'buyer'">
@@ -63,8 +66,7 @@
 					</div>
 
 					<div class="auth-container--input-div auth-container--input-div-leftaligned" data-bind="visible: userModel.type() == 'buyer'">
-						<i class="fa fa-calendar auth-container--inputicon auth-container--inputicon-marginedtop"></i>
-						<input type="text" class="auth-container--input auth-container--ccyear" placeholder="2017" required maxlength="4" data-bind="textInput: userModel.ccyear">
+						<i class="fa fa-calendar auth-container--inputicon auth-container--inputicon-marginedtop"></i><input type="text" class="auth-container--input auth-container--ccyear" placeholder="2017" required maxlength="4" data-bind="textInput: userModel.ccyear">
 						<input type="text" class="auth-container--input auth-container--ccmonth" maxlength="2" placeholder="10" required data-bind="textInput: userModel.ccmonth">
 					</div>
 					<div class="auth-container--input-div" data-bind="visible: userModel.type() == 'seller'">

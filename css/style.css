@@ -657,7 +657,7 @@ textarea:focus {
 	color: #533a3a;
 	font-family: 'News Cycle', sans-serif;
 	font-size: 45px;
-	margin-top: 15px;
+	margin-top: 10px;
 	margin-bottom: 15px;
 	font-weight: lighter;
 	cursor: default;
@@ -668,7 +668,7 @@ textarea:focus {
 	padding: 10px 4px 10px 40px;
 	display: block;
 	margin: 10px auto;
-	width: 200px;
+	width: 240px;
 	background: rgb(250, 254, 192);
 	outline: 0 none;
 	border: 1px solid rgba(178, 167, 167, 0.28);
@@ -739,7 +739,7 @@ textarea:focus {
 
 .auth-container--ccnumber {
 	display: inline-block;
-	width: 150px;
+	width: 189px;
 }
 
 .auth-container--ccccv {

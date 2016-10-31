@@ -2,5 +2,5 @@
 require_once './SQLOperations.php';
 
 $sqlOperations = new SQLOperations();
-$sqlOperations->getCategories();
-
+echo $sqlOperations->login("i.radwan1996@gmail.com", "20061996");
+//$sqlOperations->secure("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE0Nzc4NzMxMzUsImp0aSI6IlRvaVB0RHg4OFVES2FzWTVlQzExS0lIdjFoVnhWeTZhS2R4bFhzeURhZ25qNUpuMURDMktMV1wvOW8rK05qYktFQzNYMlZ6OVRwR292ZnFrQ2piNVwvMEE9PSIsImlzcyI6ImxvY2FsaG9zdCIsIm5iZiI6MTQ3Nzg3MzE0NSwiZXhwIjoxNDc3ODczMjA1LCJkYXRhIjp7Il9pZCI6IjEiLCJlbWFpbCI6ImkucmFkd2FuMTk5NkBnbWFpbC5jb20iLCJuYW1lIjoiSWJyYWhpbSIsInRlbCI6IjAxMDk3Nzk5ODU2IiwidXNlcl90eXBlIjoiMSJ9fQ.WjTVL6vbEcNe0cbSuKq_3OSgck7bz7PO30pn67yY-5otxE-WGykzJEds_KI4x_CaJOeCx8QyvVwRYnnT7KomvQ");

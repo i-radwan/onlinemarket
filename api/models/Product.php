@@ -4,7 +4,7 @@
  *
  * @author ibrahimradwan
  */
-class Product {
+class Product  implements \JsonSerializable {
    private $name;
    
    function getName() {
@@ -14,5 +14,10 @@ class Product {
    function setName($name) {
        $this->name = $name;
    }
-   
+    public function jsonSerialize() {
+        $vars = get_object_vars($this);
+
+        return $vars;
+    }
+
 }
