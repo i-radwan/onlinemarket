@@ -16,67 +16,68 @@ function authViewModel() {
 	self.userModel = getUserModel();
 	self.errorMsg = ko.observable("");
 	self.loading = ko.observable(false);
-	self.signup = function () {
-		var data = {
-			email: userModel.email(),
-			pass1: userModel.pass1(),
-			pass2: userModel.pass2(),
-			user_type: userModel.type(),
-			name: userModel.name(),
-			tel: userModel.tel()
 
-		};
-		if (userModel.type() == "1") {
-			data.address = userModel.address();
-			data.creditcard = userModel.ccnumber();
-			data.cc_ccv = userModel.ccccv();
-			data.cc_month = userModel.ccmonth();
-			data.cc_year = userModel.ccyear();
-		} else if (userModel.type() == "2") {
-			data.address = userModel.address();
-			data.bankaccount = userModel.bankAccount();
+	self.signup = function () {
+		if (checkIfLoggedInAndRedirect(true)) return;
+		var data = {};
+		data[USERS_FLD_EMAIL] = userModel.email();
+		data[USERS_FLD_PASS1] = userModel.pass1();
+		data[USERS_FLD_PASS2] = userModel.pass2();
+		data[USERS_FLD_USER_TYPE] = userModel.type();
+		data[USERS_FLD_NAME] = userModel.name();
+		data[USERS_FLD_TEL] = userModel.tel();
+		if (userModel.type() == USER_BUYER) {
+			data[BUYERS_FLD_ADDRESS] = userModel.address();
+			data[BUYERS_FLD_CCNUMBER] = userModel.ccnumber();
+			data[BUYERS_FLD_CC_CCV] = userModel.ccccv();
+			data[BUYERS_FLD_CC_MONTH] = userModel.ccmonth();
+			data[BUYERS_FLD_CC_YEAR] = userModel.ccyear();
+		} else if (userModel.type() == USER_SELLER) {
+			data[SELLERS_FLD_ADDRESS] = userModel.address();
+			data[SELLERS_FLD_BACK_ACCOUNT] = userModel.bankAccount();
 		}
 		self.loading(true);
-		$.post("http://localhost/onlinemarket/api/api.php/signup", data, function (returnedData) {
+		$.post(API_LINK + SIGNUP_ENDPOINT, data, function (returnedData) {
 			self.storeLocalStorageData(returnedData);
 		});
 	}
 
 	self.login = function () {
-		var data = {
-			email: userModel.email(),
-			pass: userModel.pass1()
-		};
+		if (checkIfLoggedInAndRedirect(true)) return;
+		var data = {};
+		data[USERS_FLD_EMAIL] = userModel.email();
+		data[USERS_FLD_PASS] = userModel.pass1();
 		self.loading(true);
-		$.post("http://localhost/onlinemarket/api/api.php/login", data, function (returnedData) {
+		$.post(API_LINK + LOGIN_ENDPOINT, data, function (returnedData) {
 			self.storeLocalStorageData(returnedData);
 		});
 	}
 	self.storeLocalStorageData = function (returnedData) {
 		returnedData = JSON.parse(returnedData);
-		if (returnedData.statusCode == 20) {
-			localStorage.setItem("OMarket_JWT", returnedData.jwt);
-			localStorage.setItem("OMarket_name", returnedData.result.name);
-			localStorage.setItem("OMarket_email", returnedData.result.email);
-			localStorage.setItem("OMarket_tel", returnedData.result.tel);
-			localStorage.setItem("OMarket_user_type", returnedData.result.user_type);
-			if (returnedData.result.user_type == "1") {
-				localStorage.setItem("OMarket_address", returnedData.result.address);
-				localStorage.setItem("OMarket_ccNumber", returnedData.result.ccNumber);
-				localStorage.setItem("OMarket_ccCCV", returnedData.result.ccCCV);
-				localStorage.setItem("OMarket_ccYear", returnedData.result.ccYear);
-				localStorage.setItem("OMarket_ccMonth", returnedData.result.ccMonth);
-			} else if (returnedData.result.user_type == "2") {
-				localStorage.setItem("OMarket_address", returnedData.result.address);
-				localStorage.setItem("OMarket_bankaccount", returnedData.result.bankaccount);
+		if (returnedData[AUTH_RESPONSE_STATUS_CODE] == LOGIN_SUCCESSFUL_LOGIN) {
+			localStorage.setItem(OMARKET_JWT, returnedData[AUTH_RESPONSE_JWT]);
+			localStorage.setItem(OMARKET_PREFIX + USERS_FLD_NAME, returnedData[AUTH_RESPONSE_RESULT][USERS_FLD_NAME]);
+			localStorage.setItem(OMARKET_PREFIX + USERS_FLD_EMAIL, returnedData[AUTH_RESPONSE_RESULT][USERS_FLD_EMAIL]);
+			localStorage.setItem(OMARKET_PREFIX + USERS_FLD_TEL, returnedData[AUTH_RESPONSE_RESULT][USERS_FLD_TEL]);
+			localStorage.setItem(OMARKET_PREFIX + USERS_FLD_USER_TYPE, returnedData[AUTH_RESPONSE_RESULT][USERS_FLD_USER_TYPE]);
+			if (returnedData[AUTH_RESPONSE_RESULT][USERS_FLD_USER_TYPE] == USER_BUYER) {
+				localStorage.setItem(OMARKET_PREFIX + BUYERS_FLD_ADDRESS, returnedData[AUTH_RESPONSE_RESULT][BUYERS_FLD_ADDRESS]);
+				localStorage.setItem(OMARKET_PREFIX + BUYERS_FLD_CCNUMBER, returnedData[AUTH_RESPONSE_RESULT][AUTH_RESPONSE_CC_NUMBER]);
+				localStorage.setItem(OMARKET_PREFIX + BUYERS_FLD_CC_CCV, returnedData[AUTH_RESPONSE_RESULT][AUTH_RESPONSE_CC_CCV]);
+				localStorage.setItem(OMARKET_PREFIX + BUYERS_FLD_CC_YEAR, returnedData[AUTH_RESPONSE_RESULT][AUTH_RESPONSE_CC_YEAR]);
+				localStorage.setItem(OMARKET_PREFIX + BUYERS_FLD_CC_MONTH, returnedData[AUTH_RESPONSE_RESULT][AUTH_RESPONSE_CC_MONTH]);
+			} else if (returnedData[AUTH_RESPONSE_RESULT][USERS_FLD_USER_TYPE] == USER_SELLER) {
+				localStorage.setItem(OMARKET_PREFIX + SELLERS_FLD_ADDRESS, returnedData[AUTH_RESPONSE_RESULT][SELLERS_FLD_ADDRESS]);
+				localStorage.setItem(OMARKET_PREFIX + SELLERS_FLD_BACK_ACCOUNT, returnedData[AUTH_RESPONSE_RESULT][SELLERS_FLD_BACK_ACCOUNT]);
 			}
-			self.errorMsg("Welcome " + returnedData.result.name + "!");
+			self.errorMsg("Welcome " + returnedData[AUTH_RESPONSE_RESULT][USERS_FLD_NAME] + "!");
+
 			window.setTimeout(function () {
-				window.location = "http://localhost/onlinemarket";
+				checkIfLoggedInAndRedirect(true);
 			}, 1000);
 		} else {
 			self.loading(false);
-			self.errorMsg(returnedData.errorMsg);
+			self.errorMsg(returnedData[AUTH_RESPONSE_ERROR_MSG]);
 		}
 	}
 
@@ -87,18 +88,18 @@ function authViewModel() {
 // ==========================================================================================================
 // Check if user already signed in
 $(function () {
-	if (localStorage.getItem("OMarket_JWT")) {
-		//		window.location = "http://localhost/onlinemarket";
-	}
+	checkIfLoggedInAndRedirect(true);
 	$(".main-data-container").hide();
 	window.setTimeout(function () {
-		$(".auth-container-signup").addClass("auth-container-expanded");
+		$(".auth-container").addClass("auth-container-expanded");
 		$(".auth-container--contentarea").addClass("auth-container--contentarea-expanded");
 		var h = $(".main-data-container").height();
 		$(".main-data-container").height(0);
 		$(".main-data-container").animate({
 			height: h
-		}, 400);
+		}, 400, function () {
+			$(".main-data-container").css('height', 'auto');
+		});
 		$(".main-data-container").show();
 
 	}, 300);
@@ -120,6 +121,18 @@ ko.bindingHandlers.fadeVisible = {
 authViewModel = new authViewModel();
 ko.applyBindings(authViewModel);
 
+/**
+ * This function checks if the user is already signed in and if so it redirects the user to the proper page
+ * @param {boolean} redirect if true, if the user is already signed in-> the page will be redirected to the proper page
+ */
+function checkIfLoggedInAndRedirect(redirect) {
+	if (localStorage.getItem(OMARKET_JWT)) {
+		if (redirect)
+			window.location = WEBSITE_LINK;
+		return true;
+	}
+	return false;
+}
 // ==========================================================================================================
 /*	API	Requests */
 // ==========================================================================================================
@@ -143,6 +156,6 @@ function getUserModel() {
 	user.tel = ko.observable();
 
 	// Observables to control forms
-	user.type = ko.observable("1");
+	user.type = ko.observable(USER_BUYER);
 	return user;
 }

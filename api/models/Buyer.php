@@ -9,7 +9,7 @@ require_once 'User.php';
  */
 class Buyer extends User implements \JsonSerializable {
 
-    private $address, $ccNumber, $ccCCV, $ccmonth, $ccYear;
+    private $address, $ccNumber, $ccCCV, $ccMonth, $ccYear;
 
     function __construct($_id, $name, $email, $tel, $user_type, $address, $ccNumber, $ccCCV, $ccmonth, $ccYear) {
         parent::__construct($_id, $name, $email, $tel, $user_type);
@@ -17,7 +17,7 @@ class Buyer extends User implements \JsonSerializable {
         $this->address = $address;
         $this->ccNumber = $ccNumber;
         $this->ccCCV = $ccCCV;
-        $this->ccmonth = $ccmonth;
+        $this->ccMonth = $ccmonth;
         $this->ccYear = $ccYear;
     }
 
@@ -34,7 +34,7 @@ class Buyer extends User implements \JsonSerializable {
     }
 
     function getCcmonth() {
-        return $this->ccmonth;
+        return $this->ccMonth;
     }
 
     function getCcYear() {
@@ -54,7 +54,7 @@ class Buyer extends User implements \JsonSerializable {
     }
 
     function setCcmonth($ccmonth) {
-        $this->ccmonth = $ccmonth;
+        $this->ccMonth = $ccmonth;
     }
 
     function setCcYear($ccYear) {
