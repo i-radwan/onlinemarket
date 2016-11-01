@@ -1,0 +1,97 @@
+/* 
+    Created on : Oct 21, 2016, 6:07:50 PM
+    Author     : ibrahimradwan
+*/
+
+.header-title-Market::after {
+	font-family: 'Raleway', helvetica;
+	content: 'Control Panel';
+	font-size: 12px;
+	margin-left: 10px;
+	color: #777;
+}
+
+.header-username {
+	cursor: default!important;
+}
+
+.header-username:hover {
+	text-decoration: none !important;
+	color: #5f5c5c !important;
+}
+
+.header-username::after {
+	content: ',';
+}
+
+
+/*	Categories  */
+.single-category-item {
+	display: block;
+	width: 100%;
+	padding: 10px 20px;
+}
+
+.single-category-item:nth-child(2n+2) {
+	background: rgba(244, 242, 242, 0.56);
+}
+
+.single-category-item--category-name {
+	font-family: 'Raleway', helvetica;
+	font-size: 18px;
+	float: left;
+	width: 90%;
+	text-align: left;
+	padding: 0;
+	margin: 0;
+}
+
+.single-category-item--category-name-editinput {
+	float: left;
+	width: 90%;
+	font-size: 18px;
+	outline: 0;
+	margin: 0;
+	padding: 5px 10px;
+	background: transparent;
+	font-family: 'Raleway', helvetica;
+	border: 0;
+	border-bottom: 1px solid black;
+}
+
+.single-category-item--category-actions {
+	float: right;
+	width: 10%;
+	text-align: right;
+	line-height: 38px;
+}
+
+.single-category-item--category-actions a {
+	color: #5f5c5c;
+	font-size: 14px;
+	transition: 0.5s;
+	text-decoration: none;
+	cursor: pointer;
+	transition: 0.5s;
+	font-family: 'Raleway', helvetica;
+	text-decoration: none;
+}
+
+.single-category-item--category-actions a:hover {
+	text-decoration: underline;
+	color: #4a4a9d;
+	transition: 0.5s;
+}
+
+.single-category-item--category-edit {
+	margin-right: 10px;
+}
+
+.single-category-item--category-delete {}
+
+.single-category-item--category-save {}
+
+.category-items-short--add-category{
+	overflow: auto;
+	padding: 10px 20px;
+}

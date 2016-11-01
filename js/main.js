@@ -347,6 +347,7 @@ function onlineMarketViewModel() {
 	self.searchWord = ko.observable("");
 	self.tmpSearchWord = ko.observable("");
 
+	self.userModel = getUserModel();
 	// Register main-view components
 	ko.components.register('left-menu', {
 		template: {
@@ -440,7 +441,7 @@ ko.applyBindings(onlineMarketMVVM);
 
 // Check for login
 function checkIfSignedIn() {
-	// should check the localstorage
+	// ToDo: should check the localstorage and check for user role
 	return true;
 }
 
@@ -551,19 +552,26 @@ function getSearchProducts(searchWord) {
  */
 function getUserModel() {
 	var user = {};
-	user.name = ko.observable("Ibrahim");
-	user.email = ko.observable("i.radwan1996@gmail.com");
-	user.address = ko.observable("Permanent Address Thomas Nolan Kaszas II 5322 Otter Lane Middleberge FL 32068");
-	user.ccnumber = ko.observable("512xxxxx241");
-	user.ccccv = ko.observable("xxx");
-	user.ccmonth = ko.observable(10);
-	user.ccyear = ko.observable(2016);
-	user.currentPass = ko.observable("");
-	user.newPass = ko.observable("");
-	user.bacnkAccount = ko.observable("Bank account");
-	user.tel = ko.observable("002010997799856");
+	//	console.log(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_NAME));
+	user.name = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_NAME));
+	user.email = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_EMAIL));
+	user.type = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_USER_TYPE));
+	user.tel = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_TEL));
+
+	if (user.type() == USER_BUYER) {
+		user.address = ko.observable(localStorage.getItem(OMARKET_PREFIX + BUYERS_FLD_ADDRESS));
+		user.ccnumber = ko.observable(localStorage.getItem(OMARKET_PREFIX + BUYERS_FLD_CCNUMBER));
+		user.ccccv = ko.observable(localStorage.getItem(OMARKET_PREFIX + BUYERS_FLD_CC_CCV));
+		user.ccmonth = ko.observable(localStorage.getItem(OMARKET_PREFIX + BUYERS_FLD_CC_MONTH));
+		user.ccyear = ko.observable(localStorage.getItem(OMARKET_PREFIX + BUYERS_FLD_CC_YEAR));
+	} else if (user.type() == USER_SELLER) {
+		user.address = ko.observable(localStorage.getItem(OMARKET_PREFIX + SELLERS_FLD_ADDRESS));
+		user.bankAccount = ko.observable(localStorage.getItem(OMARKET_PREFIX + SELLERS_FLD_BACK_ACCOUNT));
+	}
 
 	// Observables to control forms
+	user.currentPass = ko.observable("");
+	user.newPass = ko.observable("");
 	user.changePass = ko.observable(false);
 	user.isBuyer = ko.observable(true);
 	return user;

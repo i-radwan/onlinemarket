@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>OMarket - Control Panel</title>
+        <link href="../css/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/fonts.css" rel="stylesheet">
+        <link href="../css/style.css" rel="stylesheet">
+        <link href="css/style.css" rel="stylesheet">
+        <link rel="icon" href="../img/OMarket.ico">
+        <script src="../js/jquery.min.js"></script>
+    </head>
+
+    <body>
+        <div class="container" id="container">
+            <header id="header" params="cartAmount: cartAmount">
+                <div class="header-leftside">
+                    <h1 class="header-title"><a class="header-title-link"><span class="header-title-O">O</span><span class="header-title-Market">Market</span></a></h1>
+                </div>
+                <div class="header-rightside">
+                    <div class="header-links">
+                        <a class="header-username"><span>Ibrahim</span></a>
+                        <a href="#" class="header-logout"><span>Logout</span></a>
+                    </div>
+                </div>
+            </header>
+            <categories></categories>
+            <footer>
+                <p class="copy">All copyrights are reserved, OMarket ® 2016</p>
+                <p class="devby">Developed by CMP-2019</p>
+            </footer>
+
+        </div>
+        <!--Templates-->
+        <template id="categories-template">
+            <div class="category-items-short cart-items-short">
+                <a class="category-items-short--title">Categories</a>
+                <p class="no-items" data-bind="if: !categoriesArray().length">No Categories</p>
+
+
+                <div class="categories-items-container" data-bind="foreach: categoriesArray">
+                    <category-container class="single-category-item" params="value: $data, parent: $parent">
+
+                    </category-container>
+                </div>
+                <div class="category-items-short--add-category">
+                    <input type="text" data-bind="textInput: newCategoryName" placeholder="New Category Name..." class="single-category-item--category-name-editinput" maxlength="50">
+                    <div class="single-category-item--category-actions">
+                        <a data-bind="click: addNewCategory" class="single-category-item--category-save">add</a>
+                    </div>
+                </div>
+            </div>
+        </template>
+        <template id="single-category-template">
+            <p data-bind="text: params.name,  visible: !params.editMode()" class="single-category-item--category-name"></p>
+            <input type="text" data-bind="textInput: params.tmpName, visible: params.editMode" class="single-category-item--category-name-editinput">
+            <div class="single-category-item--category-actions">
+                <a data-bind="visible: !params.editMode(), click: function(){params.editMode(true);}" class="single-category-item--category-edit">edit</a>
+                <a data-bind="visible: !params.editMode(), click: $parents[1].removeCategory" class="single-category-item--category-delete">delete</a>
+                <a data-bind="visible: params.editMode(), click: save" class="single-category-item--category-save">save</a>
+            </div>
+
+            <!--ToDo: Add new category-->
+        </template>
+        <template id="cart-page-content">
+            <cart-products id="cart-products">
+                <div class="category-items-short cart-items-short">
+                    <a class="category-items-short--title">Cart</a>
+                    <p class="no-items" data-bind="if: !cartProductsArray().length">No Items</p>
+                    <div class="categories-items-container" data-bind="foreach: cartProductsArray">
+                        <product-container class="categories-single-item categories-single-cartitem" params="value: $data, cart: true"></product-container>
+                    </div>
+                </div>
+                <div style="width: 100%; text-align:center;">
+                    <button data-bind="visible: cartProductsArray().length, click: function(){ if($data.checkoutOrder())$parent.cartAmount(0);}" class="cart-checkout">Checkout <span data-bind="text: $parent.cartAmount()"></span> $</button>
+                </div>
+            </cart-products>
+        </template>
+        <template id="profile-page-content">
+            <div class="category-items-short cart-items-short">
+                <a class="category-items-short--title">Orders</a>
+                <p class="no-items" data-bind="if: !ordersArray().length">No Orders</p>
+                <div class="categories-items-container" data-bind="foreach: ordersArray">
+                    <order-container class="order-single-item" params="value: $data, order:true">
+
+                    </order-container>
+                </div>
+            </div>
+            <div class="category-items-short cart-items-short">
+                <a class="category-items-short--title">Account</a>
+                <div class="account-details">
+                    <div class="account-div">		
+                        <p class="account-addresstext">Address: </p><textarea class="account-addresstextarea" data-bind="textInput: userModel.address" placeholder="Address..."></textarea>
+                    </div>
+                    <div class="account-div">
+                        <p class="account-cctext">Credit Card: </p><input class="account-ccinput account-ccnumber" type="text" value="51xxxxxx421" data-bind="textInput: userModel.ccnumber" maxlength="11" placeholder="Credit Card No.">
+                        <input class="account-ccinput account-ccccv" type="text" value="xxx" data-bind="textInput: userModel.ccccv" maxlength="3" placeholder="CCV">
+                    </div>
+                    <div class="account-div">
+                        <p class="account-expdate">Expiry Date: </p>
+                        <div class="account-dateinputs">
+                            <input type="number" max="2024" min="2016" class="account-yearinput"  data-bind="textInput: userModel.ccyear"><input type="number" max="12" min="1" class="account-monthinput" data-bind="textInput: userModel.ccmonth">
+                        </div>
+                    </div>
+                    <div class="account-div">
+
+                        <div class="account-editpass"><p class="account-editpasstext" data-bind="visible: !userModel.changePass(), click: function(){userModel.changePass(!userModel.changePass());}">edit password</p>
+                        </div>
+                        <div class="account-div" data-bind="visible: userModel.changePass()">
+                            <p class="account-passtext">New Pass: </p>
+                            <input type="password" data-bind="textInput: userModel.newPass" placeholder="•••••••••••" class="account-newpassinput account-input">
+                        </div>
+                    </div>
+                    <div class="account-div">
+                        <div class="account-currentpass"><p class="account-passtext">Current Pass: </p><input type="password" data-bind="textInput: userModel.currentPass" placeholder="•••••••••••" class="account-currentpassinput account-input"></div>
+                    </div>
+                    <div class="account-save"><button class="cart-checkout account-save" data-bind="click: saveProfile">Save</button></div>
+                </div>
+            </div>
+        </template>
+        <template id="main-page-content">
+            <left-menu class="left-menu" id="left-menu" params="categoryID: $parent.categoryID">
+                <ul class="left-menu--list" data-bind="foreach: categoriesArray">
+                    <li class="left-menu--listitem" data-bind="text: name, css:{'selected': $data.selected()}, click: $parent.categoryClick"></li>
+                </ul>
+            </left-menu>
+            <products id="products" params="categoryID: $parent.categoryID">
+                <section class="main-content" data-bind="foreach: topCategoriesArray">
+                    <div class="category-items-short">
+                        <a class="category-items-short--title" data-bind="text: name, click: $parent.expandCategory"></a>
+                        <p class="no-items" data-bind="if: !$data.products.length">No Products</p>
+                        <div class="categories-items-container" data-bind="foreach: products">
+                            <product-container  class="categories-single-item" params="value: $data, cart:false"></product-container>
+                        </div>
+                    </div>
+                </section>
+            </products>
+        </template>
+        <template id="single-product-view">
+            <div>
+                <h2 class="categories-single-item--title" data-bind="text: params.name"></h2>
+                <img class="categories-single-item--img" data-bind="attr:{src: params.image}">
+                <div class="categories-single-item--visible-details">
+                    <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Price:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params.price"></span>$</span>
+                    </p>
+                    <p class="categories-single-item--visible-details--spec" data-bind="if: params.order"><strong class="categories-single-item--visible-details--spec--key">Quantity:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params.quantity()"></span></span>
+                    </p>
+                    <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Rate:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params.rate"></span>/5</span>
+                    </p>
+                </div>
+                <div class="categories-single-item--load-more" data-bind="click: loadMoreClick, visible: !params.isMoreDivVisible()">
+                    <i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i> <span class="categories-single-item--load-more--text">more</span>
+                    <i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i>
+                </div>
+                <div data-bind="foreach: params.more, visible:params.isMoreDivVisible">
+                    <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key"><span data-bind="text:name"></span>:</strong><span class="categories-single-item--visible-details--spec--val" data-bind="text:value"></span>
+                    </p>
+                </div>
+                <div class="categories-single-item--invisible-details"></div>
+                <div data-bind="if: !params.cart && !params.order && checkIfSignedIn()">
+                    <button class="categories-single-item--buy" data-bind="click:addToCart">Add to Cart</button>
+                </div>
+                <div data-bind="if: params.cart">
+                    <div data-bind="css:{'cart-single-item--buy': params.cart}" class="categories-single-item--buy" >
+                        <i class="fa fa-minus cart-button-icon" data-bind="click: function(){if(decreaseQuantity())$parents[2].increaseCartAmount(-params.price);}"></i>
+                        <span class="cart-button-text">Quantity: <span data-bind="text: params.quantity"></span></span>
+                        <i class="fa fa-plus cart-button-icon"  data-bind="click: function(){if(increaseQuantity())$parents[2].increaseCartAmount(params.price);}"></i>
+
+                    </div>
+                    <p data-bind="click: function(){if($parents[1].cancelProduct($data))$parents[2].increaseCartAmount(-params.price * params.quantity());}" class="cart-cancel-product">cancel</p>
+                </div>
+
+                <div data-bind="if: params.order && ($parents[2].status == 'Delivered')">
+                    <div data-bind="css:{'cart-single-item--buy': params.order}" class="categories-single-item--buy" >
+                        <i class="fa fa-minus cart-button-icon" data-bind="click: decreaseRate"></i>
+                        <span class="cart-button-text">Rate: <span data-bind="text: params.formattedRate"></span></span>
+                        <i class="fa fa-plus cart-button-icon" data-bind="click: increaseRate"></i>
+
+                    </div>
+                </div>
+            </div>
+        </template>
+        <!--Scripts-->
+        <script type="text/javascript" src="../js/knockout-3.3.0.js"></script>
+        <script type="text/javascript" src="../js/sammy-latest.min.js"></script>
+        <script src="../js/jsconstants.js"></script>
+        <script src="js/admin.js"></script>
+    </body>
+
+</html>

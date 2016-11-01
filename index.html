@@ -8,8 +8,6 @@
 	<link href="css/fonts.css" rel="stylesheet">
 	<link href="css/style.css" rel="stylesheet">
 	<link rel="icon" href="img/OMarket.ico">
-
-
 	<script src="js/jquery.min.js"></script>
 </head>
 
@@ -27,7 +25,7 @@
 					<a class="header-cart" data-bind="click: cartClicked"><span class="header-cartamount"><span data-bind="text:cartAmount()"  ></span> $</span>
                             <i class="fa fa-shopping-cart header-carticon" aria-hidden="true"></i>
                         </a>
-					<a class="header-username" data-bind="click: profileClicked"><span>Ibrahim</span></a>
+					<a class="header-username" data-bind="click: profileClicked"><span data-bind="text: $parent.userModel.name()"></span></a>
 					<a href="#" class="header-logout"><span>Logout</span></a>
 				</div>
 				<div class="header-search"><input data-bind="textInput: $parent.tmpSearchWord" placeholder="Search..." type="text" class="header-search-input">
@@ -200,7 +198,6 @@
         </div>
     </template>
 	<!--Scripts-->
-	<script type="text/javascript" src="js/jquery.min.js"></script>
 	<script type="text/javascript" src="js/knockout-3.3.0.js"></script>
 	<script type="text/javascript" src="js/sammy-latest.min.js"></script>
 	<script src="js/jsconstants.js"></script>
