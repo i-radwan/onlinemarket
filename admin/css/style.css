@@ -26,6 +26,7 @@
 
 
 /*	Categories  */
+
 .single-category-item {
 	display: block;
 	width: 100%;
@@ -44,6 +45,7 @@
 	text-align: left;
 	padding: 0;
 	margin: 0;
+	margin-top: 10px;
 }
 
 .single-category-item--category-name-editinput {
@@ -91,7 +93,7 @@
 
 .single-category-item--category-save {}
 
-.category-items-short--add-category{
+.category-items-short--add-category {
 	overflow: auto;
 	padding: 10px 20px;
 }

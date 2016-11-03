@@ -242,7 +242,7 @@ function categoriesViewModel(params) {
 
 	self.removeCategory = function (item, event) {
 		if (confirm("Are you sure?")) {
-			// ToDo call API to delete category first
+			// ToDo call API to delete category first, and check if it has no products
 			self.categoriesArray.remove(item.params);
 		}
 	}
