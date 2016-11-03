@@ -1,44 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 
-    <head>
-        <meta charset="UTF-8">
-        <title>OMarket - Control Panel</title>
-        <link href="../css/font-awesome/css/font-awesome.min.css" rel="stylesheet">
-        <link href="../css/fonts.css" rel="stylesheet">
-        <link href="../css/style.css" rel="stylesheet">
-        <link href="css/style.css" rel="stylesheet">
-        <link rel="icon" href="../img/OMarket.ico">
-        <script src="../js/jquery.min.js"></script>
-    </head>
+<head>
+	<meta charset="UTF-8">
+	<title>OMarket - Control Panel</title>
+	<link href="../css/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+	<link href="../css/fonts.css" rel="stylesheet">
+	<link href="../css/style.css" rel="stylesheet">
+	<link href="css/style.css" rel="stylesheet">
+	<link rel="icon" href="../img/OMarket.ico">
+	<script src="../js/jquery.min.js"></script>
+</head>
 
-    <body>
-        <div class="container" id="container">
-            <header id="header" params="cartAmount: cartAmount">
-                <div class="header-leftside">
-                    <h1 class="header-title"><a class="header-title-link"><span class="header-title-O">O</span><span class="header-title-Market">Market</span></a></h1>
+<body>
+	<div class="container" id="container">
+		<header id="header" params="cartAmount: cartAmount">
+			<div class="header-leftside">
+				<h1 class="header-title"><a class="header-title-link"><span class="header-title-O">O</span><span class="header-title-Market">Market</span></a></h1>
+			</div>
+			<div class="header-rightside">
+				<div class="header-links">
+					<a class="header-username"><span>Ibrahim</span></a>
+					<a href="#" class="header-logout"><span>Logout</span></a>
+				</div>
+			</div>
+		</header>
+		<categories></categories>
+		<employees params="employeeTypeName: 'Accountants', employeeType : USER_ACCOUNTANT, employeeSingleName: 'Accountant'"></employees>
+		<employees params="employeeTypeName: 'Delivery Staff', employeeType : USER_DELIVERMAN, employeeSingleName: 'Deliveryman'"></employees>
+		<footer>
+			<p class="copy">All copyrights are reserved, OMarket ® 2016</p>
+			<p class="devby">Developed by CMP-2019</p>
+		</footer>
+
+	</div>
+	<!--Templates-->
+	<template id="employees-template">
+            <div class="category-items-short cart-items-short">
+                <a class="category-items-short--title" data-bind="text: employeeTypeName"></a>
+				<p class="no-items" data-bind="if: !employeesArray().length">No <span data-bind="text: employeeTypeName"></span></p>
+                <div class="categories-items-container" data-bind="foreach: employeesArray">
+                    <employee-container class="single-category-item" params="value: $data, parent: $parent">
+
+                    </employee-container>
                 </div>
-                <div class="header-rightside">
-                    <div class="header-links">
-                        <a class="header-username"><span>Ibrahim</span></a>
-                        <a href="#" class="header-logout"><span>Logout</span></a>
+                <div class="category-items-short--add-category">
+                    <input type="text" data-bind="textInput: newEmployeeEmail, attr: {placeholder: 'New ' + employeeSingleName + ' Email...' }" class="single-category-item--category-name-editinput employee" maxlength="50">
+                    <input type="password" data-bind="textInput: newEmployeePass" placeholder="••••••••••••••••••" class="single-category-item--category-name-editinput employee" maxlength="50">
+                    <div class="single-category-item--category-actions">
+                        <a data-bind="click: addNewEmployee" class="single-category-item--category-save">add</a>
                     </div>
                 </div>
-            </header>
-            <categories></categories>
-            <footer>
-                <p class="copy">All copyrights are reserved, OMarket ® 2016</p>
-                <p class="devby">Developed by CMP-2019</p>
-            </footer>
+            </div>
+        </template>
+        	<template id="single-employee-template">
+            <p data-bind="text: params.email,  visible: !params.editMode()" class="single-category-item--category-name"></p>
+            <input type="text" data-bind="textInput: params.tmpEmail, visible: params.editMode" class="single-category-item--category-name-editinput employee">
+            <input type="password" data-bind="textInput: params.pass, visible: params.editMode" class="single-category-item--category-name-editinput employee" placeholder="Leave empty to keep password as is">
+            <div class="single-category-item--category-actions">
+                <a data-bind="visible: !params.editMode(), click: function(){params.editMode(true);}" class="single-category-item--category-edit">edit</a>
+                <a data-bind="visible: !params.editMode(), click: $parents[1].removeEmployee" class="single-category-item--category-delete">delete</a>
+                <a data-bind="visible: params.editMode(), click: save" class="single-category-item--category-save">save</a>
+            </div>
 
-        </div>
-        <!--Templates-->
-        <template id="categories-template">
+        </template>
+	<template id="categories-template">
             <div class="category-items-short cart-items-short">
                 <a class="category-items-short--title">Categories</a>
                 <p class="no-items" data-bind="if: !categoriesArray().length">No Categories</p>
-
-
                 <div class="categories-items-container" data-bind="foreach: categoriesArray">
                     <category-container class="single-category-item" params="value: $data, parent: $parent">
 
@@ -52,7 +81,7 @@
                 </div>
             </div>
         </template>
-        <template id="single-category-template">
+	<template id="single-category-template">
             <p data-bind="text: params.name,  visible: !params.editMode()" class="single-category-item--category-name"></p>
             <input type="text" data-bind="textInput: params.tmpName, visible: params.editMode" class="single-category-item--category-name-editinput">
             <div class="single-category-item--category-actions">
@@ -60,10 +89,8 @@
                 <a data-bind="visible: !params.editMode(), click: $parents[1].removeCategory" class="single-category-item--category-delete">delete</a>
                 <a data-bind="visible: params.editMode(), click: save" class="single-category-item--category-save">save</a>
             </div>
-
-            <!--ToDo: Add new category-->
         </template>
-        <template id="cart-page-content">
+	<template id="cart-page-content">
             <cart-products id="cart-products">
                 <div class="category-items-short cart-items-short">
                     <a class="category-items-short--title">Cart</a>
@@ -77,7 +104,7 @@
                 </div>
             </cart-products>
         </template>
-        <template id="profile-page-content">
+	<template id="profile-page-content">
             <div class="category-items-short cart-items-short">
                 <a class="category-items-short--title">Orders</a>
                 <p class="no-items" data-bind="if: !ordersArray().length">No Orders</p>
@@ -119,7 +146,7 @@
                 </div>
             </div>
         </template>
-        <template id="main-page-content">
+	<template id="main-page-content">
             <left-menu class="left-menu" id="left-menu" params="categoryID: $parent.categoryID">
                 <ul class="left-menu--list" data-bind="foreach: categoriesArray">
                     <li class="left-menu--listitem" data-bind="text: name, css:{'selected': $data.selected()}, click: $parent.categoryClick"></li>
@@ -137,7 +164,7 @@
                 </section>
             </products>
         </template>
-        <template id="single-product-view">
+	<template id="single-product-view">
             <div>
                 <h2 class="categories-single-item--title" data-bind="text: params.name"></h2>
                 <img class="categories-single-item--img" data-bind="attr:{src: params.image}">
@@ -181,11 +208,11 @@
                 </div>
             </div>
         </template>
-        <!--Scripts-->
-        <script type="text/javascript" src="../js/knockout-3.3.0.js"></script>
-        <script type="text/javascript" src="../js/sammy-latest.min.js"></script>
-        <script src="../js/jsconstants.js"></script>
-        <script src="js/admin.js"></script>
-    </body>
+	<!--Scripts-->
+	<script type="text/javascript" src="../js/knockout-3.3.0.js"></script>
+	<script type="text/javascript" src="../js/sammy-latest.min.js"></script>
+	<script src="../js/jsconstants.js"></script>
+	<script src="js/admin.js"></script>
+</body>
 
 </html>

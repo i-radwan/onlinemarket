@@ -12,7 +12,14 @@ function categoryModel(category) {
 	self.name = ko.observable(category.name);
 	self.tmpName = ko.observable(category.name);
 	self.editMode = ko.observable(false);
+}
 
+function employeeModel(user) {
+	this.id = user.id;
+	this.email = ko.observable(user.email);
+	this.tmpEmail = ko.observable(user.email);
+	this.pass = ko.observable("");
+	this.editMode = ko.observable(false);
 }
 
 function productModel(product) {
@@ -32,7 +39,7 @@ function productModel(product) {
 // ==========================================================================================================
 
 var controlPanelViewModel;
-
+/*ToDo remove unused*/
 function productsCollectionViewModel(params) {
 	var self = this;
 	self.topCategoriesArray = ko.observableArray(); // make observable
@@ -247,6 +254,10 @@ function categoriesViewModel(params) {
 		}
 	}
 	self.addNewCategory = function () {
+		if (!self.newCategoryName() || self.newCategoryName().trim().length == 0) {
+			alert("Please enter non-empty category name!");
+			return;
+		}
 		var isUnique = true;
 		ko.utils.arrayForEach(self.categoriesArray(), function (category, index) {
 			if (category.name().trim() == self.newCategoryName().trim()) {
@@ -276,7 +287,7 @@ function singleCategoryViewModel(params) {
 			// ToDo: trim, call API to update categoryName
 			var isUnique = true;
 			ko.utils.arrayForEach(self.parent.categoriesArray(), function (category, index) {
-				if (category.name().trim() == item.params.tmpName().trim()) {
+				if (category.name().trim() == item.params.tmpName().trim() && (category != item.params)) {
 					isUnique = false;
 				}
 			});
@@ -288,6 +299,83 @@ function singleCategoryViewModel(params) {
 			}
 		} else {
 			alert("Please enter name!");
+		}
+	}
+}
+
+
+function employeesViewModel(params) {
+	var self = this;
+	self.employeesArray = ko.observableArray();
+	self.newEmployeeEmail = ko.observable("");
+	self.newEmployeePass = ko.observable("");
+	self.employeeTypeName = params.employeeTypeName;
+	self.employeeType = params.employeeType;
+	self.employeeSingleName = params.employeeSingleName;
+	/**
+		This function initializes the categoriesArray
+	*/
+	self.init = function () {
+		// Get all categories from API and add them to the array
+		getEmployeesArray(self.employeeType).forEach(function (employee) {
+			self.employeesArray.push(new employeeModel(employee));
+		});
+	}();
+
+	self.removeEmployee = function (item, event) {
+		if (confirm("Are you sure?")) {
+			// ToDo call API to delete category first, and check if it has no products
+			self.employeesArray.remove(item.params);
+		}
+	}
+	self.addNewEmployee = function () {
+
+		if (!self.newEmployeeEmail() || !self.newEmployeePass() || self.newEmployeeEmail().trim().length == 0 || self.newEmployeePass().trim().length == 0) {
+			alert("Please enter non-empty employee data!");
+			return;
+		}
+		var isUnique = true;
+		ko.utils.arrayForEach(self.employeesArray(), function (employee, index) {
+			if (employee.email().trim() == self.newEmployeeEmail().trim()) {
+				isUnique = false;
+			}
+		});
+		if (isUnique) {
+			// ToDo insert using API, get id, add to array
+			self.employeesArray.push(new employeeModel({
+				id: 20,
+				email: self.newEmployeeEmail().trim()
+			}));
+			self.newEmployeeEmail("");
+			self.newEmployeePass("");
+		} else {
+			alert("Please choose different unique email!");
+		}
+	}
+}
+
+function singleEmployeeViewModel(params) {
+	var self = this;
+	self.params = params.value;
+	self.parent = params.parent;
+	self.init = function () {}();
+	self.save = function (item, event) {
+		if (item.params.tmpEmail().trim().length > 0) {
+			// ToDo: trim, call API to update employee (Check if password is empty update just the email)
+			var isUnique = true;
+			ko.utils.arrayForEach(self.parent.employeesArray(), function (employee, index) {
+				if (employee.email().trim() == item.params.tmpEmail().trim() && employee != item.params) {
+					isUnique = false;
+				}
+			});
+			if (isUnique) {
+				item.params.email(item.params.tmpEmail().trim());
+				item.params.editMode(false);
+			} else {
+				alert("Please choose different unique email!");
+			}
+		} else {
+			alert("Please enter email and password!");
 		}
 	}
 }
@@ -311,6 +399,22 @@ function controlPanelViewModel() {
 		},
 		viewModel: singleCategoryViewModel
 	});
+	// Register employees components
+
+	ko.components.register('employees', {
+		template: {
+			element: 'employees-template'
+		},
+		viewModel: employeesViewModel
+	});
+
+
+	ko.components.register('employee-container', {
+		template: {
+			element: 'single-employee-template'
+		},
+		viewModel: singleEmployeeViewModel
+	});
 
 }
 
@@ -331,6 +435,42 @@ function checkIfSignedIn() {
 /*	API	Requests */
 // ==========================================================================================================
 
+/**
+ * This function retrieves all the the employees from the server
+ * @param {int}   type to select the employees type to retrieve from accountants/deliverymen
+ * @returns {Array} Employees array -> contains employees objects
+ */
+function getEmployeesArray(type) {
+	if (type == USER_ACCOUNTANT) {
+		return [{
+			id: 1,
+			email: "asd1@asd.asd"
+	}, {
+			id: 2,
+			email: "asd2@asd.asd"
+	}, {
+			id: 3,
+			email: "asd3@asd.asd"
+	}, {
+			id: 4,
+			email: "asd4@asd.asd"
+	}];
+	} else if (type == USER_DELIVERMAN) {
+		return [{
+			id: 1,
+			email: "asd21@asd.asd"
+	}, {
+			id: 2,
+			email: "asd22@asd.asd"
+	}, {
+			id: 3,
+			email: "asd23@asd.asd"
+	}, {
+			id: 4,
+			email: "asd24@asd.asd"
+	}];
+	}
+}
 /**
  * This function retrieves all the the categories from the server
  * @returns {Array} Categories array -> contains categories objects
