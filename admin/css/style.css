@@ -170,7 +170,7 @@
 .product-edit--input-title.editinput,
 .categories-single-item--visible-details--spec--val.editinput {
 	font-size: 13px;
-	padding: 4px 4px 4px 4px;
+	padding: 4px;
 	margin-left: 15px;
 	width: 90px;
 	outline: 0 none;
@@ -245,10 +245,53 @@
 	width: 64.7%;
 	text-align: left;
 }
-.categories-single-item--visible-details--spec.edit{
-	margin-left: 0; 
+
+.categories-single-item--visible-details--spec.edit {
+	margin-left: 0;
 	margin-right: 0;
 }
-.categories-single-item--visible-details--spec--key{
+
+.categories-single-item--visible-details--spec--key {
 	width: 30%;
+}
+
+.admin-products--add-product {
+	border-top: 1px solid #eee;
+	margin: 20px auto;
+	margin-top: 90px;
+	width: 400px;
+}
+
+.admin-products--add-product input {
+	padding: 10px !important;
+	font-size: 18px !important;
+}
+
+.add-product-title {
+	text-align: center;
+	font-size: 20px;
+	font-family: 'Raleway', helvetica;
+}
+.admin-products--category-menu {
+	width: 100%;
+	background: #fff;
+	height: 40px;
+	padding: 10px;
+	font-size: 18px;
+	font-family: 'Raleway', helvetica;
+}
+.admin-products--category-menu option{
+	width: 100%;
+	padding: 10px;
+	font-size: 18px;
+	font-family: 'Raleway', helvetica;
+}
+.categories-single-item--visible-details--spec.addNew{
+	margin-top: 20px;
+}
+.orders-filters--filter-button.addproduct{
+	margin-top: 30px;
+	width: 100%;
+	padding: 10px;
+	font-size: 18px;
 }

@@ -45,7 +45,11 @@ function categoryModel(category) {
 	self.tmpName = ko.observable(category.name);
 	self.editMode = ko.observable(false);
 }
-
+function categorySpecModel(categoySpec) {
+	this.id = ko.observable(categoySpec.id);
+	this.name = ko.observable(categoySpec.name);
+	this.value = ko.observable("");
+}
 function employeeModel(employee) {
 	this.id = employee.id;
 	this.email = ko.observable(employee.email);
@@ -79,6 +83,19 @@ function productsViewModel(params) {
 	var self = this;
 	self.params = params.value;
 	self.productsArray = ko.observableArray();
+	self.allCategories = getCategoriesArray();
+	self.categorySpecs = ko.observableArray();
+	//new product vars
+	self.newProduct = {}
+	self.newProduct.category = ko.observable();
+
+	self.newProduct.category.subscribe(function (category) {
+		self.categorySpecs.removeAll();
+		getCategorySpecs(category.id).forEach(function (categorySpec) {
+			self.categorySpecs.push(new categorySpecModel(categorySpec));
+		});
+	})
+
 	self.init = function () {
 		var products = getAllProducts();
 		products.forEach(function (product) {
@@ -857,6 +874,24 @@ function getEmployeesArray(type) {
 			email: "asd24@asd.asd"
 	}];
 	}
+}
+function getCategorySpecs(cateID){
+	return [{
+		_id: 1,
+		name: "spec1"
+	},{
+		_id: 2,
+		name: "spec2"
+	},{
+		_id: 3,
+		name: "spec3"
+	},{
+		_id: 4,
+		name: "spec4"
+	},{
+		_id: 5,
+		name: "spec5"
+	}];
 }
 /**
  * This function retrieves all the the categories from the server

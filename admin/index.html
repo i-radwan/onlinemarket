@@ -1,47 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 
-    <head>
-        <meta charset="UTF-8">
-        <title>OMarket - Control Panel</title>
-        <link rel="stylesheet" href="../css/jquery-ui.css">
-        <link href="../css/font-awesome/css/font-awesome.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="../css/build.css">
-        <link href="../css/fonts.css" rel="stylesheet">
-        <link href="../css/style.css" rel="stylesheet">
-        <link href="css/style.css" rel="stylesheet">
-        <link rel="icon" href="../img/OMarket.ico">
-        <script src="../js/jquery.min.js"></script>
-        <script src="../js/jquery-ui.js"></script>
-    </head>
+<head>
+	<meta charset="UTF-8">
+	<title>OMarket - Control Panel</title>
+	<link rel="stylesheet" href="../css/jquery-ui.css">
+	<link href="../css/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="../css/build.css">
+	<link href="../css/fonts.css" rel="stylesheet">
+	<link href="../css/style.css" rel="stylesheet">
+	<link href="css/style.css" rel="stylesheet">
+	<link rel="icon" href="../img/OMarket.ico">
+	<script src="../js/jquery.min.js"></script>
+	<script src="../js/jquery-ui.js"></script>
+</head>
 
-    <body>
-        <div class="container" id="container">
-            <header id="header" params="cartAmount: cartAmount">
-                <div class="header-leftside">
-                    <h1 class="header-title"><a class="header-title-link"><span class="header-title-O">O</span><span class="header-title-Market">Market</span></a></h1>
-                </div>
-                <div class="header-rightside">
-                    <div class="header-links">
-                        <a class="header-username"><span>Ibrahim</span></a>
-                        <a href="#" class="header-logout"><span>Logout</span></a>
-                    </div>
-                </div>
-            </header>
-            <categories></categories>
-            <employees params="employeeTypeName: 'Accountants', employeeType : USER_ACCOUNTANT, employeeSingleName: 'Accountant'"></employees>
-            <employees params="employeeTypeName: 'Delivery Staff', employeeType : USER_DELIVERMAN, employeeSingleName: 'Deliveryman'"></employees>
-            <users></users>
-            <orders></orders>
-            <admin-products></admin-products>
-            <footer>
-                <p class="copy">All copyrights are reserved, OMarket ® 2016</p>
-                <p class="devby">Developed by CMP-2019</p>
-            </footer>
+<body>
+	<div class="container" id="container">
+		<header id="header" params="cartAmount: cartAmount">
+			<div class="header-leftside">
+				<h1 class="header-title"><a class="header-title-link"><span class="header-title-O">O</span><span class="header-title-Market">Market</span></a></h1>
+			</div>
+			<div class="header-rightside">
+				<div class="header-links">
+					<a class="header-username"><span>Ibrahim</span></a>
+					<a href="#" class="header-logout"><span>Logout</span></a>
+				</div>
+			</div>
+		</header>
+		<categories></categories>
+		<employees params="employeeTypeName: 'Accountants', employeeType : USER_ACCOUNTANT, employeeSingleName: 'Accountant'"></employees>
+		<employees params="employeeTypeName: 'Delivery Staff', employeeType : USER_DELIVERMAN, employeeSingleName: 'Deliveryman'"></employees>
+		<users></users>
+		<orders></orders>
+		<admin-products></admin-products>
+		<footer>
+			<p class="copy">All copyrights are reserved, OMarket ® 2016</p>
+			<p class="devby">Developed by CMP-2019</p>
+		</footer>
 
-        </div>
-        <!--Templates-->
-        <template id="orders-template">
+	</div>
+	<!--Templates-->
+	<template id="orders-template">
             <div class="category-items-short cart-items-short">
                 <a class="category-items-short--title">Orders</a>
                 <div class="orders-filters">
@@ -108,7 +108,7 @@
                 </div>
             </div>
         </template>
-        <template id="single-order-template">
+	<template id="single-order-template">
             <div class="order-details">
                 <p><strong>Order</strong>: #<span data-bind="text: params.id"></span></p>
                 <p><strong>Date</strong>: <span data-bind="text: params.issuedate"></span></p>
@@ -119,7 +119,7 @@
             </div>
 
         </template>
-        <template id="users-template">
+	<template id="users-template">
             <div class="category-items-short cart-items-short">
                 <a class="category-items-short--title">Users</a>
                 <p class="no-items" data-bind="if: !usersArray().length">No Users</p>
@@ -130,14 +130,14 @@
                 </div>
             </div>
         </template>
-        <template id="single-user-template">
+	<template id="single-user-template">
             <p data-bind="text: params.email" class="single-category-item--category-name"></p>
             <div class="single-category-item--category-actions">
                 <a data-bind="visible: params[USERS_FLD_STATUS]() == USER_ACTIVE, click: $parents[1].blockUser" class="single-category-item--category-edit">block</a>
                 <a data-bind="visible: params[USERS_FLD_STATUS]() == USER_BANNED, click: $parents[1].unblockUser" class="single-category-item--category-edit">unblock</a>
             </div>
         </template>
-        <template id="employees-template">
+	<template id="employees-template">
             <div class="category-items-short cart-items-short">
                 <a class="category-items-short--title" data-bind="text: employeeTypeName"></a>
                 <p class="no-items" data-bind="if: !employeesArray().length">No <span data-bind="text: employeeTypeName"></span></p>
@@ -155,7 +155,7 @@
                 </div>
             </div>
         </template>
-        <template id="single-employee-template">
+	<template id="single-employee-template">
             <p data-bind="text: params.email,  visible: !params.editMode()" class="single-category-item--category-name"></p>
             <input type="text" data-bind="textInput: params.tmpEmail, visible: params.editMode" class="single-category-item--category-name-editinput employee">
             <input type="password" data-bind="textInput: params.pass, visible: params.editMode" class="single-category-item--category-name-editinput employee" placeholder="Leave empty to keep password as is">
@@ -166,7 +166,7 @@
             </div>
 
         </template>
-        <template id="categories-template">
+	<template id="categories-template">
             <div class="category-items-short cart-items-short">
                 <a class="category-items-short--title">Categories</a>
                 <p class="no-items" data-bind="if: !categoriesArray().length">No Categories</p>
@@ -183,7 +183,7 @@
                 </div>
             </div>
         </template>
-        <template id="single-category-template">
+	<template id="single-category-template">
             <p data-bind="text: params.name,  visible: !params.editMode()" class="single-category-item--category-name"></p>
             <input type="text" data-bind="textInput: params.tmpName, visible: params.editMode" class="single-category-item--category-name-editinput">
             <div class="single-category-item--category-actions">
@@ -193,7 +193,7 @@
             </div>
         </template>
 
-        <template id="profile-page-content">
+	<template id="profile-page-content">
             <div class="category-items-short cart-items-short">
                 <a class="category-items-short--title">Orders</a>
                 <p class="no-items" data-bind="if: !ordersArray().length">No Orders</p>
@@ -236,7 +236,7 @@
             </div>
         </template>
 
-        <template id="admin-products-template">
+	<template id="admin-products-template">
             <products id="search-products">
                 <div class="category-items-short cart-items-short">
                     <a class="category-items-short--title">Products</a>
@@ -244,10 +244,29 @@
                     <div class="categories-items-container" data-bind="foreach: productsArray">
                         <product-container class="categories-single-item categories-single-cartitem" params="value: $data"></product-container>
                     </div>
+                    <div class="admin-products--add-product">
+                        <p class="add-product-title">New Product</p>
+                        <input type="text" data-bind="" placeholder="Product Name..." class="product-edit--input-title editinput">
+                        <input type="number" data-bind="" placeholder="Product Price ($$)..." class="product-edit--input-title editinput">
+                        <input type="text" data-bind="" placeholder="Product Size (X × Y × Z)..." class="product-edit--input-title editinput">
+                        <input type="number" data-bind="" placeholder="Product Weight (gram)..." class="product-edit--input-title editinput">
+                        <input type="number" data-bind="" placeholder="Product Quantity..." class="product-edit--input-title editinput">
+                        <input type="text" data-bind="" placeholder="Origin..." class="product-edit--input-title editinput">
+                        <input type="text" data-bind="" placeholder="Provider..." class="product-edit--input-title editinput">
+                        <input type="text" data-bind="" placeholder="Product Image (URL)..." class="product-edit--input-title editinput">
+						<select data-bind="optionsCaption: 'Choose Category...', options: allCategories
+                       	,optionsText: 'name', value: newProduct.category" class="admin-products--category-menu" >
+						</select>
+                   		<div data-bind="foreach: categorySpecs">
+							<input type="text" class="product-edit--input-title editinput" data-bind="attr: {placeholder: name }, textInput: value">
+						</div>
+						<button data-bind="" class="orders-filters--filter-button addproduct">Add product</button>
+
+                    </div>
                 </div>
             </products>
         </template>
-        <template id="single-product-view">
+	<template id="single-product-view">
             <div data-bind="visible: !params.editMode()">
                 <h2 class="categories-single-item--title" data-bind="text: params.name"></h2>
                 <img class="categories-single-item--img" data-bind="attr:{src: params.image}">
@@ -295,12 +314,12 @@
                 <p data-bind="click: save" class="cart-cancel-product">save</p>
             </div>
         </template>
-        <!--Scripts-->
-        <script type="text/javascript" src="../js/jwt-decode.min.js"></script>
-        <script type="text/javascript" src="../js/knockout-3.3.0.js"></script>
-        <script type="text/javascript" src="../js/sammy-latest.min.js"></script>
-        <script src="../js/jsconstants.js"></script>
-        <script src="js/admin.js"></script>
-    </body>
+	<!--Scripts-->
+	<script type="text/javascript" src="../js/jwt-decode.min.js"></script>
+	<script type="text/javascript" src="../js/knockout-3.3.0.js"></script>
+	<script type="text/javascript" src="../js/sammy-latest.min.js"></script>
+	<script src="../js/jsconstants.js"></script>
+	<script src="js/admin.js"></script>
+</body>
 
 </html>
