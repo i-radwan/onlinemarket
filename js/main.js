@@ -33,7 +33,7 @@ function productModel(product) {
 function orderModel(order) {
 	var self = this;
 	self.id = order.id;
-	self.date = order.date;
+	self.duedate = order.duedate;
 	self.cost = order.cost;
 	self.status = order.status;
 	self.products = order.products;
@@ -289,7 +289,7 @@ function profileViewModel(params) {
 		// ToDo to be retrieved from API
 		var order = {};
 		order.id = 4;
-		order.date = "2016-10-28";
+		order.duedate = "2016-10-28";
 		order.cost = onlineMarketMVVM.cartAmount();
 		order.status = "Pending";
 		order.products = products;
@@ -619,7 +619,7 @@ function getUserRate(productID) {
 function getUserOrders() {
 	return [{
 			id: 1,
-			date: "2016-08-10",
+			duedate: "2016-08-10",
 			cost: 1200,
 			status: "Pending",
 			products: [{
@@ -671,7 +671,7 @@ function getUserOrders() {
 			}]
 	}, {
 			id: 2,
-			date: "2016-08-12",
+			duedate: "2016-08-12",
 			cost: 1000,
 			status: "Picked",
 			products: [{
@@ -724,7 +724,7 @@ function getUserOrders() {
 	},
 		{
 			id: 3,
-			date: "2016-08-13",
+			duedate: "2016-08-13",
 			cost: 1300,
 			status: "Delivered",
 			products: [{

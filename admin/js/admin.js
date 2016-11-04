@@ -5,6 +5,38 @@
 // ==========================================================================================================
 /*	Data Models	 */
 // ==========================================================================================================
+function productSpecModel(productSpec) {
+	this.name = ko.observable(productSpec.name);
+	this.value = ko.observable(productSpec.value);
+}
+
+function productModel(product) {
+	var self = this;
+	self.id = product.id;
+	self.name = ko.observable(product.name);
+	self.price = ko.observable(product.price);
+	self.rate = product.rate;
+	self.image = ko.observable(product.image);
+	self.quantity = ko.observable(product.quantity);
+	self.earnings = ko.observable(product.earnings);
+	self.solditems = ko.observable(product.solditems);
+	self.more = ko.observableArray();
+	product.more.forEach(function (more) {
+		self.more.push(new productSpecModel(more));
+	});
+
+	self.tmpName = ko.observable(product.name);
+	self.tmpPrice = ko.observable(product.price);
+	self.tmpImage = ko.observable(product.image);
+	self.tmpQuantity = ko.observable(product.quantity);
+	self.tmpMore = ko.observableArray();
+	product.more.forEach(function (more) {
+		self.tmpMore.push(new productSpecModel(more));
+	});
+
+	self.isMoreDivVisible = ko.observable(false);
+	self.editMode = ko.observable(false);
+}
 
 function categoryModel(category) {
 	var self = this;
@@ -28,17 +60,14 @@ function userModel(user) {
 	this[USERS_FLD_STATUS] = ko.observable(user[USERS_FLD_STATUS]);
 }
 
-function productModel(product) {
+function orderModel(order) {
 	var self = this;
-	self.id = product.id;
-	self.name = product.name;
-	self.price = product.price;
-	self.rate = product.rate;
-	self.image = product.image;
-	self.more = product.more || [];
-	self.quantity = ko.observable(product.quantity || 1);
-	self.isMoreDivVisible = ko.observable(false);
+	self.id = order.id;
+	self.issuedate = order.issuedate;
+	self.cost = order.cost;
+	self.status = order.status;
 }
+
 
 // ==========================================================================================================
 /*	View Models	 */
@@ -46,115 +75,28 @@ function productModel(product) {
 
 var controlPanelViewModel;
 /*ToDo remove unused*/
-function productsCollectionViewModel(params) {
-	var self = this;
-	self.topCategoriesArray = ko.observableArray(); // make observable
-
-	self.changeProductsViewContent = function (categoryID) {
-		self.topCategoriesArray.removeAll();
-
-		if (categoryID == 0) {
-			// Get top categories and top produdcts in every category from the API and add them to array
-			var topCategories = getTopCategories(TOP_CATEGOIRES_COUNT);
-
-			topCategories.forEach(function (topCategory) {
-				var topProducts = getCategoryProducts(0, 3);
-				topProducts.forEach(function (topProduct) {
-					topCategory.products.push(new productModel(topProduct));
-				});
-				self.topCategoriesArray.push(new categoryModel(topCategory));
-			});
-		} else {
-			var category = {};
-			category.id = categoryID;
-			category.name = getCategoryName(categoryID);
-			category.products = [];
-			var products = getCategoryProducts(categoryID, 0);
-			products.forEach(function (product) {
-				category.products.push(new productModel(product));
-			});
-			self.topCategoriesArray.push(new categoryModel(category));
-		}
-	}
-
-	/**
-		This function initializes the categoriesArray
-	*/
-	self.init = function () {
-		self.changeProductsViewContent(params.categoryID());
-		// handle categoryID changed from the leftpanel module
-		shouter.subscribe(function (newCategoryID) {
-			// ToDo: if categoryID not found-> back to zero
-			params.categoryID(newCategoryID);
-			self.changeProductsViewContent(params.categoryID());
-		}, self, "changedCategoryID");
-	}();
-
-	self.expandCategory = function (item) {
-		sammyApp.setLocation('#/' + item.id);
-	}
-
-}
-
-function cartProductsViewModel(params) {
-	var self = this;
-	self.cartProductsArray = ko.observableArray(); // make observable
-	/**
-		This function initializes the categoriesArray
-	*/
-	self.init = function () {
-		var cartProducts = getCartProducts();
-		cartProducts.forEach(function (product) {
-			product.quantity = 1;
-			self.cartProductsArray.push(new productModel(product));
-		});
-	}();
-
-	self.cancelProduct = function (product) {
-		if (confirm("Do you want to remove this product for sure ?")) {
-			self.cartProductsArray.remove(product.params);
-			return true;
-		}
-	}
-
-	self.checkoutOrder = function () {
-		if (confirm("Are you sure, the amount will be withdrawed from your CC ?")) {
-			var cartProducts = [];
-			ko.utils.arrayForEach(self.cartProductsArray(), function (product, index) {
-				product.quantity = product.quantity();
-				cartProducts.push(product);
-			});
-			shouter.notifySubscribers(cartProducts, "addOrder");
-			self.cartProductsArray.removeAll();
-			return true;
-		}
-		return false;
-	}
-
-	shouter.subscribe(function (newProduct) {
-		var added = false;
-		ko.utils.arrayForEach(self.cartProductsArray(), function (product, index) {
-			if (newProduct.id == product.id) {
-				product.quantity(product.quantity() + 1);
-				added = true;
-			}
-		});
-		if (!added) {
-			self.cartProductsArray.push(newProduct);
-		}
-	}, self, "addProductToCart");
-}
-
-function productViewModel(params) {
+function productsViewModel(params) {
 	var self = this;
 	self.params = params.value;
-	self.params.cart = params.cart;
-	self.params.order = params.order;
-	self.params.userRate = ko.observable(getUserRate(self.params.id));
+	self.productsArray = ko.observableArray();
+	self.init = function () {
+		var products = getAllProducts();
+		products.forEach(function (product) {
+			self.productsArray.push(new productModel(product));
+		});
+	}();
+	// ToDO: seller removes product only, admin removes product and order items that contain this product
+	self.deleteProduct = function (item, event) {
+		if (confirm("Are you sure?")) {
+			self.productsArray.remove(item.params);
+		}
+	}
+}
 
-	self.params.formattedRate = ko.computed(function () {
-		return (self.params.userRate()).toFixed(1);
-	});
+function singleProductViewModel(params) {
+	var self = this;
+	self.params = params.value;
+
 	/**
 	 * This function handles product load more click
 	 * @param {object} item  clicked category
@@ -164,42 +106,19 @@ function productViewModel(params) {
 		self.params.isMoreDivVisible(true);
 	}
 
-	/**
-	 * This function handles product add to cart click
-	 * @param {object} item  clicked category
-	 * @param {object} event click event
-	 */
-	self.addToCart = function (product) {
-		onlineMarketMVVM.increaseCartAmount(product.params.price);
-		shouter.notifySubscribers(product.params, "addProductToCart");
-	}
+	self.save = function () {
+		if (confirm("Are you sure?")) {
+			// Call api first and if true edit these values
+			self.params.name(self.params.tmpName());
+			self.params.price(self.params.tmpPrice());
+			self.params.image(self.params.tmpImage());
+			self.params.quantity(self.params.tmpQuantity());
 
-	self.increaseQuantity = function () {
-		// ToDo check if available
-		self.params.quantity(self.params.quantity() + 1);
-		return true;
-
-	}
-	self.decreaseQuantity = function () {
-		if (self.params.quantity() > 1) {
-			self.params.quantity(self.params.quantity() - 1);
-			return true;
+			ko.utils.arrayForEach(self.params.more(), function (spec, index) {
+				self.params.more()[index].value(self.params.tmpMore()[index].value());
+			});
+			self.params.editMode(false);
 		}
-	}
-
-	self.increaseRate = function () {
-		if (self.params.userRate() + 0.5 <= 5) {
-			self.params.userRate(self.params.userRate() + 0.5);
-			return true;
-		}
-		return false;
-	}
-	self.decreaseRate = function () {
-		if (self.params.userRate() - 0.5 >= 0) {
-			self.params.userRate(self.params.userRate() - 0.5);
-			return true;
-		}
-		return false;
 	}
 }
 
@@ -317,9 +236,6 @@ function employeesViewModel(params) {
 	self.employeeTypeName = params.employeeTypeName;
 	self.employeeType = params.employeeType;
 	self.employeeSingleName = params.employeeSingleName;
-	/**
-		This function initializes the categoriesArray
-	*/
 	self.init = function () {
 		// Get all categories from API and add them to the array
 		getEmployeesArray(self.employeeType).forEach(function (employee) {
@@ -389,9 +305,6 @@ function singleEmployeeViewModel(params) {
 function usersViewModel(params) {
 	var self = this;
 	self.usersArray = ko.observableArray();
-	/**
-		This function initializes the categoriesArray
-	*/
 	self.init = function () {
 		// Get all categories from API and add them to the array
 		getAllSellersAndBuyers().forEach(function (user) {
@@ -399,7 +312,7 @@ function usersViewModel(params) {
 		});
 	}();
 
-	self.blockUser  = function (item, event) {
+	self.blockUser = function (item, event) {
 		if (confirm("Are you sure?")) {
 			// ToDo call API to delete category first, and check if it has no products
 			item.params[USERS_FLD_STATUS](USER_BANNED);
@@ -418,6 +331,61 @@ function singleUserViewModel(params) {
 	self.params = params.value;
 	self.parent = params.parent;
 	self.init = function () {}();
+}
+
+function ordersViewModel(params) {
+	var self = this;
+	self.ordersArray = ko.observableArray();
+	self.minPrice = 0;
+	self.maxPrice = 5000;
+	self.totalCost = ko.observable(0);
+
+
+	self.calculateTotal = function () {
+		self.totalCost(0);
+		ko.utils.arrayForEach(self.ordersArray(), function (order, index) {
+			self.totalCost(self.totalCost() + order.cost);
+		});
+	}
+
+	self.loadOrders = function () {
+		self.ordersArray.removeAll();
+		// Get all categories from API and add them to the array
+		getOrders(null).forEach(function (order) {
+			self.ordersArray.push(new orderModel(order));
+		});
+		self.calculateTotal();
+	}
+
+	self.init = function () {
+		// initial the slider
+		$(function () {
+			$("#slider").slider({
+				range: true,
+				min: 0,
+				max: 10000,
+				values: [0, 5000],
+				slide: function (event, ui) {
+					self.minPrice = ui.values[0];
+					self.maxPrice = ui.values[1];
+					$(".orders-filters--pricetext").html("$" + ui.values[0] + " - $" + ui.values[1]);
+				}
+			});
+			$("#startdate").datepicker();
+			$("#enddate").datepicker();
+		});
+		self.loadOrders();
+	}();
+
+}
+
+function singleOrderViewModel(params) {
+	var self = this;
+	self.params = params.value;
+
+	self.init = function () {
+
+	}();
 }
 
 function controlPanelViewModel() {
@@ -472,6 +440,38 @@ function controlPanelViewModel() {
 		viewModel: singleUserViewModel
 	});
 
+	// Register orders components
+
+	ko.components.register('orders', {
+		template: {
+			element: 'orders-template'
+		},
+		viewModel: ordersViewModel
+	});
+
+	ko.components.register('order-container', {
+		template: {
+			element: 'single-order-template'
+		},
+		viewModel: singleOrderViewModel
+	});
+
+
+	// Register products components
+
+	ko.components.register('admin-products', {
+		template: {
+			element: 'admin-products-template'
+		},
+		viewModel: productsViewModel
+	});
+
+	ko.components.register('product-container', {
+		template: {
+			element: 'single-product-view'
+		},
+		viewModel: singleProductViewModel
+	});
 }
 
 // ==========================================================================================================
@@ -490,6 +490,310 @@ function checkIfSignedIn() {
 // ==========================================================================================================
 /*	API	Requests */
 // ==========================================================================================================
+
+/**
+ * This function returns all the products on the server
+ * @returns {Array} all products
+ */
+function getAllProducts() {
+	return [
+		{
+			id: 0,
+			name: "IPhone 6S",
+			price: 500,
+			rate: 4.5,
+			image: "../img/img.png",
+			earnings: "20000$",
+			solditems: "100",
+			quantity: 12,
+			more: [
+				{
+					name: "Origin",
+					value: "Apple"
+				}
+			]
+		},
+		{
+			id: 0,
+			name: "IPhone 6S",
+			price: 200,
+			rate: 4.6,
+			image: "../img/img.png",
+			earnings: "20000$",
+			solditems: "100",
+			quantity: 12,
+			more: [
+				{
+					name: "Origin",
+					value: "Apple"
+				}
+			]
+
+		},
+		{
+			id: 0,
+			name: "IPhone 6S",
+			price: 500,
+			rate: 4.5,
+			image: "../img/img.png",
+			earnings: "20000$",
+			solditems: "100",
+			quantity: 12,
+			more: [
+				{
+					name: "Origin",
+					value: "Apple"
+				}
+			]
+		},
+		{
+			id: 0,
+			name: "IPhone 6S",
+			price: 500,
+			rate: 4.5,
+			image: "../img/img.png",
+			earnings: "20000$",
+			solditems: "100",
+			quantity: 12,
+			more: [
+				{
+					name: "Origin",
+					value: "Apple"
+				}
+			]
+		},
+		{
+			id: 0,
+			name: "IPhone 6S",
+			price: 500,
+			rate: 4.5,
+			image: "../img/img.png",
+			earnings: "20000$",
+			solditems: "100",
+			quantity: 12,
+			more: [
+				{
+					name: "Origin",
+					value: "Apple"
+				}
+			]
+		},
+		{
+			id: 0,
+			name: "IPhone 6S",
+			price: 500,
+			rate: 4.5,
+			image: "../img/img.png",
+			earnings: "20000$",
+			solditems: "100",
+			quantity: 12,
+			more: [
+				{
+					name: "Origin",
+					value: "Apple"
+				}
+			]
+		},
+		{
+			id: 0,
+			name: "IPhone 6S",
+			price: 500,
+			rate: 4.5,
+			image: "../img/img.png",
+			earnings: "20000$",
+			solditems: "100",
+			quantity: 12,
+			more: [
+				{
+					name: "Origin",
+					value: "Apple"
+				}
+			]
+		},
+		{
+			id: 0,
+			name: "IPhone 6S",
+			price: 500,
+			rate: 4.5,
+			image: "../img/img.png",
+			earnings: "20000$",
+			solditems: "100",
+			quantity: 12,
+			more: [
+				{
+					name: "Origin",
+					value: "Apple"
+				}
+			]
+		}
+	];
+}
+/**
+ * This function returns user orders
+ * @param string filters : filters to be applied
+ * @returns {Array} user orders
+ */
+function getOrders(filters) {
+	return [{
+			id: 1,
+			issuedate: "2016-08-10",
+			cost: 1200,
+			status: "Pending",
+			products: [{
+					id: 1,
+					name: "IPhone 6S",
+					price: 500,
+					rate: 4.5,
+					image: "../img/img.png",
+					quantity: 10,
+					more: [
+						{
+							name: "Origin",
+							value: "Apple"
+					}
+				]
+			},
+				{
+					id: 2,
+					name: "IPhone 4S",
+					price: 200,
+					rate: 4.6,
+					image: "../img/img.png",
+					quantity: 20,
+					more: [
+						{
+							name: "Origin",
+							value: "Apple"
+					},
+						{
+							name: "Sold items",
+							value: "100"
+					}
+				]
+
+			},
+				{
+					id: 3,
+					name: "IPhone 3S",
+					price: 100,
+					rate: 4.5,
+					image: "../img/img.png",
+					quantity: 30,
+					more: [
+						{
+							name: "Origin",
+							value: "Apple"
+					}
+				]
+			}]
+	}, {
+			id: 2,
+			issuedate: "2016-08-12",
+			cost: 1000,
+			status: "Picked",
+			products: [{
+					id: 1,
+					name: "IPhone 6S",
+					price: 500,
+					rate: 4.5,
+					image: "../img/img.png",
+					quantity: 10,
+					more: [
+						{
+							name: "Origin",
+							value: "Apple"
+					}
+				]
+			},
+				{
+					id: 2,
+					name: "IPhone 4S",
+					price: 200,
+					rate: 4.6,
+					image: "../img/img.png",
+					quantity: 20,
+					more: [
+						{
+							name: "Origin",
+							value: "Apple"
+					},
+						{
+							name: "Sold items",
+							value: "100"
+					}
+				]
+
+			},
+				{
+					id: 3,
+					name: "IPhone 3S",
+					price: 100,
+					rate: 4.5,
+					image: "../img/img.png",
+					quantity: 30,
+					more: [
+						{
+							name: "Origin",
+							value: "Apple"
+					}
+				]
+			}]
+	},
+		{
+			id: 3,
+			issuedate: "2016-08-13",
+			cost: 1300,
+			status: "Delivered",
+			products: [{
+					id: 1,
+					name: "IPhone 6S",
+					price: 500,
+					rate: 4.5,
+					image: "../img/img.png",
+					quantity: 10,
+					more: [
+						{
+							name: "Origin",
+							value: "Apple"
+					}
+				]
+			},
+				{
+					id: 2,
+					name: "IPhone 4S",
+					price: 200,
+					rate: 4.6,
+					image: "../img/img.png",
+					quantity: 20,
+					more: [
+						{
+							name: "Origin",
+							value: "Apple"
+					},
+						{
+							name: "Sold items",
+							value: "100"
+					}
+				]
+
+			},
+				{
+					id: 3,
+					name: "IPhone 3S",
+					price: 100,
+					rate: 4.5,
+					image: "../img/img.png",
+					quantity: 30,
+					more: [
+						{
+							name: "Origin",
+							value: "Apple"
+					}
+				]
+			}]
+	}];
+}
+
 /**
  * This function returns all the sellers and buyers in the system
  * @returns {Array} users array
