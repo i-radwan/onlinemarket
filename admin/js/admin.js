@@ -45,11 +45,13 @@ function categoryModel(category) {
 	self.tmpName = ko.observable(category.name);
 	self.editMode = ko.observable(false);
 }
+
 function categorySpecModel(categoySpec) {
 	this.id = ko.observable(categoySpec.id);
 	this.name = ko.observable(categoySpec.name);
 	this.value = ko.observable("");
 }
+
 function employeeModel(employee) {
 	this.id = employee.id;
 	this.email = ko.observable(employee.email);
@@ -108,6 +110,10 @@ function productsViewModel(params) {
 			self.productsArray.remove(item.params);
 		}
 	}
+
+	self.addNewProduct = function () {
+		alert("ADD");
+	}
 }
 
 function singleProductViewModel(params) {
@@ -141,37 +147,17 @@ function singleProductViewModel(params) {
 
 function profileViewModel(params) {
 	var self = this;
-	self.ordersArray = ko.observableArray();
 	self.userModel = getUserModel();
-
-	self.init = function () {
-		var orders = getUserOrders();
-		orders.forEach(function (order) {
-			self.ordersArray.push(new orderModel(order));
-		});
-	}();
 
 	self.saveProfile = function () {
 		// ToDo save profile using API
-		console.log(self.userModel.address());
-		console.log(self.userModel.ccmonth());
-		console.log(self.userModel.ccyear());
-		console.log(self.userModel.ccnumber());
+		//		console.log(self.userModel.address());
+		console.log(self.userModel.tel());
+		console.log(self.userModel.name());
+		console.log(self.userModel.bankAccount());
 		console.log(self.userModel.currentPass());
 		console.log(self.userModel.newPass());
 	}
-	shouter.subscribe(function (products) {
-		// ToDo to be retrieved from API
-		var order = {};
-		order.id = 4;
-		order.date = "2016-10-28";
-		order.cost = onlineMarketMVVM.cartAmount();
-		order.status = "Pending";
-		order.products = products;
-		self.ordersArray.push(new orderModel(order));
-		alert("Order added successfully!");
-		sammyApp.setLocation("#/profile");
-	}, self, "addOrder");
 }
 
 function categoriesViewModel(params) {
@@ -489,6 +475,15 @@ function controlPanelViewModel() {
 		},
 		viewModel: singleProductViewModel
 	});
+
+	// Register profile components
+
+	ko.components.register('profile', {
+		template: {
+			element: 'profile-page-content'
+		},
+		viewModel: profileViewModel
+	});
 }
 
 // ==========================================================================================================
@@ -504,10 +499,51 @@ function checkIfSignedIn() {
 	return true;
 }
 
+/**
+ * This function returns the user model
+ * @returns {object} user model
+ */
+function getUserModel() {
+	var user = {};
+	//	console.log(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_NAME));
+	user.name = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_NAME));
+	user.email = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_EMAIL));
+	user.type = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_USER_TYPE));
+	user.tel = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_TEL));
+	user.status = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_STATUS));
+
+	if (user.type() == USER_SELLER) {
+		user.address = ko.observable(localStorage.getItem(OMARKET_PREFIX + SELLERS_FLD_ADDRESS));
+		user.bankAccount = ko.observable(localStorage.getItem(OMARKET_PREFIX + SELLERS_FLD_BACK_ACCOUNT));
+	}
+
+	// Observables to control forms
+	user.currentPass = ko.observable("");
+	user.newPass = ko.observable("");
+	user.changePass = ko.observable(false);
+	return user;
+}
+
 // ==========================================================================================================
 /*	API	Requests */
 // ==========================================================================================================
+/**
+ * This function logs the user off the system
+ */
+function logOut() {
+	if (returnedData[AUTH_RESPONSE_RESULT][USERS_FLD_USER_TYPE] == USER_SELLER) {
+		localStorage.setItem(OMARKET_PREFIX + SELLERS_FLD_ADDRESS, "");
+		localStorage.setItem(OMARKET_PREFIX + SELLERS_FLD_BACK_ACCOUNT, "");
+	}
+	localStorage.setItem(OMARKET_JWT, "");
+	localStorage.setItem(OMARKET_PREFIX + USERS_FLD_NAME, "");
+	localStorage.setItem(OMARKET_PREFIX + USERS_FLD_EMAIL, "");
+	localStorage.setItem(OMARKET_PREFIX + USERS_FLD_TEL, "");
+	localStorage.setItem(OMARKET_PREFIX + USERS_FLD_USER_TYPE, "");
+	localStorage.setItem(OMARKET_PREFIX + USERS_FLD_STATUS, "");
 
+	window.location = WEBSITE_LINK;
+}
 /**
  * This function returns all the products on the server
  * @returns {Array} all products
@@ -875,20 +911,21 @@ function getEmployeesArray(type) {
 	}];
 	}
 }
-function getCategorySpecs(cateID){
+
+function getCategorySpecs(cateID) {
 	return [{
 		_id: 1,
 		name: "spec1"
-	},{
+	}, {
 		_id: 2,
 		name: "spec2"
-	},{
+	}, {
 		_id: 3,
 		name: "spec3"
-	},{
+	}, {
 		_id: 4,
 		name: "spec4"
-	},{
+	}, {
 		_id: 5,
 		name: "spec5"
 	}];

@@ -24,7 +24,7 @@
 			<div class="header-rightside">
 				<div class="header-links">
 					<a class="header-username"><span>Ibrahim</span></a>
-					<a href="#" class="header-logout"><span>Logout</span></a>
+					<a data-bind="click: logOut" class="header-logout"><span>Logout</span></a>
 				</div>
 			</div>
 		</header>
@@ -34,6 +34,8 @@
 		<users></users>
 		<orders></orders>
 		<admin-products></admin-products>
+		<profile></profile>
+
 		<footer>
 			<p class="copy">All copyrights are reserved, OMarket ® 2016</p>
 			<p class="devby">Developed by CMP-2019</p>
@@ -41,6 +43,40 @@
 
 	</div>
 	<!--Templates-->
+	<template id="profile-page-content">
+        <div class="category-items-short cart-items-short">
+            <a class="category-items-short--title">Account</a>
+            <div class="account-details">
+               
+                 <div class="account-div">
+                    <div class="account-currentpass"><p class="account-passtext">Name: </p><input type="text" data-bind="textInput: userModel.name" placeholder="Name" class="account-currentpassinput account-input"></div>
+                </div>
+                
+                 <div class="account-div">
+                    <div class="account-currentpass"><p class="account-passtext">Telephone: </p><input type="text" data-bind="textInput: userModel.tel" placeholder="Telephone..." class="account-currentpassinput account-input"></div>
+                </div>
+                <div class="account-div">		
+                    <p class="account-addresstext">Address: </p><textarea class="account-addresstextarea" data-bind="textInput: userModel.address" placeholder="Address..."></textarea>
+                </div>
+                <div class="account-div" data-bind="if: userModel.type() == USER_SELLER">		
+                    <p class="account-addresstext">Bank Account: </p><textarea class="account-addresstextarea" data-bind="textInput: userModel.bankAccount" placeholder="Bank Account..."></textarea>
+                </div>
+                <div class="account-div">
+
+                    <div class="account-editpass"><p class="account-editpasstext" data-bind="visible: !userModel.changePass(), click: function(){userModel.changePass(!userModel.changePass());}">edit password</p>
+                    </div>
+                    <div class="account-div" data-bind="visible: userModel.changePass()">
+                        <p class="account-passtext">New Pass: </p>
+                        <input type="password" data-bind="textInput: userModel.newPass" placeholder="•••••••••••" class="account-newpassinput account-input">
+                    </div>
+                </div>
+                <div class="account-div">
+                    <div class="account-currentpass"><p class="account-passtext">Current Pass: </p><input type="password" data-bind="textInput: userModel.currentPass" placeholder="•••••••••••" class="account-currentpassinput account-input"></div>
+                </div>
+                <div class="account-save"><button class="cart-checkout account-save" data-bind="click: saveProfile">Save</button></div>
+            </div>
+        </div>
+    </template>
 	<template id="orders-template">
             <div class="category-items-short cart-items-short">
                 <a class="category-items-short--title">Orders</a>
@@ -260,7 +296,7 @@
                    		<div data-bind="foreach: categorySpecs">
 							<input type="text" class="product-edit--input-title editinput" data-bind="attr: {placeholder: name }, textInput: value">
 						</div>
-						<button data-bind="" class="orders-filters--filter-button addproduct">Add product</button>
+						<button data-bind="click: addNewProduct" class="orders-filters--filter-button addproduct">Add product</button>
 
                     </div>
                 </div>

@@ -26,7 +26,7 @@
                             <i class="fa fa-shopping-cart header-carticon" aria-hidden="true"></i>
                         </a>
 					<a class="header-username" data-bind="click: profileClicked"><span data-bind="text: $parent.userModel.name()"></span></a>
-					<a href="#" class="header-logout"><span>Logout</span></a>
+					<a data-bind="click: logOut" class="header-logout"><span>Logout</span></a>
 				</div>
 				<div class="header-search"><input data-bind="textInput: $parent.tmpSearchWord" placeholder="Search..." type="text" class="header-search-input">
 					<a class="search-img" title="Search" data-bind="click: function(){ if($parent.tmpSearchWord()){ $parent.searchWord($parent.tmpSearchWord());sammyApp.setLocation('#/search');}}"><img src="img/search-icon-nocolor.png"></a>

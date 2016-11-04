@@ -510,7 +510,23 @@ var sammyApp;
 // ==========================================================================================================
 /*	API	Requests */
 // ==========================================================================================================
-
+/**
+ * This function logs the user off the system
+ */
+function logOut() {
+	localStorage.setItem(OMARKET_JWT, "");
+	localStorage.setItem(OMARKET_PREFIX + USERS_FLD_NAME, "");
+	localStorage.setItem(OMARKET_PREFIX + USERS_FLD_EMAIL, "");
+	localStorage.setItem(OMARKET_PREFIX + USERS_FLD_TEL, "");
+	localStorage.setItem(OMARKET_PREFIX + USERS_FLD_USER_TYPE, "");
+	localStorage.setItem(OMARKET_PREFIX + USERS_FLD_STATUS, "");
+	localStorage.setItem(OMARKET_PREFIX + BUYERS_FLD_ADDRESS, "");
+	localStorage.setItem(OMARKET_PREFIX + BUYERS_FLD_CCNUMBER, "");
+	localStorage.setItem(OMARKET_PREFIX + BUYERS_FLD_CC_CCV, "");
+	localStorage.setItem(OMARKET_PREFIX + BUYERS_FLD_CC_YEAR, "");
+	localStorage.setItem(OMARKET_PREFIX + BUYERS_FLD_CC_MONTH, "");
+	window.location = WEBSITE_LINK;
+}
 /**
  * This function returns the products that match the search word
  * @param   {string} searchWord search text word
