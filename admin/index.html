@@ -28,6 +28,7 @@
 		<categories></categories>
 		<employees params="employeeTypeName: 'Accountants', employeeType : USER_ACCOUNTANT, employeeSingleName: 'Accountant'"></employees>
 		<employees params="employeeTypeName: 'Delivery Staff', employeeType : USER_DELIVERMAN, employeeSingleName: 'Deliveryman'"></employees>
+		<users></users>
 		<footer>
 			<p class="copy">All copyrights are reserved, OMarket ® 2016</p>
 			<p class="devby">Developed by CMP-2019</p>
@@ -35,6 +36,24 @@
 
 	</div>
 	<!--Templates-->
+	<template id="users-template">
+            <div class="category-items-short cart-items-short">
+                <a class="category-items-short--title">Users</a>
+				<p class="no-items" data-bind="if: !usersArray().length">No Users</p>
+                <div class="categories-items-container" data-bind="foreach: usersArray">
+                    <user-container class="single-category-item" params="value: $data, parent: $parent">
+
+                    </user-container>
+                </div>
+            </div>
+        </template>
+	<template id="single-user-template">
+            <p data-bind="text: params.email" class="single-category-item--category-name"></p>
+            <div class="single-category-item--category-actions">
+                <a data-bind="visible: params[USERS_FLD_STATUS]() == USER_ACTIVE, click: $parents[1].blockUser" class="single-category-item--category-edit">block</a>
+                <a data-bind="visible: params[USERS_FLD_STATUS]() == USER_BANNED, click: $parents[1].unblockUser" class="single-category-item--category-edit">unblock</a>
+            </div>
+        </template>
 	<template id="employees-template">
             <div class="category-items-short cart-items-short">
                 <a class="category-items-short--title" data-bind="text: employeeTypeName"></a>
@@ -53,7 +72,7 @@
                 </div>
             </div>
         </template>
-        	<template id="single-employee-template">
+	<template id="single-employee-template">
             <p data-bind="text: params.email,  visible: !params.editMode()" class="single-category-item--category-name"></p>
             <input type="text" data-bind="textInput: params.tmpEmail, visible: params.editMode" class="single-category-item--category-name-editinput employee">
             <input type="password" data-bind="textInput: params.pass, visible: params.editMode" class="single-category-item--category-name-editinput employee" placeholder="Leave empty to keep password as is">
@@ -209,6 +228,7 @@
             </div>
         </template>
 	<!--Scripts-->
+	<script type="text/javascript" src="../js/jwt-decode.min.js"></script>
 	<script type="text/javascript" src="../js/knockout-3.3.0.js"></script>
 	<script type="text/javascript" src="../js/sammy-latest.min.js"></script>
 	<script src="../js/jsconstants.js"></script>

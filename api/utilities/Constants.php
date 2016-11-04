@@ -41,6 +41,7 @@ class Constants {
     const USERS_FLD_USER_TYPE = 'user_type';
     const USERS_FLD_NAME = 'name';
     const USERS_FLD_TEL = 'tel';
+    const USERS_FLD_STATUS = 'user_status';
     
     const TBL_BUYERS = 'buyers';
     const BUYERS_FLD_USER_ID = 'user_id';
@@ -74,5 +75,12 @@ class Constants {
     const USER_ACCOUNTANT = "3";
     const USER_ADMIN = "4";
     const USER_DELIVERMAN = "5";
+    
+    /**
+     * User status
+     */
+    const USER_STATUSES = array("1", "2");
+    const USER_ACTIVE = "1";
+    const USER_BANNED = "2";
 
 }

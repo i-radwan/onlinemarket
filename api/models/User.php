@@ -7,14 +7,15 @@
  */
 class User implements \JsonSerializable {
 
-    private $_id, $name, $email, $tel, $user_type;
+    private $_id, $name, $email, $tel, $user_type, $user_status;
 
-    function __construct($_id, $name, $email, $tel, $user_type) {
+    function __construct($_id, $name, $email, $tel, $user_type, $user_status) {
         $this->_id = $_id;
         $this->name = $name;
         $this->email = $email;
         $this->tel = $tel;
         $this->user_type = $user_type;
+        $this->user_status = $user_status;
     }
 
     function get_id() {
@@ -55,6 +56,14 @@ class User implements \JsonSerializable {
 
     function setUser_type($user_type) {
         $this->user_type = $user_type;
+    }
+
+    function getUser_status() {
+        return $this->user_status;
+    }
+
+    function setUser_status($user_status) {
+        $this->user_status = $user_status;
     }
 
     public function jsonSerialize() {

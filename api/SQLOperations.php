@@ -228,6 +228,7 @@ class SQLOperations implements SQLOperationsInterface {
                 Constants::USERS_FLD_EMAIL => $row[Constants::USERS_FLD_EMAIL],
                 Constants::USERS_FLD_NAME => $row[Constants::USERS_FLD_NAME],
                 Constants::USERS_FLD_TEL => $row[Constants::USERS_FLD_TEL],
+                Constants::USERS_FLD_STATUS => $row[Constants::USERS_FLD_STATUS],
                 Constants::USERS_FLD_USER_TYPE => $row[Constants::USERS_FLD_USER_TYPE]
             ]
         ];
@@ -251,7 +252,7 @@ class SQLOperations implements SQLOperationsInterface {
                     return $this->returnError(Constants::LOGIN_OPERATION_FAILED, "Please try again later!", 0, 0, 0);
                 }
                 $rowDetails = $resultDetails->fetch_assoc();
-                $userModel = new Buyer($_id, $row[Constants::USERS_FLD_NAME], $row[Constants::USERS_FLD_EMAIL], $row[Constants::USERS_FLD_TEL], $userType, $rowDetails[Constants::BUYERS_FLD_ADDRESS], $rowDetails[Constants::BUYERS_FLD_CCNUMBER], $rowDetails[Constants::BUYERS_FLD_CC_CCV], $rowDetails[Constants::BUYERS_FLD_CC_MONTH], $rowDetails[Constants::BUYERS_FLD_CC_YEAR]);
+                $userModel = new Buyer($_id, $row[Constants::USERS_FLD_NAME], $row[Constants::USERS_FLD_EMAIL], $row[Constants::USERS_FLD_TEL], $userType, $row[Constants::USERS_FLD_STATUS], $rowDetails[Constants::BUYERS_FLD_ADDRESS], $rowDetails[Constants::BUYERS_FLD_CCNUMBER], $rowDetails[Constants::BUYERS_FLD_CC_CCV], $rowDetails[Constants::BUYERS_FLD_CC_MONTH], $rowDetails[Constants::BUYERS_FLD_CC_YEAR]);
                 // return json
                 break;
             case Constants::USER_SELLER:
@@ -261,17 +262,17 @@ class SQLOperations implements SQLOperationsInterface {
                 }
                 $rowDetails = $resultDetails->fetch_assoc();
 
-                $userModel = new Seller($_id, $row[Constants::USERS_FLD_NAME], $row[Constants::USERS_FLD_EMAIL], $row[Constants::USERS_FLD_TEL], $userType, $rowDetails[Constants::SELLERS_FLD_ADDRESS], $rowDetails[Constants::SELLERS_FLD_BACK_ACCOUNT]);
+                $userModel = new Seller($_id, $row[Constants::USERS_FLD_NAME], $row[Constants::USERS_FLD_EMAIL], $row[Constants::USERS_FLD_TEL], $userType, $row[Constants::USERS_FLD_STATUS], $rowDetails[Constants::SELLERS_FLD_ADDRESS], $rowDetails[Constants::SELLERS_FLD_BACK_ACCOUNT]);
                 break;
             // For the next 3 cases, we currently don't give them extra data, so we will return the basic data only
             case Constants::USER_ACCOUNTANT:
-                $userModel = new Accountant($_id, $row[Constants::USERS_FLD_NAME], $row[Constants::USERS_FLD_EMAIL], $row[Constants::USERS_FLD_TEL], $userType);
+                $userModel = new Accountant($_id, $row[Constants::USERS_FLD_NAME], $row[Constants::USERS_FLD_EMAIL], $row[Constants::USERS_FLD_TEL],$userType, $row[Constants::USERS_FLD_STATUS]);
                 break;
             case Constants::USER_DELIVERMAN:
-                $userModel = new Deliveryman($_id, $row[Constants::USERS_FLD_NAME], $row[Constants::USERS_FLD_EMAIL], $row[Constants::USERS_FLD_TEL], $userType);
+                $userModel = new Deliveryman($_id, $row[Constants::USERS_FLD_NAME], $row[Constants::USERS_FLD_EMAIL], $row[Constants::USERS_FLD_TEL], $userType, $row[Constants::USERS_FLD_STATUS]);
                 break;
             case Constants::USER_ADMIN:
-                $userModel = new Admin($_id, $row[Constants::USERS_FLD_NAME], $row[Constants::USERS_FLD_EMAIL], $row[Constants::USERS_FLD_TEL], $userType);
+                $userModel = new Admin($_id, $row[Constants::USERS_FLD_NAME], $row[Constants::USERS_FLD_EMAIL], $row[Constants::USERS_FLD_TEL], $userType, $row[Constants::USERS_FLD_STATUS]);
                 break;
         }
         return $userModel;

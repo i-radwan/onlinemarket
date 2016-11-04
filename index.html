@@ -64,7 +64,7 @@
                     <product-container class="categories-single-item categories-single-cartitem" params="value: $data, cart: true"></product-container>
                 </div>
             </div>
-            <div style="width: 100%; text-align:center;">
+            <div style="width: 100%; text-align:center;" data-bind="if: checkIfSignedIn() && checkIfActiveUser()  && checkUserRole() == USER_BUYER">
                 <button data-bind="visible: cartProductsArray().length, click: function(){ if($data.checkoutOrder())$parent.cartAmount(0);}" class="cart-checkout">Checkout <span data-bind="text: $parent.cartAmount()"></span> $</button>
             </div>
         </cart-products>
@@ -174,7 +174,7 @@
                 </p>
             </div>
             <div class="categories-single-item--invisible-details"></div>
-            <div data-bind="if: !params.cart && !params.order && checkIfSignedIn()">
+            <div data-bind="if: !params.cart && !params.order && checkIfSignedIn() && checkIfActiveUser() && checkUserRole() == USER_BUYER">
                 <button class="categories-single-item--buy" data-bind="click:addToCart">Add to Cart</button>
             </div>
             <div data-bind="if: params.cart">
@@ -198,6 +198,7 @@
         </div>
     </template>
 	<!--Scripts-->
+	<script type="text/javascript" src="js/jwt-decode.min.js"></script>
 	<script type="text/javascript" src="js/knockout-3.3.0.js"></script>
 	<script type="text/javascript" src="js/sammy-latest.min.js"></script>
 	<script src="js/jsconstants.js"></script>

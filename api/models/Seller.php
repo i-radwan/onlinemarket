@@ -11,8 +11,8 @@ class Seller extends User implements \JsonSerializable {
 
     private $address, $bankAccount;
 
-    function __construct($_id, $name, $email, $tel, $user_type, $address, $bankAccount) {
-        parent::__construct($_id, $name, $email, $tel, $user_type);
+    function __construct($_id, $name, $email, $tel, $user_type, $user_status, $address, $bankAccount) {
+        parent::__construct($_id, $name, $email, $tel, $user_type, $user_status);
 
         $this->address = $address;
         $this->bankAccount = $bankAccount;

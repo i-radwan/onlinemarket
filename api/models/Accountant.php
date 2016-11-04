@@ -9,8 +9,8 @@ require_once 'User.php';
  */
 class Accountant extends User implements \JsonSerializable {
 
-    function __construct($_id, $name, $email, $tel, $user_type) {
-        parent::__construct($_id, $name, $email, $tel, $user_type);
+    function __construct($_id, $name, $email, $tel, $user_type, $user_status) {
+        parent::__construct($_id, $name, $email, $tel, $user_type, $user_status);
     }
 
     public function jsonSerialize() {

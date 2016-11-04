@@ -20,6 +20,7 @@ const USERS_FLD_PASS2 = 'pass2';
 const USERS_FLD_USER_TYPE = 'user_type';
 const USERS_FLD_NAME = 'name';
 const USERS_FLD_TEL = 'tel';
+const USERS_FLD_STATUS = 'user_status';
 
 const BUYERS_FLD_USER_ID = 'user_id';
 const BUYERS_FLD_ADDRESS = 'address';
@@ -37,6 +38,9 @@ const USER_SELLER = "2";
 const USER_ACCOUNTANT = "3";
 const USER_ADMIN = "4";
 const USER_DELIVERMAN = "5";
+
+const USER_ACTIVE = "1";
+const USER_BANNED = "2";
 
 // Constants of the auth process response (fields names)
 const AUTH_RESPONSE_STATUS_CODE = "statusCode";

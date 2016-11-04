@@ -14,12 +14,18 @@ function categoryModel(category) {
 	self.editMode = ko.observable(false);
 }
 
-function employeeModel(user) {
-	this.id = user.id;
-	this.email = ko.observable(user.email);
-	this.tmpEmail = ko.observable(user.email);
+function employeeModel(employee) {
+	this.id = employee.id;
+	this.email = ko.observable(employee.email);
+	this.tmpEmail = ko.observable(employee.email);
 	this.pass = ko.observable("");
 	this.editMode = ko.observable(false);
+}
+
+function userModel(user) {
+	this[USERS_FLD_ID] = user[USERS_FLD_ID];
+	this[USERS_FLD_EMAIL] = ko.observable(user[USERS_FLD_EMAIL]);
+	this[USERS_FLD_STATUS] = ko.observable(user[USERS_FLD_STATUS]);
 }
 
 function productModel(product) {
@@ -180,7 +186,6 @@ function productViewModel(params) {
 			return true;
 		}
 	}
-
 
 	self.increaseRate = function () {
 		if (self.params.userRate() + 0.5 <= 5) {
@@ -380,6 +385,41 @@ function singleEmployeeViewModel(params) {
 	}
 }
 
+
+function usersViewModel(params) {
+	var self = this;
+	self.usersArray = ko.observableArray();
+	/**
+		This function initializes the categoriesArray
+	*/
+	self.init = function () {
+		// Get all categories from API and add them to the array
+		getAllSellersAndBuyers().forEach(function (user) {
+			self.usersArray.push(new userModel(user));
+		});
+	}();
+
+	self.blockUser  = function (item, event) {
+		if (confirm("Are you sure?")) {
+			// ToDo call API to delete category first, and check if it has no products
+			item.params[USERS_FLD_STATUS](USER_BANNED);
+		}
+	}
+	self.unblockUser = function (item, event) {
+		if (confirm("Are you sure?")) {
+			// ToDo call API to delete category first, and check if it has no products
+			item.params[USERS_FLD_STATUS](USER_ACTIVE);
+		}
+	}
+}
+
+function singleUserViewModel(params) {
+	var self = this;
+	self.params = params.value;
+	self.parent = params.parent;
+	self.init = function () {}();
+}
+
 function controlPanelViewModel() {
 	var self = this;
 
@@ -415,6 +455,22 @@ function controlPanelViewModel() {
 		},
 		viewModel: singleEmployeeViewModel
 	});
+	// Register users components
+
+	ko.components.register('users', {
+		template: {
+			element: 'users-template'
+		},
+		viewModel: usersViewModel
+	});
+
+
+	ko.components.register('user-container', {
+		template: {
+			element: 'single-user-template'
+		},
+		viewModel: singleUserViewModel
+	});
 
 }
 
@@ -434,6 +490,33 @@ function checkIfSignedIn() {
 // ==========================================================================================================
 /*	API	Requests */
 // ==========================================================================================================
+/**
+ * This function returns all the sellers and buyers in the system
+ * @returns {Array} users array
+ */
+function getAllSellersAndBuyers() {
+	return [{
+		_id: 1,
+		email: "asd1@asd.asd",
+		user_type: "1",
+		user_status: "1"
+	}, {
+		_id: 2,
+		email: "asd2@asd.asd",
+		user_type: "1",
+		user_status: "2"
+	}, {
+		_id: 3,
+		email: "asd3@asd.asd",
+		user_type: "2",
+		user_status: "1"
+	}, {
+		_id: 4,
+		email: "asd4@asd.asd",
+		user_type: "2",
+		user_status: "2"
+	}];
+}
 
 /**
  * This function retrieves all the the employees from the server

@@ -26,6 +26,7 @@ function authViewModel() {
 		data[USERS_FLD_USER_TYPE] = userModel.type();
 		data[USERS_FLD_NAME] = userModel.name();
 		data[USERS_FLD_TEL] = userModel.tel();
+		data[USERS_FLD_STATUS] = USER_ACTIVE;
 		if (userModel.type() == USER_BUYER) {
 			data[BUYERS_FLD_ADDRESS] = userModel.address();
 			data[BUYERS_FLD_CCNUMBER] = userModel.ccnumber();
@@ -38,6 +39,7 @@ function authViewModel() {
 		}
 		self.loading(true);
 		$.post(API_LINK + SIGNUP_ENDPOINT, data, function (returnedData) {
+			console.log(returnedData);
 			self.storeLocalStorageData(returnedData);
 		});
 	}
@@ -53,6 +55,7 @@ function authViewModel() {
 		});
 	}
 	self.storeLocalStorageData = function (returnedData) {
+		console.log(returnedData);
 		returnedData = JSON.parse(returnedData);
 		if (returnedData[AUTH_RESPONSE_STATUS_CODE] == LOGIN_SUCCESSFUL_LOGIN) {
 			localStorage.setItem(OMARKET_JWT, returnedData[AUTH_RESPONSE_JWT]);
@@ -60,6 +63,7 @@ function authViewModel() {
 			localStorage.setItem(OMARKET_PREFIX + USERS_FLD_EMAIL, returnedData[AUTH_RESPONSE_RESULT][USERS_FLD_EMAIL]);
 			localStorage.setItem(OMARKET_PREFIX + USERS_FLD_TEL, returnedData[AUTH_RESPONSE_RESULT][USERS_FLD_TEL]);
 			localStorage.setItem(OMARKET_PREFIX + USERS_FLD_USER_TYPE, returnedData[AUTH_RESPONSE_RESULT][USERS_FLD_USER_TYPE]);
+			localStorage.setItem(OMARKET_PREFIX + USERS_FLD_STATUS, returnedData[AUTH_RESPONSE_RESULT][USERS_FLD_STATUS]);
 			if (returnedData[AUTH_RESPONSE_RESULT][USERS_FLD_USER_TYPE] == USER_BUYER) {
 				localStorage.setItem(OMARKET_PREFIX + BUYERS_FLD_ADDRESS, returnedData[AUTH_RESPONSE_RESULT][BUYERS_FLD_ADDRESS]);
 				localStorage.setItem(OMARKET_PREFIX + BUYERS_FLD_CCNUMBER, returnedData[AUTH_RESPONSE_RESULT][AUTH_RESPONSE_CC_NUMBER]);
@@ -154,6 +158,7 @@ function getUserModel() {
 	user.pass2 = ko.observable();
 	user.bankAccount = ko.observable();
 	user.tel = ko.observable();
+	user.status = ko.observable();
 
 	// Observables to control forms
 	user.type = ko.observable(USER_BUYER);

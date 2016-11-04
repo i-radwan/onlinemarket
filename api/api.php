@@ -7,7 +7,14 @@ use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
 $app = new \Slim\App();
+$app->get('/hello/{name:.*}', function (Request $request, Response $response) {
+    $name = $request->getAttribute("name");
 
+    $allGetVars = $request->getQueryParams();
+    
+    $paramValue = $allGetVars['fields'];
+    echo "Hello, $name :: $paramValue";
+});
 // Add route callbacks
 $app->post('/login', function (Request $request, Response $response) {
     $sqlOperations = new SQLOperations();

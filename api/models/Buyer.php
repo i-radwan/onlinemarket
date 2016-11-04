@@ -11,8 +11,8 @@ class Buyer extends User implements \JsonSerializable {
 
     private $address, $ccNumber, $ccCCV, $ccMonth, $ccYear;
 
-    function __construct($_id, $name, $email, $tel, $user_type, $address, $ccNumber, $ccCCV, $ccmonth, $ccYear) {
-        parent::__construct($_id, $name, $email, $tel, $user_type);
+    function __construct($_id, $name, $email, $tel, $user_type, $user_status, $address, $ccNumber, $ccCCV, $ccmonth, $ccYear) {
+        parent::__construct($_id, $name, $email, $tel, $user_type, $user_status);
 
         $this->address = $address;
         $this->ccNumber = $ccNumber;

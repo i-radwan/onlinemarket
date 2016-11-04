@@ -441,10 +441,31 @@ ko.applyBindings(onlineMarketMVVM);
 
 // Check for login
 function checkIfSignedIn() {
-	// ToDo: should check the localstorage and check for user role
-	return true;
+	try {
+		var decoded = jwt_decode(localStorage.getItem(OMARKET_JWT));
+		return true;
+	} catch (e) {
+		return false;
+	}
 }
 
+function checkIfActiveUser() {
+	try {
+		var decoded = jwt_decode(localStorage.getItem(OMARKET_JWT));
+		return (decoded.data[USERS_FLD_STATUS] == USER_ACTIVE);
+	} catch (e) {
+		return false;
+	}
+}
+
+function checkUserRole() {
+	try {
+		var decoded = jwt_decode(localStorage.getItem(OMARKET_JWT));
+		return (decoded.data[USERS_FLD_USER_TYPE]);
+	} catch (e) {
+		return "-1";
+	}
+}
 // Routing
 var sammyApp;
 (function ($) {
@@ -557,6 +578,7 @@ function getUserModel() {
 	user.email = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_EMAIL));
 	user.type = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_USER_TYPE));
 	user.tel = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_TEL));
+	user.status = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_STATUS));
 
 	if (user.type() == USER_BUYER) {
 		user.address = ko.observable(localStorage.getItem(OMARKET_PREFIX + BUYERS_FLD_ADDRESS));
