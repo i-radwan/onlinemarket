@@ -29,6 +29,28 @@ class Constants {
     const LOGIN_EMPTY_DATA = 22;
     const LOGIN_OPERATION_FAILED = 23;
     const LOGIN_INCORRECT_DATA = 24;
+    /**
+     * Order operation functions (4x) constants
+     */
+    const ORDERS_GET_SUCCESSFUL = 40;
+    const ORDERS_GET_FAILED = 41;
+    const ORDERS_DELETE_SUCCESS = 42;
+    const ORDERS_DELETE_FAILED = 43;
+    const ORDERS_ADD_SUCCESS = 44;
+    const ORDERS_ADD_FAILED = 45;
+    const ORDERS_UPDATE_SUCCESS = 46;
+    const ORDERS_UPDATE_FAILED = 47;
+
+    /**
+     * OrderItems operation functions (5x) constants
+     */
+    const ORDERITEMS_GET_SUCCESSFUL = 50;
+    const ORDERITEMS_GET_FAILED = 51;
+    /**
+     * DeliveryRequests operation functions (6x) constants
+     */
+    const DELIVERYREQUESTS_GET_SUCCESSFUL = 60;
+    const DELIVERYREQUESTS_GET_FAILED = 61;
 
     /**
      * Database Constants
