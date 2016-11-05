@@ -42,6 +42,11 @@ const USER_DELIVERMAN = "5";
 const USER_ACTIVE = "1";
 const USER_BANNED = "2";
 
+const ORDER_STATUS_PENDING = "1";
+const ORDER_STATUS_PICKED = "2";
+const ORDER_STATUS_SHIPPED = "3";
+const ORDER_STATUS_DELIVERED = "4";
+
 // Constants of the auth process response (fields names)
 const AUTH_RESPONSE_STATUS_CODE = "statusCode";
 const AUTH_RESPONSE_JWT = "jwt";

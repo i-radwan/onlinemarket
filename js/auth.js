@@ -132,7 +132,10 @@ ko.applyBindings(authViewModel);
 function checkIfLoggedInAndRedirect(redirect) {
 	if (localStorage.getItem(OMARKET_JWT)) {
 		if (redirect)
-			window.location = WEBSITE_LINK;
+			if (localStorage.getItem(OMARKET_PREFIX + USERS_FLD_USER_TYPE) == USER_BUYER)
+				window.location = WEBSITE_LINK;
+			else window.location = ADMIN_LINK;
+
 		return true;
 	}
 	return false;

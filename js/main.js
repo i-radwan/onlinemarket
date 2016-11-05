@@ -382,32 +382,30 @@ function onlineMarketViewModel() {
 		},
 		viewModel: productsCollectionViewModel
 	});
-	if (checkIfSignedIn()) {
-		// Register cart components
+	// Register cart components
 
-		ko.components.register('cart', {
-			template: {
-				element: 'cart-page-content'
-			},
-			viewModel: cartProductsViewModel
-		});
-		// Register profile components
+	ko.components.register('cart', {
+		template: {
+			element: 'cart-page-content'
+		},
+		viewModel: cartProductsViewModel
+	});
+	// Register profile components
 
-		ko.components.register('profile', {
-			template: {
-				element: 'profile-page-content'
-			},
-			viewModel: profileViewModel
-		});
+	ko.components.register('profile', {
+		template: {
+			element: 'profile-page-content'
+		},
+		viewModel: profileViewModel
+	});
 
-		ko.components.register('order-container', {
-			template: {
-				element: 'single-order-view'
-			},
-			viewModel: orderViewModel
-		});
+	ko.components.register('order-container', {
+		template: {
+			element: 'single-order-view'
+		},
+		viewModel: orderViewModel
+	});
 
-	}
 	// Register search components
 
 	ko.components.register('search', {
@@ -476,11 +474,11 @@ var sammyApp;
 			shouter.notifySubscribers('0', "changedCategoryID");
 		});
 		this.get('#/cart', function (context) {
-			if (checkIfSignedIn())
+			if (checkIfSignedIn()&& checkUserRole() == USER_BUYER)
 				onlineMarketMVVM.changeContentVisibility(true, false, false, false);
 		});
 		this.get('#/profile', function (context) {
-			if (checkIfSignedIn())
+			if (checkIfSignedIn() && checkUserRole() == USER_BUYER)
 				onlineMarketMVVM.changeContentVisibility(false, false, true, false);
 		});
 		this.get('#/search', function (context) {

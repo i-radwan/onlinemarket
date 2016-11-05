@@ -19,13 +19,15 @@
 			</div>
 			<div class="header-rightside">
 				<div class="header-links" data-bind="if: !checkIfSignedIn()">
-					<a href="login.html" class="header-links--login">Login</a>, <a href="login.html" class="header-links--signup">Sign up</a>
+					<a href="login.html" class="header-links--login">Login</a>, <a href="signup.html" class="header-links--signup">Sign up</a>
 				</div>
 				<div class="header-links" data-bind="if: checkIfSignedIn()">
+				<span  data-bind="if: checkUserRole() == USER_BUYER">
 					<a class="header-cart" data-bind="click: cartClicked"><span class="header-cartamount"><span data-bind="text:cartAmount()"  ></span> $</span>
                             <i class="fa fa-shopping-cart header-carticon" aria-hidden="true"></i>
                         </a>
 					<a class="header-username" data-bind="click: profileClicked"><span data-bind="text: $parent.userModel.name()"></span></a>
+					</span>
 					<a data-bind="click: logOut" class="header-logout"><span>Logout</span></a>
 				</div>
 				<div class="header-search"><input data-bind="textInput: $parent.tmpSearchWord" placeholder="Search..." type="text" class="header-search-input">
@@ -83,16 +85,16 @@
             <a class="category-items-short--title">Account</a>
             <div class="account-details">
                 <div class="account-div">		
-                    <p class="account-addresstext">Address: </p><textarea class="account-addresstextarea" data-bind="textInput: userModel.address" placeholder="Address..."></textarea>
+                    <p class="account-addresstext">Address: </p><textarea class="account-addresstextarea" data-bind="textInput: userModel.address, disable: !checkIfActiveUser()" placeholder="Address..."></textarea>
                 </div>
                 <div class="account-div">
-                    <p class="account-cctext">Credit Card: </p><input class="account-ccinput account-ccnumber" type="text" value="51xxxxxx421" data-bind="textInput: userModel.ccnumber" maxlength="11" placeholder="Credit Card No.">
-                    <input class="account-ccinput account-ccccv" type="text" value="xxx" data-bind="textInput: userModel.ccccv" maxlength="3" placeholder="CCV">
+                    <p class="account-cctext">Credit Card: </p><input class="account-ccinput account-ccnumber" type="text" value="51xxxxxx421" data-bind="textInput: userModel.ccnumber, disable: !checkIfActiveUser()" maxlength="11" placeholder="Credit Card No.">
+                    <input class="account-ccinput account-ccccv" type="text" value="xxx" data-bind="textInput: userModel.ccccv, disable: !checkIfActiveUser()" maxlength="3" placeholder="CCV">
                 </div>
                 <div class="account-div">
                     <p class="account-expdate">Expiry Date: </p>
                     <div class="account-dateinputs">
-                        <input type="number" max="2024" min="2016" class="account-yearinput"  data-bind="textInput: userModel.ccyear"><input type="number" max="12" min="1" class="account-monthinput" data-bind="textInput: userModel.ccmonth">
+                        <input type="number" max="2024" min="2016" class="account-yearinput"  data-bind="textInput: userModel.ccyear, disable: !checkIfActiveUser()"><input type="number" max="12" min="1" class="account-monthinput" data-bind="textInput: userModel.ccmonth, disable: !checkIfActiveUser()">
                     </div>
                 </div>
                 <div class="account-div">
@@ -101,13 +103,13 @@
                     </div>
                     <div class="account-div" data-bind="visible: userModel.changePass()">
                         <p class="account-passtext">New Pass: </p>
-                        <input type="password" data-bind="textInput: userModel.newPass" placeholder="•••••••••••" class="account-newpassinput account-input">
+                        <input type="password" data-bind="textInput: userModel.newPass, disable: !checkIfActiveUser()" placeholder="•••••••••••" class="account-newpassinput account-input">
                     </div>
                 </div>
                 <div class="account-div">
-                    <div class="account-currentpass"><p class="account-passtext">Current Pass: </p><input type="password" data-bind="textInput: userModel.currentPass" placeholder="•••••••••••" class="account-currentpassinput account-input"></div>
+                    <div class="account-currentpass"><p class="account-passtext">Current Pass: </p><input type="password" data-bind="textInput: userModel.currentPass, disable: !checkIfActiveUser()" placeholder="•••••••••••" class="account-currentpassinput account-input"></div>
                 </div>
-                <div class="account-save"><button class="cart-checkout account-save" data-bind="click: saveProfile">Save</button></div>
+                <div class="account-save" data-bind="if: checkIfActiveUser()"><button class="cart-checkout account-save" data-bind="click: saveProfile">Save</button></div>
             </div>
         </div>
     </template>
@@ -141,7 +143,8 @@
         <div class="order-actions">
             <p><strong>Total Items</strong>: <span data-bind="text: params.totalItemsCount"></span></p>
             <p><strong>Status</strong>: <span data-bind="text: params.status"></span></p>
-            <span class="order-cancel" data-bind="if: params.status == 'Pending'">cancel</span>
+            <span data-bind="if: checkIfActiveUser()">
+				<span class="order-cancel" data-bind="if: params.status == 'Pending'">cancel</span></span>
         </div>
 
 

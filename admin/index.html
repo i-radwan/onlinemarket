@@ -28,12 +28,20 @@
 				</div>
 			</div>
 		</header>
-		<categories></categories>
-		<employees params="employeeTypeName: 'Accountants', employeeType : USER_ACCOUNTANT, employeeSingleName: 'Accountant'"></employees>
-		<employees params="employeeTypeName: 'Delivery Staff', employeeType : USER_DELIVERMAN, employeeSingleName: 'Deliveryman'"></employees>
-		<users></users>
-		<orders></orders>
-		<admin-products></admin-products>
+		<div data-bind="if: checkUserRole() == USER_ADMIN">
+			<categories></categories>
+		</div>
+		<div data-bind="if: checkUserRole() == USER_ADMIN">
+			<employees params="employeeTypeName: 'Accountants', employeeType : USER_ACCOUNTANT, employeeSingleName: 'Accountant'"></employees>
+			<employees params="employeeTypeName: 'Delivery Staff', employeeType : USER_DELIVERMAN, employeeSingleName: 'Deliveryman'"></employees>
+			<users></users>
+		</div>
+		<div data-bind="if: checkUserRole() == USER_ACCOUNTANT || checkUserRole() == USER_DELIVERMAN">
+			<orders></orders>
+		</div>
+		<div data-bind="if: checkUserRole() == USER_SELLER ||  checkUserRole() == USER_ADMIN">
+			<admin-products></admin-products>
+		</div>
 		<profile></profile>
 
 		<footer>
@@ -55,10 +63,8 @@
                  <div class="account-div">
                     <div class="account-currentpass"><p class="account-passtext">Telephone: </p><input type="text" data-bind="textInput: userModel.tel" placeholder="Telephone..." class="account-currentpassinput account-input"></div>
                 </div>
-                <div class="account-div">		
+                <div class="account-div" data-bind="if: checkUserRole() == USER_SELLER">		
                     <p class="account-addresstext">Address: </p><textarea class="account-addresstextarea" data-bind="textInput: userModel.address" placeholder="Address..."></textarea>
-                </div>
-                <div class="account-div" data-bind="if: userModel.type() == USER_SELLER">		
                     <p class="account-addresstext">Bank Account: </p><textarea class="account-addresstextarea" data-bind="textInput: userModel.bankAccount" placeholder="Bank Account..."></textarea>
                 </div>
                 <div class="account-div">
@@ -138,7 +144,7 @@
 
                     </order-container>
                 </div>
-                <div class="orders-total-div">
+                <div class="orders-total-div" data-bind="if: checkUserRole() == USER_ACCOUNTANT">
                     <span class="orders-total-text">Total: </span>
                     <span class="orders-total-amount">$<span data-bind="text: totalCost"></span></span>
                 </div>
@@ -151,7 +157,10 @@
                 <p><strong>Total</strong>: <span data-bind="text: params.cost"></span>$</p>
             </div>
             <div class="order-actions">
-                <p><strong>Status</strong>: <span data-bind="text: params.status"></span></p>
+                <p><strong>Status</strong>: <span data-bind="text: params.textStatus()"></span></p>
+                <span class="order-cancel" data-bind="if: params.status() == ORDER_STATUS_PENDING, click:function(){changeOrderStatus(ORDER_STATUS_PICKED)}">mark picked</span>
+                <span class="order-cancel" data-bind="if: params.status() == ORDER_STATUS_PICKED, click:function(){changeOrderStatus(ORDER_STATUS_SHIPPED)}">mark shipped</span>
+                <span class="order-cancel" data-bind="if: params.status() == ORDER_STATUS_SHIPPED, click:function(){changeOrderStatus(ORDER_STATUS_DELIVERED)}">mark delivered</span>
             </div>
 
         </template>
@@ -229,49 +238,6 @@
             </div>
         </template>
 
-	<template id="profile-page-content">
-            <div class="category-items-short cart-items-short">
-                <a class="category-items-short--title">Orders</a>
-                <p class="no-items" data-bind="if: !ordersArray().length">No Orders</p>
-                <div class="categories-items-container" data-bind="foreach: ordersArray">
-                    <order-container class="order-single-item" params="value: $data, order:true">
-
-                    </order-container>
-                </div>
-            </div>
-            <div class="category-items-short cart-items-short">
-                <a class="category-items-short--title">Account</a>
-                <div class="account-details">
-                    <div class="account-div">		
-                        <p class="account-addresstext">Address: </p><textarea class="account-addresstextarea" data-bind="textInput: userModel.address" placeholder="Address..."></textarea>
-                    </div>
-                    <div class="account-div">
-                        <p class="account-cctext">Credit Card: </p><input class="account-ccinput account-ccnumber" type="text" value="51xxxxxx421" data-bind="textInput: userModel.ccnumber" maxlength="11" placeholder="Credit Card No.">
-                        <input class="account-ccinput account-ccccv" type="text" value="xxx" data-bind="textInput: userModel.ccccv" maxlength="3" placeholder="CCV">
-                    </div>
-                    <div class="account-div">
-                        <p class="account-expdate">Expiry Date: </p>
-                        <div class="account-dateinputs">
-                            <input type="number" max="2024" min="2016" class="account-yearinput"  data-bind="textInput: userModel.ccyear"><input type="number" max="12" min="1" class="account-monthinput" data-bind="textInput: userModel.ccmonth">
-                        </div>
-                    </div>
-                    <div class="account-div">
-
-                        <div class="account-editpass"><p class="account-editpasstext" data-bind="visible: !userModel.changePass(), click: function(){userModel.changePass(!userModel.changePass());}">edit password</p>
-                        </div>
-                        <div class="account-div" data-bind="visible: userModel.changePass()">
-                            <p class="account-passtext">New Pass: </p>
-                            <input type="password" data-bind="textInput: userModel.newPass" placeholder="•••••••••••" class="account-newpassinput account-input">
-                        </div>
-                    </div>
-                    <div class="account-div">
-                        <div class="account-currentpass"><p class="account-passtext">Current Pass: </p><input type="password" data-bind="textInput: userModel.currentPass" placeholder="•••••••••••" class="account-currentpassinput account-input"></div>
-                    </div>
-                    <div class="account-save"><button class="cart-checkout account-save" data-bind="click: saveProfile">Save</button></div>
-                </div>
-            </div>
-        </template>
-
 	<template id="admin-products-template">
             <products id="search-products">
                 <div class="category-items-short cart-items-short">
@@ -280,7 +246,7 @@
                     <div class="categories-items-container" data-bind="foreach: productsArray">
                         <product-container class="categories-single-item categories-single-cartitem" params="value: $data"></product-container>
                     </div>
-                    <div class="admin-products--add-product">
+                    <div class="admin-products--add-product" data-bind="if: checkUserRole() == USER_SELLER">
                         <p class="add-product-title">New Product</p>
                         <input type="text" data-bind="" placeholder="Product Name..." class="product-edit--input-title editinput">
                         <input type="number" data-bind="" placeholder="Product Price ($$)..." class="product-edit--input-title editinput">
@@ -329,8 +295,8 @@
                     </p>
                 </div>
                 <div class="categories-single-item--invisible-details"></div>
-                <p data-bind="click: function(){$parents[1].deleteProduct($data)}" class="cart-cancel-product">delete</p>
-                <p data-bind="click: function(){params.editMode(true)}" class="cart-cancel-product">edit</p>
+                <p data-bind="click: function(){$parents[1].deleteProduct($data)}, css:{'cart-cancel-product': checkUserRole() == USER_SELLER, 'cart-cancel-product-expanded': checkUserRole() == USER_ADMIN}" class="">delete</p>
+                <p data-bind="click: function(){params.editMode(true)}, if:checkUserRole() == USER_SELLER" class="cart-cancel-product">edit</p>
             </div>
             <div data-bind="visible: params.editMode()" class="product-edit-div">
                 <input type="text" data-bind="textInput: params.tmpName" placeholder="Product name" class="product-edit--input-title editinput">

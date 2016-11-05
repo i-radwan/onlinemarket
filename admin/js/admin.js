@@ -71,7 +71,17 @@ function orderModel(order) {
 	self.id = order.id;
 	self.issuedate = order.issuedate;
 	self.cost = order.cost;
-	self.status = order.status;
+	self.status = ko.observable(order.status);
+	self.textStatus = ko.computed(function () {
+		if (self.status() == ORDER_STATUS_PENDING)
+			return "Pending";
+		if (self.status() == ORDER_STATUS_PICKED)
+			return "Picked";
+		if (self.status() == ORDER_STATUS_SHIPPED)
+			return "Shipped";
+		if (self.status() == ORDER_STATUS_DELIVERED)
+			return "Delivered";
+	});
 }
 
 
@@ -353,10 +363,17 @@ function ordersViewModel(params) {
 
 	self.loadOrders = function () {
 		self.ordersArray.removeAll();
+		self.userID = getUserID();
 		// Get all categories from API and add them to the array
-		getOrders(null).forEach(function (order) {
-			self.ordersArray.push(new orderModel(order));
-		});
+		if (checkUserRole() == USER_ACCOUNTANT) {
+			getOrders(null).forEach(function (order) {
+				self.ordersArray.push(new orderModel(order));
+			});
+		} else if (self.userID != -1 && checkUserRole() == USER_DELIVERMAN) {
+			getDeliverymanOrders(self.userID).forEach(function (order) {
+				self.ordersArray.push(new orderModel(order));
+			});
+		}
 		self.calculateTotal();
 	}
 
@@ -380,125 +397,171 @@ function ordersViewModel(params) {
 		self.loadOrders();
 	}();
 
+	shouter.subscribe(function (deliveredOrderID) {
+		ko.utils.arrayForEach(self.ordersArray(), function (order, index) {
+			if (order && order.id == deliveredOrderID) {
+				self.ordersArray.remove(order);
+			}
+		});
+	}, self, "removeDeliveredOrder");
+
 }
 
 function singleOrderViewModel(params) {
 	var self = this;
 	self.params = params.value;
 
-	self.init = function () {
-
-	}();
+	self.changeOrderStatus = function (orderStatus) {
+		// update via API ToDO
+		self.params.status(orderStatus);
+		if (orderStatus == ORDER_STATUS_DELIVERED)
+			shouter.notifySubscribers(self.params.id, "removeDeliveredOrder");
+	};
 }
 
 function controlPanelViewModel() {
-	var self = this;
+	if (checkIfSignedIn() && checkIfActiveUser() && (checkUserRole() == USER_ADMIN || checkUserRole() == USER_ACCOUNTANT || checkUserRole() == USER_DELIVERMAN || checkUserRole() == USER_SELLER)) {
+		var self = this;
 
-	// Register categories components
+		// Register categories components
 
-	ko.components.register('categories', {
-		template: {
-			element: 'categories-template'
-		},
-		viewModel: categoriesViewModel
-	});
-
-
-	ko.components.register('category-container', {
-		template: {
-			element: 'single-category-template'
-		},
-		viewModel: singleCategoryViewModel
-	});
-	// Register employees components
-
-	ko.components.register('employees', {
-		template: {
-			element: 'employees-template'
-		},
-		viewModel: employeesViewModel
-	});
+		ko.components.register('categories', {
+			template: {
+				element: 'categories-template'
+			},
+			viewModel: categoriesViewModel
+		});
 
 
-	ko.components.register('employee-container', {
-		template: {
-			element: 'single-employee-template'
-		},
-		viewModel: singleEmployeeViewModel
-	});
-	// Register users components
+		ko.components.register('category-container', {
+			template: {
+				element: 'single-category-template'
+			},
+			viewModel: singleCategoryViewModel
+		});
+		// Register employees components
 
-	ko.components.register('users', {
-		template: {
-			element: 'users-template'
-		},
-		viewModel: usersViewModel
-	});
-
-
-	ko.components.register('user-container', {
-		template: {
-			element: 'single-user-template'
-		},
-		viewModel: singleUserViewModel
-	});
-
-	// Register orders components
-
-	ko.components.register('orders', {
-		template: {
-			element: 'orders-template'
-		},
-		viewModel: ordersViewModel
-	});
-
-	ko.components.register('order-container', {
-		template: {
-			element: 'single-order-template'
-		},
-		viewModel: singleOrderViewModel
-	});
+		ko.components.register('employees', {
+			template: {
+				element: 'employees-template'
+			},
+			viewModel: employeesViewModel
+		});
 
 
-	// Register products components
+		ko.components.register('employee-container', {
+			template: {
+				element: 'single-employee-template'
+			},
+			viewModel: singleEmployeeViewModel
+		});
+		// Register users components
 
-	ko.components.register('admin-products', {
-		template: {
-			element: 'admin-products-template'
-		},
-		viewModel: productsViewModel
-	});
+		ko.components.register('users', {
+			template: {
+				element: 'users-template'
+			},
+			viewModel: usersViewModel
+		});
 
-	ko.components.register('product-container', {
-		template: {
-			element: 'single-product-view'
-		},
-		viewModel: singleProductViewModel
-	});
 
-	// Register profile components
+		ko.components.register('user-container', {
+			template: {
+				element: 'single-user-template'
+			},
+			viewModel: singleUserViewModel
+		});
 
-	ko.components.register('profile', {
-		template: {
-			element: 'profile-page-content'
-		},
-		viewModel: profileViewModel
-	});
+		// Register orders components
+
+		ko.components.register('orders', {
+			template: {
+				element: 'orders-template'
+			},
+			viewModel: ordersViewModel
+		});
+
+		ko.components.register('order-container', {
+			template: {
+				element: 'single-order-template'
+			},
+			viewModel: singleOrderViewModel
+		});
+
+
+		// Register products components
+
+		ko.components.register('admin-products', {
+			template: {
+				element: 'admin-products-template'
+			},
+			viewModel: productsViewModel
+		});
+
+		ko.components.register('product-container', {
+			template: {
+				element: 'single-product-view'
+			},
+			viewModel: singleProductViewModel
+		});
+
+		// Register profile components
+
+		ko.components.register('profile', {
+			template: {
+				element: 'profile-page-content'
+			},
+			viewModel: profileViewModel
+		});
+	} else {
+		window.location = WEBSITE_LINK;
+	}
 }
 
 // ==========================================================================================================
 /*	App  Logic	 */
 // ==========================================================================================================
+var shouter = new ko.subscribable();
 
 controlPanelViewModel = new controlPanelViewModel();
 ko.applyBindings(controlPanelViewModel);
 
 // Check for login
-function checkIfSignedIn() {
-	// ToDo should check the localstorage and check for user role
-	return true;
+function getUserID() {
+	try {
+		var decoded = jwt_decode(localStorage.getItem(OMARKET_JWT));
+		return (decoded.data[USERS_FLD_ID]);
+	} catch (e) {
+		return -1;
+	}
 }
 
+function checkIfSignedIn() {
+	try {
+		var decoded = jwt_decode(localStorage.getItem(OMARKET_JWT));
+		return true;
+	} catch (e) {
+		return false;
+	}
+}
+
+function checkIfActiveUser() {
+	try {
+		var decoded = jwt_decode(localStorage.getItem(OMARKET_JWT));
+		return (decoded.data[USERS_FLD_STATUS] == USER_ACTIVE);
+	} catch (e) {
+		return false;
+	}
+}
+
+function checkUserRole() {
+	try {
+		var decoded = jwt_decode(localStorage.getItem(OMARKET_JWT));
+		return (decoded.data[USERS_FLD_USER_TYPE]);
+	} catch (e) {
+		return "-1";
+	}
+}
 /**
  * This function returns the user model
  * @returns {object} user model
@@ -531,7 +594,7 @@ function getUserModel() {
  * This function logs the user off the system
  */
 function logOut() {
-	if (returnedData[AUTH_RESPONSE_RESULT][USERS_FLD_USER_TYPE] == USER_SELLER) {
+	if (localStorage.getItem(OMARKET_PREFIX + USERS_FLD_USER_TYPE) == USER_SELLER) {
 		localStorage.setItem(OMARKET_PREFIX + SELLERS_FLD_ADDRESS, "");
 		localStorage.setItem(OMARKET_PREFIX + SELLERS_FLD_BACK_ACCOUNT, "");
 	}
@@ -682,7 +745,33 @@ function getAllProducts() {
 	];
 }
 /**
- * This function returns user orders
+ * This function returns deliverman orders
+ * @param string filters : filters to be applied
+ * @returns {Array} user orders
+ */
+function getDeliverymanOrders(DeliverymanID) {
+	return [{
+			id: 1,
+			issuedate: "2016-08-10",
+			cost: 1200,
+			status: "1",
+	}, {
+			id: 2,
+			issuedate: "2016-08-12",
+			cost: 1000,
+			status: "2",
+
+	},
+		{
+			id: 3,
+			issuedate: "2016-08-13",
+			cost: 1300,
+			status: "3",
+
+	}];
+}
+/**
+ * This function returns total filtered orders
  * @param string filters : filters to be applied
  * @returns {Array} user orders
  */
@@ -692,158 +781,19 @@ function getOrders(filters) {
 			issuedate: "2016-08-10",
 			cost: 1200,
 			status: "Pending",
-			products: [{
-					id: 1,
-					name: "IPhone 6S",
-					price: 500,
-					rate: 4.5,
-					image: "../img/img.png",
-					quantity: 10,
-					more: [
-						{
-							name: "Origin",
-							value: "Apple"
-					}
-				]
-			},
-				{
-					id: 2,
-					name: "IPhone 4S",
-					price: 200,
-					rate: 4.6,
-					image: "../img/img.png",
-					quantity: 20,
-					more: [
-						{
-							name: "Origin",
-							value: "Apple"
-					},
-						{
-							name: "Sold items",
-							value: "100"
-					}
-				]
-
-			},
-				{
-					id: 3,
-					name: "IPhone 3S",
-					price: 100,
-					rate: 4.5,
-					image: "../img/img.png",
-					quantity: 30,
-					more: [
-						{
-							name: "Origin",
-							value: "Apple"
-					}
-				]
-			}]
 	}, {
 			id: 2,
 			issuedate: "2016-08-12",
 			cost: 1000,
 			status: "Picked",
-			products: [{
-					id: 1,
-					name: "IPhone 6S",
-					price: 500,
-					rate: 4.5,
-					image: "../img/img.png",
-					quantity: 10,
-					more: [
-						{
-							name: "Origin",
-							value: "Apple"
-					}
-				]
-			},
-				{
-					id: 2,
-					name: "IPhone 4S",
-					price: 200,
-					rate: 4.6,
-					image: "../img/img.png",
-					quantity: 20,
-					more: [
-						{
-							name: "Origin",
-							value: "Apple"
-					},
-						{
-							name: "Sold items",
-							value: "100"
-					}
-				]
 
-			},
-				{
-					id: 3,
-					name: "IPhone 3S",
-					price: 100,
-					rate: 4.5,
-					image: "../img/img.png",
-					quantity: 30,
-					more: [
-						{
-							name: "Origin",
-							value: "Apple"
-					}
-				]
-			}]
 	},
 		{
 			id: 3,
 			issuedate: "2016-08-13",
 			cost: 1300,
 			status: "Delivered",
-			products: [{
-					id: 1,
-					name: "IPhone 6S",
-					price: 500,
-					rate: 4.5,
-					image: "../img/img.png",
-					quantity: 10,
-					more: [
-						{
-							name: "Origin",
-							value: "Apple"
-					}
-				]
-			},
-				{
-					id: 2,
-					name: "IPhone 4S",
-					price: 200,
-					rate: 4.6,
-					image: "../img/img.png",
-					quantity: 20,
-					more: [
-						{
-							name: "Origin",
-							value: "Apple"
-					},
-						{
-							name: "Sold items",
-							value: "100"
-					}
-				]
 
-			},
-				{
-					id: 3,
-					name: "IPhone 3S",
-					price: 100,
-					rate: 4.5,
-					image: "../img/img.png",
-					quantity: 30,
-					more: [
-						{
-							name: "Origin",
-							value: "Apple"
-					}
-				]
-			}]
 	}];
 }
 
