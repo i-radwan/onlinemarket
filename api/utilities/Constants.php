@@ -10,7 +10,6 @@ class Constants {
     /**
      * Sign up operation (1x) constants
      */
-    
     const SIGNUP_SUCCESSFUL_SIGNUP = 10;
     const SIGNUP_INVALID_EMAIL = 11;
     const SIGNUP_PASSWORDS_MISMATCH = 12;
@@ -42,7 +41,6 @@ class Constants {
     const USERS_FLD_NAME = 'name';
     const USERS_FLD_TEL = 'tel';
     const USERS_FLD_STATUS = 'user_status';
-    
     const TBL_BUYERS = 'buyers';
     const BUYERS_FLD_USER_ID = 'user_id';
     const BUYERS_FLD_ADDRESS = 'address';
@@ -50,21 +48,39 @@ class Constants {
     const BUYERS_FLD_CC_CCV = 'cc_ccv';
     const BUYERS_FLD_CC_MONTH = 'cc_month';
     const BUYERS_FLD_CC_YEAR = 'cc_year';
-    
     const TBL_SELLERS = 'sellers';
     const SELLERS_FLD_USER_ID = 'user_id';
     const SELLERS_FLD_ADDRESS = 'address';
     const SELLERS_FLD_BACK_ACCOUNT = 'bankaccount';
-
     const TBL_ADMINS = 'admins';
     const ADMINS_FLD_USER_ID = 'user_id';
-
     const TBL_ACCOUNTANTS = 'accountants';
     const ACCOUNTANTS_FLD_USER_ID = 'user_id';
-    
     const TBL_DELIVERYMEN = 'deliverymen';
     const DELIVERYMEN_FLD_USER_ID = 'user_id';
-
+    //==================================
+    //THE ORDER TABLE CONSTANTS
+    const TBL_ORDERS = 'orders';
+    const ORDERS_ID = '_id';
+    const ORDERS_DATE = 'date';
+    const ORDERS_COST = 'cost';
+    const ORDERS_BUYER_ID = 'buyer_id';
+    const ORDERS_STATUS_ID = 'status_id';
+    //==================================
+    //THE ORDER_ITEMS TABLE CONSTANTS
+    const TBL_ORDERITEMS = 'orders';
+    const ORDERITEMS_ORDERID = 'order_id';
+    const ORDERITEMS_PRODUCTID = 'product_id';
+    const ORDERITEMS_SELLERID = 'seller_id';
+    const ORDERITEMS_QUANTITY = 'quantity';
+    //==================================
+    //THE DELIVERY REQUESTS TABLE CONSTANTS
+    const TBL_DELIVERYREQUESTS = 'deliveryrequests';
+    const DELIVERYREQUESTS_ID = '_id';
+    const DELIVERYREQUESTS_ORDERID = 'order_id';
+    const DELIVERYREQUESTS_DELIVERYMANID = 'deliveryman_id';
+    const DELIVERYREQUESTS_DUEDATE = 'duedate';
+    //==================================
     /**
      * User types (related to db)
      * Some checks in the code (signup function) depends on these values
@@ -75,7 +91,7 @@ class Constants {
     const USER_ACCOUNTANT = "3";
     const USER_ADMIN = "4";
     const USER_DELIVERMAN = "5";
-    
+
     /**
      * User status
      */

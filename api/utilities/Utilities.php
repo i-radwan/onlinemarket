@@ -49,7 +49,19 @@ class Utilities {
     static public function checkPassword($password, $hashedPassword) {
         return password_verify($password, $hashedPassword);
     }
-    
+     /**
+     * This function checks if the sent date if valid or not (Used in Adding Orders)
+     * @author AhmedSamir
+     * @param string $date the input date string
+     * @param string $format the input format (it's now YYYY-MM-DD)
+     * @return boolean true if it's valid.
+     */
+    static public function validateDate($date, $format = 'Y-m-d') {
+        $theDate = strtotime($date);
+        $today =  date($format);
+        $today = strtotime($today);
+        return $theDate >= $today;
+    }
     
 
 }
