@@ -33,10 +33,10 @@
 		</div>
 		<div data-bind="if: checkUserRole() == USER_ADMIN">
 			<employees params="employeeTypeName: 'Accountants', employeeType : USER_ACCOUNTANT, employeeSingleName: 'Accountant'"></employees>
-			<employees params="employeeTypeName: 'Delivery Staff', employeeType : USER_DELIVERMAN, employeeSingleName: 'Deliveryman'"></employees>
+			<employees params="employeeTypeName: 'Delivery Staff', employeeType : USER_DELIVERYMAN, employeeSingleName: 'Deliveryman'"></employees>
 			<users></users>
 		</div>
-		<div data-bind="if: checkUserRole() == USER_ACCOUNTANT || checkUserRole() == USER_DELIVERMAN">
+		<div data-bind="if: checkUserRole() == USER_ACCOUNTANT || checkUserRole() == USER_DELIVERYMAN">
 			<orders></orders>
 		</div>
 		<div data-bind="if: checkUserRole() == USER_SELLER ||  checkUserRole() == USER_ADMIN">
@@ -86,7 +86,7 @@
 	<template id="orders-template">
             <div class="category-items-short cart-items-short">
                 <a class="category-items-short--title">Orders</a>
-                <div class="orders-filters">
+                <div class="orders-filters" data-bind="if: checkUserRole() == USER_ACCOUNTANT">
                     <div class="orders-filters--div">
                         <div class="checkbox checkbox-info checkbox-circle">
                             <input id="checkbox8" class="styled" type="checkbox">
@@ -158,9 +158,11 @@
             </div>
             <div class="order-actions">
                 <p><strong>Status</strong>: <span data-bind="text: params.textStatus()"></span></p>
-                <span class="order-cancel" data-bind="if: params.status() == ORDER_STATUS_PENDING, click:function(){changeOrderStatus(ORDER_STATUS_PICKED)}">mark picked</span>
-                <span class="order-cancel" data-bind="if: params.status() == ORDER_STATUS_PICKED, click:function(){changeOrderStatus(ORDER_STATUS_SHIPPED)}">mark shipped</span>
-                <span class="order-cancel" data-bind="if: params.status() == ORDER_STATUS_SHIPPED, click:function(){changeOrderStatus(ORDER_STATUS_DELIVERED)}">mark delivered</span>
+				<span data-bind="if: checkUserRole() == USER_DELIVERYMAN">
+					<span class="order-cancel" data-bind="if: params.status() == ORDER_STATUS_PENDING, click:function(){changeOrderStatus(ORDER_STATUS_PICKED)}">mark picked</span>
+					<span class="order-cancel" data-bind="if: params.status() == ORDER_STATUS_PICKED, click:function(){changeOrderStatus(ORDER_STATUS_SHIPPED)}">mark shipped</span>
+					<span class="order-cancel" data-bind="if: params.status() == ORDER_STATUS_SHIPPED, click:function(){changeOrderStatus(ORDER_STATUS_DELIVERED)}">mark delivered</span>
+                </span>
             </div>
 
         </template>

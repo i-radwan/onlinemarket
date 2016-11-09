@@ -31,13 +31,13 @@ const BUYERS_FLD_CC_YEAR = 'cc_year';
 
 const SELLERS_FLD_USER_ID = 'user_id';
 const SELLERS_FLD_ADDRESS = 'address';
-const SELLERS_FLD_BACK_ACCOUNT = 'bankaccount';
+const SELLERS_FLD_BACK_ACCOUNT = 'bankAccount';
 
 const USER_BUYER = "1";
 const USER_SELLER = "2";
 const USER_ACCOUNTANT = "3";
 const USER_ADMIN = "4";
-const USER_DELIVERMAN = "5";
+const USER_DELIVERYMAN = "5";
 
 const USER_ACTIVE = "1";
 const USER_BANNED = "2";

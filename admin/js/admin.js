@@ -81,6 +81,7 @@ function orderModel(order) {
 			return "Shipped";
 		if (self.status() == ORDER_STATUS_DELIVERED)
 			return "Delivered";
+		else return "Error";
 	});
 }
 
@@ -369,7 +370,7 @@ function ordersViewModel(params) {
 			getOrders(null).forEach(function (order) {
 				self.ordersArray.push(new orderModel(order));
 			});
-		} else if (self.userID != -1 && checkUserRole() == USER_DELIVERMAN) {
+		} else if (self.userID != -1 && checkUserRole() == USER_DELIVERYMAN) {
 			getDeliverymanOrders(self.userID).forEach(function (order) {
 				self.ordersArray.push(new orderModel(order));
 			});
@@ -420,7 +421,7 @@ function singleOrderViewModel(params) {
 }
 
 function controlPanelViewModel() {
-	if (checkIfSignedIn() && checkIfActiveUser() && (checkUserRole() == USER_ADMIN || checkUserRole() == USER_ACCOUNTANT || checkUserRole() == USER_DELIVERMAN || checkUserRole() == USER_SELLER)) {
+	if (checkIfSignedIn() && checkIfActiveUser() && (checkUserRole() == USER_ADMIN || checkUserRole() == USER_ACCOUNTANT || checkUserRole() == USER_DELIVERYMAN || checkUserRole() == USER_SELLER)) {
 		var self = this;
 
 		// Register categories components
@@ -780,19 +781,19 @@ function getOrders(filters) {
 			id: 1,
 			issuedate: "2016-08-10",
 			cost: 1200,
-			status: "Pending",
+			status: "1",
 	}, {
 			id: 2,
 			issuedate: "2016-08-12",
 			cost: 1000,
-			status: "Picked",
+			status: "2",
 
 	},
 		{
 			id: 3,
 			issuedate: "2016-08-13",
 			cost: 1300,
-			status: "Delivered",
+			status: "3",
 
 	}];
 }
@@ -845,7 +846,7 @@ function getEmployeesArray(type) {
 			id: 4,
 			email: "asd4@asd.asd"
 	}];
-	} else if (type == USER_DELIVERMAN) {
+	} else if (type == USER_DELIVERYMAN) {
 		return [{
 			id: 1,
 			email: "asd21@asd.asd"
