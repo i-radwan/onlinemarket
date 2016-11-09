@@ -51,6 +51,73 @@ $app->post('/signup', function (Request $request, Response $response) {
     }
     return $response->withStatus(200)->write($sqlOperations->signUpUser($email, $pass1, $pass2, $role, $name, $tel, $extraData));
 });
+
+// Add route callbacks
+//This GET Request takes One ID only and returns the selected Columns about that Order 
+$app->get('/order/{id}', function (Request $request, Response $response, $args = []) {
+    $sqlOperations = new SQLOperations();
+    $id = $request->getAttribute('id');
+    //It takes an array of columns needed to be returned
+    $selectionCols = $request->getParam('fields');
+    //Return the response with the order object written in it in JSON 
+    return $response->withStatus(200)->write($sqlOperations->getOrder($id, $selectionCols));
+});
+//Get All ORDERS (May be needed for accountant)
+// reponds to both `/orders/` and `/orders/123`
+// but not to `/orders`
+$app->get('/orders/[{id}]', function (Request $request, Response $response, $args = []) {
+    $sqlOperations = new SQLOperations();
+    $id = $args['id'];
+    $selectionCols = $request->getParam('fields');
+    if (trim($id) != "" && is_numeric($id) || trim($id) == "") { // certain user
+        return $response->withStatus(200)->write($sqlOperations->getAllOrders($selectionCols, trim($id)));
+    } else {
+        return $response->withStatus(404);
+    }
+});
+//Delete Certain Order by the ID (Semi Finished) (Middleware Authorization)/ WithStatus 401 / Retuen respone 
+$app->delete('/order/{id}', function (Request $request, Response $response, $args) {
+    //middleware (authorization)
+    //with status (401) Error
+    $sqlOperations = new SQLOperations();
+    $id = $args['id'];
+    return $response->withStatus(200)->write($sqlOperations->deleteOrder($id));
+});
+//Add Order
+$app->post('/order/', function (Request $request, Response $response) {
+    $sqlOperations = new SQLOperations();
+    $postVars = $request->getParsedBody();
+    $buyerID = $postVars[Constants::ORDERS_BUYER_ID];
+    $cost = $postVars[Constants::ORDERS_COST];
+    $date = $postVars[Constants::ORDERS_DATE];
+    $status = $postVars[Constants::ORDERS_STATUS_ID];
+    return $response->withStatus(200)->write($sqlOperations->addOrder($buyerID, $cost, $date, $status));
+});
+//Update Order
+$app->put('/order/{id}', function (Request $request, Response $response, $args) {
+    $sqlOperations = new SQLOperations();
+    $id = $args['id'];
+    $postVars = $request->getParsedBody();
+    $buyerID = $postVars[Constants::ORDERS_BUYER_ID];
+    $cost = $postVars[Constants::ORDERS_COST];
+    $date = $postVars[Constants::ORDERS_DATE];
+    $status = $postVars[Constants::ORDERS_STATUS_ID];
+    return $response->withStatus(200)->write($sqlOperations->updateOrder($id, $buyerID, $cost, $date, $status));
+});
+//Get Order Items
+$app->get('/orderitems/{orderid}/{buyerid}', function (Request $request, Response $response, $args) {
+    $sqlOperations = new SQLOperations();
+    $orderID = $request->getAttribute('orderid');
+    $buyerID = $request->getAttribute('buyerid');
+    return $response->withStatus(200)->write($sqlOperations->getOrderItems($orderID, $buyerID));
+});
+//Get Delivery Requests Items
+$app->get('/deliveryrequests/{id}', function (Request $request, Response $response) {
+    $sqlOperations = new SQLOperations();
+    $deliveryManID = $request->getAttribute('id');
+    return $response->withStatus(200)->write($sqlOperations->getDeliveryRequests($deliveryManID));
+});
+
 // Run application
 $app->run();
 //echo $sqlOperations->login("i.radwan1996@gmail.com", "2006");

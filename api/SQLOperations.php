@@ -326,4 +326,193 @@ class SQLOperations implements SQLOperationsInterface {
         $this->db_link->close();
     }
 
+    /**
+     * This function gets all orders of all user or a certain user
+     * @author AhmedSamir
+     * @param array $$selectionCols required columns from the orders table
+     * @return Response with the order contents
+     */
+    public function getAllOrders($selectionCols , $userID = "") {
+        if ($selectionCols == "")
+            $theString = array(Constants::ORDERS_BUYER_ID, Constants::ORDERS_COST, Constants::ORDERS_DATE, Constants::ORDERS_STATUS_ID);
+        else
+            $theString = explode(",",$selectionCols);
+        if ($userID != "")
+            $result = $this->db_link->query('select * FROM ' . Constants::TBL_ORDERS . ' WHERE ' . Constants::ORDERS_BUYER_ID . ' = ' . $userID);
+        else
+            $result = $this->db_link->query('select * FROM ' . Constants::TBL_ORDERS);
+        $ret = array();
+        while ($row = $result->fetch_assoc()) {
+            $theOrder = new Order(); //Creating new object
+            $theOrder->setId($row[Constants::ORDERS_ID]);
+            $theOrder->setAttributes($row, $theString); //Assigning the Other Attributes according to the sent columns
+            array_push($ret, $theOrder);
+        }
+        $response = new Response(Constants::ORDERS_GET_SUCCESSFUL, $ret, "");
+        return json_encode($response);
+    }
+
+    /**
+     * This function gets one order with it's id
+     * @author AhmedSamir
+     * @param array $selectionCols required columns from the orders table
+     * @param int $id order id
+     * @return Response with the order contents 
+     */
+    public function getOrder($id, $selectionCols) {
+        if ($selectionCols == "") { //Select all columns
+            $result = $this->db_link->query('SELECT * FROM ' . Constants::TBL_ORDERS . ' WHERE ' . Constants::ORDERS_ID . ' = ' . $id . ' LIMIT 1');
+            $theString = array(Constants::ORDERS_BUYER_ID, Constants::ORDERS_COST, Constants::ORDERS_DATE, Constants::ORDERS_STATUS_ID);
+        } else { //Select the sent ones only
+            $result = $this->db_link->query('SELECT ' . $selectionCols . ' FROM ' . Constants::TBL_ORDERS . ' WHERE ' . Constants::ORDERS_ID . ' = ' . $id . ' LIMIT 1');
+            $theString = explode(",", $selectionCols);
+        }
+        if (!result)
+            return returnError(Constants::ORDERS_GET_FAILED, "Please try again later!");
+        $theArray = array();
+        if ($row = $result->fetch_assoc()) { //Fetching the Result 
+            $theOrder = new Order(); //Creating new object
+            $theOrder->setId($id); //Setting the Order ID
+            $theOrder->setAttributes($row, $theString); //Assigning the Other Attributes according to the sent columns
+            array_push($theArray, $theOrder);
+        }
+        $theResponse = new Response(Constants::ORDERS_GET_SUCCESSFUL, $theArray, "");
+        return(json_encode($theResponse));
+    }
+
+    /**
+     * This function Adds one order By taking its attributes 
+     * @author AhmedSamir
+     * $dueDate, $status = "Pending"
+     * @param int $buyerId the buyer id
+     * @param float $cost the cost
+     * @param date $dueDate the date of the order
+     * @param string @status the status of the order (Initially it's pending) 
+     * @return Response with the order contents
+     */
+    public function addOrder($buyerId, $cost, $dueDate, $status = 1) {
+        //Make text safe
+        $buyerId = Utilities::makeInputSafe($buyerId);
+        $cost = Utilities::makeInputSafe($cost);
+        $dueDate = Utilities::makeInputSafe($dueDate);
+        $status = Utilities::makeInputSafe($status);
+        //Check for empty fields 
+        if ($status == "" || !is_numeric($buyerId) || !is_numeric($cost) || $dueDate == "")
+            return new Response(Constants::ORDERS_ADD_FAILED, json_encode(array()), $jwt);
+        //Check for any non-logical parameter values
+        if ($buyerId <= 0 || $cost <= 0 || $status < 1 && $status > 5 || !Utilities::validateDate($dueDate))
+            return new Response(Constants::ORDERS_ADD_FAILED, json_encode(array()), $jwt);
+        //Insert Sql Statment
+        $this->db_link->query('INSERT INTO ' . Constants::TBL_ORDERS . ' (' . Constants::ORDERS_BUYER_ID . ',' . Constants::ORDERS_COST . ',' . Constants::ORDERS_DATE . ',' . Constants::ORDERS_STATUS_ID . ')' . ' VALUE (' . $buyerId . ',' . $cost . ",'" . $dueDate . "'," . $status . ')');
+        echo 'INSERT INTO ' . Constants::TBL_ORDERS . ' (' . Constants::ORDERS_BUYER_ID . ',' . Constants::ORDERS_COST . ',' . Constants::ORDERS_DATE . ',' . Constants::ORDERS_STATUS_ID . ')' . ' VALUE (' . $buyerId . ',' . $cost . ",'" . $dueDate . "'," . $status . ')';
+        //Return the created order by the getOrder function
+        return $this->getOrder($this->db_link->insert_id);
+    }
+
+    /**
+     * This function Delete one order By taking its ID 
+     * @author AhmedSamir
+     * @param int $orderID the order id
+     * @return Response with the operation code
+     */
+    public function deleteOrder($orderID) {
+        $result = $this->db_link->query('SELECT * FROM ' . Constants::TBL_ORDERS . ' where ' . Constants::ORDERS_ID . ' = ' . $orderID . ' LIMIT 1');
+        if ($result->fetch_assoc() != "") {
+            //Delete First the order items
+            $this->db_link->query('DELETE FROM ' . Constants::TBL_ORDERITEMS . ' WHERE ' . Constants::ORDERITEMS_ORDERID . ' = ' . $orderID);
+            //Then delete the order
+            $this->db_link->query('DELETE FROM ' . Constants::TBL_ORDERS . ' WHERE ' . Constants::ORDERS_ID . ' = ' . $orderID);
+            $theResponse = new Response(Constants::ORDERS_DELETE_SUCCESS, array(), "");
+            return json_encode($theResponse);
+        } else {
+            $theResponse = new Response(Constants::ORDERS_DELETE_FAILED, array(), "");
+            return json_encode($theResponse);
+        }
+    }
+
+    /**
+     * This function Updates one order By taking its attributes 
+     * @author AhmedSamir
+     * @param int $id the order id
+     * @param int $buyerId the buyer id
+     * @param float $cost the cost
+     * @param date $dueDate the date of the order
+     * @param string @status the status of the order. 
+     * @return Response with the order contents
+     */
+    public function updateOrder($id, $buyerId, $cost, $dueDate, $status) {
+        //Make text safe
+        $id = Utilities::makeInputSafe($id);
+        $buyerId = Utilities::makeInputSafe($buyerId);
+        $cost = Utilities::makeInputSafe($cost);
+        $dueDate = Utilities::makeInputSafe($dueDate);
+        $status = Utilities::makeInputSafe($status);
+        //Check if Order is Found
+        $result = $this->db_link->query('SELECT * FROM ' . Constants::TBL_ORDERS . ' where ' . Constants::ORDERS_ID . ' = ' . $id . ' LIMIT 1');
+        if (!$result->fetch_assoc()){
+            $theResponse = new Response(Constants::ORDERS_UPDATE_FAILED, array(), "");
+            return json_encode($theResponse);
+        }
+        //Check for empty fields 
+        if (!(is_numeric($status)) || !(is_numeric($buyerId)) || !(is_numeric($cost)) || $dueDate == ""){
+            $theResponse = new Response(Constants::ORDERS_UPDATE_FAILED, array(), "");
+            return json_encode($theResponse);
+        }
+        //Check for any non-logical parameter values
+        if ($buyerId <= 0 || $cost <= 0 || $status < 1 && $status > 5 || !Utilities::validateDate($dueDate)){
+            $theResponse = new Response(Constants::ORDERS_UPDATE_FAILED, array(), "");
+            return json_encode($theResponse);
+        }
+        //Update the Order
+        $this->db_link->query('UPDATE ' . Constants::TBL_ORDERS . ' set ' . Constants::ORDERS_BUYER_ID . ' = ' . $buyerId . ' , ' . Constants::ORDERS_COST . ' = ' . $cost . ' , ' . Constants::ORDERS_DATE . " = '" . $dueDate . "' , " . Constants::ORDERS_STATUS_ID . ' = ' . $status . ' where ' . Constants::ORDERS_ID . ' = ' . $id);
+        $theResponse =  $this->getOrder($this->db_link->insert_id);
+        return $theResponse;
+    }
+
+    /**
+     * This function gets all order items of a certain order
+     * @author AhmedSamir
+     * @param int $orderID the order ID
+     * @param int $buyerID the buyer ID
+     * @return Response with the order items
+     */
+    public function getOrderItems($orderID, $buyerID) {
+        //Make Input Safe
+        $orderID = Utilities::makeInputSafe($orderID);
+        $buyerID = Utilities::makeInputSafe($buyerID);
+        //Check if Order is in the Order Items and of the same buyer
+        $result = $this->db_link->query('SELECT * FROM ' . Constants::TBL_ORDERS . ' where ' . Constants::ORDERS_ID . ' = ' . $orderID . ' and ' . Constants::ORDERS_BUYER_ID . ' = ' . $buyerID . ' LIMIT 1');
+        if ($result->fetch_assoc()) {
+            //Order is found and is associated with this buyer , Therefore go and get its items.
+            $ret = array();
+            $query = $this->db_link->query('SELECT * FROM ' . Constants::TBL_ORDERITEMS . ' where ' . Constants::ORDERITEMS_ORDERID . ' = ' . $orderID);
+            while ($item = $query->fetch_assoc()) {
+                array_push($ret, $item);
+            }
+            $theResponse = new Response(Constants::ORDERITEMS_GET_SUCCESSFUL, $ret, "");
+            return(json_encode($theResponse));
+        } else {
+            $theResponse = new Response(Constants::ORDERITEMS_GET_FAILED, array(), "");
+            return(json_encode($theResponse));
+        }
+    }
+
+    /**
+     * This function gets all delivery requests of a certain delivery man
+     * @author AhmedSamir
+     * @param int $deliveryManID the delivery Man ID
+     * @return Response with the delivery requests
+     */
+    public function getDeliveryRequests($deliveryManID) {
+        $deliveryManID = Utilities::makeInputSafe($deliveryManID);
+        $deliveryManID = Utilities::makeInputSafe($deliveryManID);
+        $result = $this->db_link->query('SELECT * FROM ' . Constants::TBL_DELIVERYREQUESTS . ' where ' . Constants::DELIVERYREQUESTS_DELIVERYMANID . ' = ' . $deliveryManID);
+        $ret = array();
+        while ($row = $result->fetch_assoc()) {
+            array_push($ret, $row);
+        }
+        $theResponse = new Response(Constants::DELIVERYREQUESTS_GET_SUCCESSFUL, $ret, "");
+        return(json_encode($theResponse));
+    }
+
 }
