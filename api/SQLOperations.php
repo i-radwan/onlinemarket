@@ -12,6 +12,7 @@ require_once 'utilities/config.php';
 require_once 'models/Buyer.php';
 require_once 'models/Seller.php';
 require_once 'models/Admin.php';
+require_once 'models/Order.php';
 require_once 'models/Accountant.php';
 require_once 'models/Deliveryman.php';
 require_once 'models/Error.php';
@@ -509,7 +510,24 @@ class SQLOperations implements SQLOperationsInterface {
         $result = $this->db_link->query('SELECT * FROM ' . Constants::TBL_DELIVERYREQUESTS . ' where ' . Constants::DELIVERYREQUESTS_DELIVERYMANID . ' = ' . $deliveryManID);
         $ret = array();
         while ($row = $result->fetch_assoc()) {
-            array_push($ret, $row);
+            $deliveryRequest = array();
+            $deliveryRequest['delivery_request'] = $row;
+            //Get the Order (Buyer_id and Staus_id) through order_id
+            $orderID = $row[Constants::DELIVERYREQUESTS_ORDERID];
+            $orderRow = $this->db_link->query('SELECT '. Constants::ORDERS_BUYER_ID. ' , '. Constants::ORDERS_STATUS_ID .' FROM ' . Constants::TBL_ORDERS. ' where '. Constants::ORDERS_ID . ' = '. $orderID);
+            //Generate Order Model "object"
+            $theOrder = $orderRow->fetch_assoc();
+            $theString = array(Constants::ORDERS_BUYER_ID, Constants::ORDERS_STATUS_ID);
+            $orderModel = new Order();
+            $orderModel->setAttributes($theOrder, $theString);
+            $deliveryRequest['delivery_request']['order'] = $orderModel;
+            //Get the Buyer through his ID
+            $buyerID = $theOrder[Constants::ORDERS_BUYER_ID];
+            $buyerRow = $this->db_link->query('SELECT  * FROM '. Constants::TBL_BUYERS. ' WHERE '. Constants::BUYERS_FLD_USER_ID . ' = '. $buyerID);
+            $theBuyer = $buyerRow->fetch_assoc();
+            //print_r( $theBuyer);
+            $deliveryRequest['delivery_request']['buyer'] = $theBuyer;
+            array_push($ret, $deliveryRequest);
         }
         $theResponse = new Response(Constants::DELIVERYREQUESTS_GET_SUCCESSFUL, $ret, "");
         return(json_encode($theResponse));
