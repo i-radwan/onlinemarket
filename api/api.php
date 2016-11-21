@@ -7,20 +7,50 @@ use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
 $app = new \Slim\App();
-$app->get('/hello/{name:.*}', function (Request $request, Response $response) {
-    $name = $request->getAttribute("name");
 
-    $allGetVars = $request->getQueryParams();
-    
-    $paramValue = $allGetVars['fields'];
-    echo "Hello, $name :: $paramValue";
+/**
+ * This function returns user data extracted from passed user token
+ * @param string $token  user token
+ * @return array user data array extracted from token
+ */
+function getTokenData($jwt) {
+    $secretKey = base64_decode(jwt_key);
+    $token = JWT::decode($jwt, $secretKey, jwt_algorithm);
+    return ((array) $token->data);
+}
+
+function authUsers($userType, Request $request, Response $response) {
+    $authHeader = $request->getHeader('Authorization');
+    list($jwt) = sscanf($authHeader[0], 'Bearer %s');
+    if ($jwt) {
+        try {
+            $data = getTokenData($jwt);
+            if (in_array($data[Constants::USERS_FLD_USER_TYPE], $userType)) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception $e) {
+            return false;
+        }
+    } else {
+        return false;
+    }
+    return false;
+}
+
+$app->get('/hello/{name}', function (Request $request, Response $response) {
+    //$name = $request->getAttribute("name");
+    //echo "Hello, $name";
+    return $response->write('Hello ' . $request->getAttribute("name"));
 });
+
 // Add route callbacks
 $app->post('/login', function (Request $request, Response $response) {
     $sqlOperations = new SQLOperations();
     $allPostPutVars = $request->getParsedBody();
-    $email = $allPostPutVars['email'];
-    $pass = $allPostPutVars['pass'];
+    $email = $allPostPutVars[Constants::USERS_FLD_EMAIL];
+    $pass = $allPostPutVars[Constants::USERS_FLD_PASS];
     return $response->withStatus(200)->write($sqlOperations->login($email, $pass));
 });
 $app->post('/signup', function (Request $request, Response $response) {
@@ -50,6 +80,60 @@ $app->post('/signup', function (Request $request, Response $response) {
             break;
     }
     return $response->withStatus(200)->write($sqlOperations->signUpUser($email, $pass1, $pass2, $role, $name, $tel, $extraData));
+});
+$app->put('/user', function (Request $request, Response $response) {
+    if (authUsers(Constants::USER_TYPES, $request, $response)) {
+        $sqlOperations = new SQLOperations();
+        $authHeader = $request->getHeader('Authorization');
+        list($jwt) = sscanf($authHeader[0], 'Bearer %s');
+        $data = getTokenData($jwt);
+        $userID = $data[Constants::USERS_FLD_ID];
+        $userType = $data[Constants::USERS_FLD_USER_TYPE];
+        return $response->withStatus(200)->write($sqlOperations->editAccount($userID, $userType, $request->getParsedBody()));
+    } else {
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+    }
+});
+$app->put('/user/edit', function (Request $request, Response $response) {
+    if (authUsers([Constants::USER_ADMIN], $request, $response)) {
+        $sqlOperations = new SQLOperations();
+        return $response->withStatus(200)->write($sqlOperations->editEmpAccount($request->getParsedBody()));
+    } else {
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+    }
+});
+$app->post('/user', function (Request $request, Response $response) {
+    if (authUsers([Constants::USER_ADMIN], $request, $response)) {
+        $sqlOperations = new SQLOperations();
+        return $response->withStatus(200)->write($sqlOperations->addEmployee($request->getParsedBody()));
+    } else {
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+    }
+});
+$app->delete('/user', function (Request $request, Response $response) {
+    if (authUsers([Constants::USER_ADMIN], $request, $response)) {
+        $sqlOperations = new SQLOperations();
+        return $response->withStatus(200)->write($sqlOperations->deleteUser($request->getParsedBody()[Constants::USERS_FLD_ID]));
+    } else {
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+    }
+});
+$app->put('/user/block', function (Request $request, Response $response) {
+    if (authUsers([Constants::USER_ADMIN], $request, $response)) {
+        $sqlOperations = new SQLOperations();
+        return $response->withStatus(200)->write($sqlOperations->changeUserStatus($request->getParsedBody()[Constants::USERS_FLD_ID], $request->getParsedBody()[Constants::USERS_FLD_STATUS]));
+    } else {
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+    }
+});
+$app->get('/user/{userType}', function (Request $request, Response $response) {
+    if (authUsers([Constants::USER_ADMIN], $request, $response)) {
+        $sqlOperations = new SQLOperations();
+        $userType = $request->getAttribute('userType');
+        return $response->withStatus(200)->write($sqlOperations->getUsersUsingType($userType));
+    } else {
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+    }
 });
 
 // Add route callbacks
@@ -112,11 +196,17 @@ $app->get('/orderitems/{orderid}/{buyerid}', function (Request $request, Respons
     return $response->withStatus(200)->write($sqlOperations->getOrderItems($orderID, $buyerID));
 });
 //Get Delivery Requests Items
-$app->get('/deliveryrequests/{id}', function (Request $request, Response $response) {
-    $sqlOperations = new SQLOperations();
-    $deliveryManID = $request->getAttribute('id');
+$app->get('/deliveryrequests/', function (Request $request, Response $response) {
+    $authHeader = $request->getHeader('Authorization');
+    list($jwt) = sscanf($authHeader[0], 'Bearer %s');
+    try {
+        $data = getTokenData($jwt);
+        $deliveryManID = $data[Constants::USERS_FLD_ID];
+        $sqlOperations = new SQLOperations();
+    } catch (Exception $ex) { // already handled in middleware        
+    }
     return $response->withStatus(200)->write($sqlOperations->getDeliveryRequests($deliveryManID));
-});
+})->add($deliverymanAuthMW);
 
 // Run application
 $app->run();

@@ -7,4 +7,4 @@ define(db_user, "root");
 define(db_pass, "20061996");
 
 //Disable errors
-error_reporting(0);
+//error_reporting(0);

@@ -277,13 +277,44 @@ function profileViewModel(params) {
 	}();
 
 	self.saveProfile = function () {
-		// ToDo save profile using API
-		console.log(self.userModel.address());
-		console.log(self.userModel.ccmonth());
-		console.log(self.userModel.ccyear());
-		console.log(self.userModel.ccnumber());
-		console.log(self.userModel.currentPass());
-		console.log(self.userModel.newPass());
+		self.saveProfile = function () {
+			var data = {};
+			data[USERS_FLD_NAME] = self.userModel.name();
+			data[USERS_FLD_TEL] = self.userModel.tel();
+			data[USERS_FLD_PASS1] = self.userModel.currentPass();
+			data[USERS_FLD_PASS2] = self.userModel.newPass();
+			data[BUYERS_FLD_ADDRESS] = self.userModel.address();
+			data[BUYERS_FLD_CCNUMBER] = self.userModel.ccnumber();
+			data[BUYERS_FLD_CC_CCV] = self.userModel.ccccv();
+			data[BUYERS_FLD_CC_MONTH] = self.userModel.ccmonth();
+			data[BUYERS_FLD_CC_YEAR] = self.userModel.ccyear();
+
+			$.ajax({
+				url: API_LINK + USER_ENDPOINT,
+				type: 'PUT',
+				data: data,
+				headers: {
+					'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
+				},
+				success: function (result) {
+					var returnedData = JSON.parse(result);
+					if (returnedData.statusCode == USER_EDIT_ACCOUNT_SUCCESSFUL) {
+						alert(returnedData.result);
+						localStorage.setItem(OMARKET_PREFIX + USERS_FLD_NAME, data[USERS_FLD_NAME]);
+						localStorage.setItem(OMARKET_PREFIX + USERS_FLD_TEL, data[USERS_FLD_TEL]);
+						localStorage.setItem(OMARKET_PREFIX + BUYERS_FLD_ADDRESS, data[BUYERS_FLD_ADDRESS]);
+						localStorage.setItem(OMARKET_PREFIX + BUYERS_FLD_CCNUMBER, data[BUYERS_FLD_CCNUMBER]);
+						localStorage.setItem(OMARKET_PREFIX + BUYERS_FLD_CC_CCV, data[BUYERS_FLD_CC_CCV]);
+						localStorage.setItem(OMARKET_PREFIX + BUYERS_FLD_CC_YEAR, data[BUYERS_FLD_CC_YEAR]);
+						localStorage.setItem(OMARKET_PREFIX + BUYERS_FLD_CC_MONTH, data[BUYERS_FLD_CC_MONTH]);
+						window.location = WEBSITE_LINK;
+
+					} else {
+						alert(returnedData.errorMsg);
+					}
+				}
+			});
+		}
 	}
 	shouter.subscribe(function (products) {
 		// ToDo to be retrieved from API
@@ -474,7 +505,7 @@ var sammyApp;
 			shouter.notifySubscribers('0', "changedCategoryID");
 		});
 		this.get('#/cart', function (context) {
-			if (checkIfSignedIn()&& checkUserRole() == USER_BUYER)
+			if (checkIfSignedIn() && checkUserRole() == USER_BUYER)
 				onlineMarketMVVM.changeContentVisibility(true, false, false, false);
 		});
 		this.get('#/profile', function (context) {

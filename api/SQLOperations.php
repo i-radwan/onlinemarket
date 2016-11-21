@@ -266,7 +266,7 @@ class SQLOperations implements SQLOperationsInterface {
                 break;
             // For the next 3 cases, we currently don't give them extra data, so we will return the basic data only
             case Constants::USER_ACCOUNTANT:
-                $userModel = new Accountant($_id, $row[Constants::USERS_FLD_NAME], $row[Constants::USERS_FLD_EMAIL], $row[Constants::USERS_FLD_TEL],$userType, $row[Constants::USERS_FLD_STATUS]);
+                $userModel = new Accountant($_id, $row[Constants::USERS_FLD_NAME], $row[Constants::USERS_FLD_EMAIL], $row[Constants::USERS_FLD_TEL], $userType, $row[Constants::USERS_FLD_STATUS]);
                 break;
             case Constants::USER_DELIVERMAN:
                 $userModel = new Deliveryman($_id, $row[Constants::USERS_FLD_NAME], $row[Constants::USERS_FLD_EMAIL], $row[Constants::USERS_FLD_TEL], $userType, $row[Constants::USERS_FLD_STATUS]);
@@ -279,7 +279,7 @@ class SQLOperations implements SQLOperationsInterface {
     }
 
     /**
-     * This function refreshes the user hash in db on succesful login
+     * This function refreshes the user hash in db on successful login
      * @param array $row user db row
      * @param string $pass user entered password
      */
@@ -290,18 +290,223 @@ class SQLOperations implements SQLOperationsInterface {
         $this->db_link->query("UPDATE `" . Constants::TBL_USERS . "` SET `" . Constants::USERS_FLD_PASS . "` = '$newHash' WHERE `" . Constants::USERS_FLD_ID . "` = '$_id' LIMIT 1");
     }
 
-    //Test function this function needs verification to work
-    function secure($jwt) {
-        //list($jwt) = sscanf($authHeader->toString(), 'Authorization: Bearer %s');
-        if ($jwt) {
-            try {
-                $secretKey = base64_decode(jwt_key);
+    /**
+     * This function edits the user account
+     * @param type $userID user id to edit its account
+     * @param type $userType user type 
+     * @param type $userNewData user new data object from request
+     * @return object the result
+     */
+    function editAccount($userID, $userType, $userNewData) {
 
-                $token = JWT::decode($jwt, $secretKey, jwt_algorithm);
-                echo $token->data->email;
-            } catch (Exception $e) {
-                
+        $name = Utilities::makeInputSafe($userNewData[Constants::USERS_FLD_NAME]);
+        $tel = Utilities::makeInputSafe($userNewData[Constants::USERS_FLD_TEL]);
+        $pass1 = Utilities::makeInputSafe($userNewData[Constants::USERS_FLD_PASS . "1"]);
+        $pass2 = Utilities::makeInputSafe($userNewData[Constants::USERS_FLD_PASS . "2"]);
+
+        if ($userType == Constants::USER_SELLER) {
+            $address = Utilities::makeInputSafe($userNewData[Constants::SELLERS_FLD_ADDRESS]);
+            $bankAccount = Utilities::makeInputSafe($userNewData[Constants::SELLERS_FLD_BACK_ACCOUNT]);
+            if (strlen($address) <= 0 || strlen($bankAccount) <= 0) {
+                return $this->returnError(Constants::USER_EDIT_ACCOUNT_EMPTY_DATA, "All data are required!", 0, 0, 0);
             }
+        }
+        if ($userType == Constants::USER_BUYER) {
+            $address = Utilities::makeInputSafe($userNewData[Constants::BUYERS_FLD_ADDRESS]);
+            $ccNumber = Utilities::makeInputSafe($userNewData[Constants::BUYERS_FLD_CCNUMBER]);
+            $ccCCV = Utilities::makeInputSafe($userNewData[Constants::BUYERS_FLD_CC_CCV]);
+            $ccMonth = Utilities::makeInputSafe($userNewData[Constants::BUYERS_FLD_CC_MONTH]);
+            $ccYear = Utilities::makeInputSafe($userNewData[Constants::BUYERS_FLD_CC_YEAR]);
+            if (strlen($address) <= 0 || strlen($ccNumber) <= 0 || strlen($ccCCV) <= 0 || strlen($ccMonth) <= 0 || strlen($ccYear) <= 0) {
+                return $this->returnError(Constants::USER_EDIT_ACCOUNT_EMPTY_DATA, "All data are required!", 0, 0, 0);
+            }
+        }
+        if (strlen($name) > 0 && strlen($tel) > 0 && strlen($pass1) > 0) {
+            if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_USERS . "` WHERE `" . Constants::USERS_FLD_ID . "` = $userID LIMIT 1")) {
+                return $this->returnError(Constants::USER_EDIT_ACCOUNT_FAILED, "Please try again later!", 0, 0, 0);
+            }
+            if ($result->num_rows == 1) {
+                $row = $result->fetch_assoc();
+                // Check if password hash match
+                $password = $row[Constants::USERS_FLD_PASS];
+                if (Utilities::checkPassword($pass1, $password) == true) {
+                    if (strlen($pass2) > 0) {
+                        $hashPass = Utilities::hashPassword($pass2);
+                        $query = "UPDATE `" . Constants::TBL_USERS . "` SET `" . Constants::USERS_FLD_NAME . "` = '$name', `" . Constants::USERS_FLD_TEL . "` = '$tel', `" . Constants::USERS_FLD_PASS . "` = '$hashPass' WHERE `" . Constants::USERS_FLD_ID . "` = $userID LIMIT 1";
+                    } else {
+                        $query = "UPDATE `" . Constants::TBL_USERS . "` SET `" . Constants::USERS_FLD_NAME . "` = '$name', `" . Constants::USERS_FLD_TEL . "` = '$tel' WHERE `" . Constants::USERS_FLD_ID . "` = $userID LIMIT 1";
+                    }
+                    if (!$result = $this->db_link->query($query)) {
+                        return $this->returnError(Constants::USER_EDIT_ACCOUNT_FAILED, "Please try again later!", 0, 0, 0);
+                    }
+                    if ($userType == Constants::USER_SELLER) {
+                        $query = "UPDATE `" . Constants::TBL_SELLERS . "` SET `" . Constants::SELLERS_FLD_ADDRESS . "` = '$address', `" . Constants::SELLERS_FLD_BACK_ACCOUNT . "` = '$bankAccount' WHERE `" . Constants::SELLERS_FLD_USER_ID . "` = $userID LIMIT 1";
+                        if (!$result = $this->db_link->query($query)) {
+                            return $this->returnError(Constants::USER_EDIT_ACCOUNT_FAILED, "Please try again later!", 0, 0, 0);
+                        }
+                    }
+                    if ($userType == Constants::USER_BUYER) {
+                        $query = "UPDATE `" . Constants::TBL_BUYERS . "` SET `" . Constants::BUYERS_FLD_ADDRESS . "` = '$address', `" . Constants::BUYERS_FLD_CCNUMBER . "` = '$ccNumber', `" . Constants::BUYERS_FLD_CC_CCV . "` = '$ccCCV', `" . Constants::BUYERS_FLD_CC_MONTH . "` = '$ccMonth', `" . Constants::BUYERS_FLD_CC_YEAR . "` = '$ccYear' WHERE `" . Constants::SELLERS_FLD_USER_ID . "` = $userID LIMIT 1";
+                        if (!$result = $this->db_link->query($query)) {
+                            return $this->returnError(Constants::USER_EDIT_ACCOUNT_FAILED, "Please try again later!", 0, 0, 0);
+                        }
+                    }
+                    $response = new Response(Constants::USER_EDIT_ACCOUNT_SUCCESSFUL, "Account edited successfully", "");
+                    return json_encode($response);
+                } else {
+                    return $this->returnError(Constants::USER_EDIT_ACCOUNT_INVALID_PASS, "Incorrect password!", 0, 0, 0);
+                }
+            } else {
+                return $this->returnError(Constants::USER_EDIT_ACCOUNT_FAILED, "Please try again later!", 0, 0, 0);
+            }
+        } else {
+            return $this->returnError(Constants::USER_EDIT_ACCOUNT_EMPTY_DATA, "All data are required!", 0, 0, 0);
+        }
+    }
+
+    /**
+     * This function edits the specified user data
+     * @param type $data new user's data object
+     * @return type response object
+     */
+    function editEmpAccount($data) {
+        $email = Utilities::makeInputSafe($data[Constants::USERS_FLD_EMAIL]);
+        $pass1 = Utilities::makeInputSafe($data[Constants::USERS_FLD_PASS]);
+        $userID = Utilities::makeInputSafe($data[Constants::USERS_FLD_ID]);
+        if (strlen($email) > 0 && strlen($userID) > 0) {
+            if (Utilities::checkValidEmail($email)) {
+                if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_USERS . "` WHERE `" . Constants::USERS_FLD_EMAIL . "` = '$email' AND `" . Constants::USERS_FLD_ID. "` != '$userID'  LIMIT 1")) {
+                    return $this->returnError(Constants::USER_EDIT_ACCOUNT_FAILED, "Please try again later!", 0, 0, 0);
+                }
+                if ($result->num_rows == 0) {
+                    if (strlen($pass1) > 0) {
+                        $hashPass = Utilities::hashPassword($pass1);
+                        if (!$result = $this->db_link->query("UPDATE `" . Constants::TBL_USERS . "` SET `" . Constants::USERS_FLD_EMAIL . "` = '$email', `" . Constants::USERS_FLD_PASS . "` = '$hashPass' WHERE `" . Constants::USERS_FLD_ID . "` = '$userID'")) {
+                            return $this->returnError(Constants::USER_EDIT_ACCOUNT_FAILED, "Please try again later!", 0, 0, 0);
+                        }
+                    } else {
+                        if (!$result = $this->db_link->query("UPDATE `" . Constants::TBL_USERS . "` SET `" . Constants::USERS_FLD_EMAIL . "` = '$email' WHERE `" . Constants::USERS_FLD_ID . "` = '$userID'")) {
+                            return $this->returnError(Constants::USER_EDIT_ACCOUNT_FAILED, "Please try again later!", 0, 0, 0);
+                        }
+                    }
+                    if ($this->db_link->affected_rows == 1) {
+                        $theResponse = new Response(Constants::USER_EDIT_ACCOUNT_SUCCESSFUL, "User edited successfully!", "");
+                        return(json_encode($theResponse));
+                    } else {
+                        return $this->returnError(Constants::USER_EDIT_ACCOUNT_INVALID_ACCOUNT, "Invalid employee account!", 0, 0, 0);
+                    }
+                } else {
+                    return $this->returnError(Constants::USER_EDIT_ACCOUNT_EMAIL_EXISTS, "Email already exists!", 0, 0, 0);
+                }
+            } else {
+                return $this->returnError(Constants::USER_EDIT_ACCOUNT_INVALID_EMAIL, "Invalid employee email!", 0, 0, 0);
+            }
+        } else {
+            return $this->returnError(Constants::USER_EDIT_ACCOUNT_EMPTY_DATA, "All fields are required!", 0, 0, 0);
+        }
+    }
+
+    /**
+     * This function returns all the users with a specific type
+     * @param int $userType user type to retrieve
+     * @return array array of users
+     */
+    function getUsersUsingType($userType) {
+        $userType = Utilities::makeInputSafe($userType);
+        $query = "SELECT * FROM `" . Constants::TBL_USERS . "` WHERE `" . Constants::USERS_FLD_USER_TYPE . "` = '$userType'";
+        $allUsers = array();
+        $result = $this->db_link->query($query);
+        if (!$result) {
+            return $this->returnError(Constants::USER_GET_USERS_FAILED, "Please try again later!", 0, 0, 0);
+        }
+        $ret = array();
+        while ($row = $result->fetch_assoc()) {
+            array_push($ret, $row);
+        }
+        $theResponse = new Response(Constants::USER_GET_USERS_SUCCESSFUL, $ret, "");
+        return(json_encode($theResponse));
+    }
+
+    /**
+     * This function changes specific user active/ban status
+     * @param int $userID
+     * @param int $newStatus user new status
+     * @return object status code, msg
+     */
+    function changeUserStatus($userID, $newStatus) {
+        $userID = Utilities::makeInputSafe($userID);
+        $newStatus = Utilities::makeInputSafe($newStatus);
+        if ($newStatus == Constants::USER_ACTIVE || $newStatus == Constants::USER_BANNED) {
+            $result = $this->db_link->query("UPDATE `" . Constants::TBL_USERS . "` SET `" . Constants::USERS_FLD_STATUS . "` = '$newStatus' WHERE `" . Constants::USERS_FLD_ID . "` = '$userID' LIMIT 1");
+            if (!$result) {
+                return $this->returnError(Constants::USER_UPDATE_STATUS_FAILED, "Please try again later!", 0, 0, 0);
+            }
+            $theResponse = new Response(Constants::USER_UPDATE_STATUS_SUCCESSFUL, "", "");
+            return(json_encode($theResponse));
+        } else {
+            return $this->returnError(Constants::USER_UPDATE_STATUS_INVALID_DATA, "Please use valid status!", 0, 0, 0);
+        }
+    }
+
+    /**
+     * This function deletes specific user
+     * @param int $userID
+     * @return object status code, result 
+     */
+    function deleteUser($userID) {
+        $userID = Utilities::makeInputSafe($userID);
+        if (!$result = $this->db_link->query("DELETE FROM `" . Constants::TBL_USERS . "` WHERE `" . Constants::USERS_FLD_ID . "` = '$userID' LIMIT 1")) {
+            return $this->returnError(Constants::USER_DELETE_FAILED, "Please try again later!", 0, 0, 0);
+        }
+        if ($this->db_link->affected_rows == 1) {
+            $theResponse = new Response(Constants::USER_DELETE_SUCCESSFUL, "", "");
+            return(json_encode($theResponse));
+        }
+        return $this->returnError(Constants::USER_DELETE_FAILED, "Please try again later!" . $result->affected_rows, 0, 0, 0);
+    }
+
+    /**
+     * This function allows the admin to insert employees to db
+     * @param email $email emp email
+     * @param string $pass1 emp password 
+     * @param string $pass2 emp password again
+     * @param int $empType emp type (Accountant, Deliveryman)
+     */
+    function addEmployee($data) {
+        $email = Utilities::makeInputSafe($data[Constants::USERS_FLD_EMAIL]);
+        $pass1 = Utilities::makeInputSafe($data[Constants::USERS_FLD_PASS]);
+        $empType = Utilities::makeInputSafe($data[Constants::USERS_FLD_USER_TYPE]);
+        if (strlen($email) > 0 && strlen($pass1) > 0 && strlen($empType) > 0) {
+            if (Utilities::checkValidEmail($email)) {
+                if (in_array($empType, Constants::USER_TYPES)) {
+                    if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_USERS . "` WHERE `" . Constants::USERS_FLD_EMAIL . "` = '$email' LIMIT 1")) {
+                        return $this->returnError(Constants::USER_INSERT_FAILED, "Please try again later!", 0, 0, 0);
+                    }
+                    if ($result->num_rows == 0) {
+                        $hashPass = Utilities::hashPassword($pass1);
+                        if (!$result = $this->db_link->query("INSERT INTO `" . Constants::TBL_USERS . "` SET `" . Constants::USERS_FLD_EMAIL . "` = '$email', `" . Constants::USERS_FLD_PASS . "` = '$hashPass', `" . Constants::USERS_FLD_USER_TYPE . "` = '$empType', `" . Constants::USERS_FLD_NAME. "` = 'Emp',  `" . Constants::USERS_FLD_TEL. "` = '0'")) {
+                            return $this->returnError(Constants::USER_INSERT_FAILED, "Please try again later!", 0, 0, 0);
+                        }
+                        $uID = $this->db_link->insert_id;
+                        if ($empType == Constants::USER_ACCOUNTANT && !$result = $this->db_link->query("INSERT INTO `" . Constants::TBL_ACCOUNTANTS . "` SET `" . Constants::ACCOUNTANTS_FLD_USER_ID . "` = '" . $uID . "'")) {
+                            return $this->returnError(Constants::USER_INSERT_FAILED, "Please try again later!", 0, 0, 0);
+                        }
+                        if ($empType == Constants::USER_DELIVERMAN && !$result = $this->db_link->query("INSERT INTO `" . Constants::TBL_DELIVERYMEN . "` SET `" . Constants::DELIVERYMEN_FLD_USER_ID . "` = '" . $uID . "'")) {
+                            return $this->returnError(Constants::USER_INSERT_FAILED, "Please try again later!", 0, 0, 0);
+                        }
+                        $theResponse = new Response(Constants::USER_INSERT_SUCCESSFUL, $uID, "");
+                        return(json_encode($theResponse));
+                    } else {
+                        return $this->returnError(Constants::USER_INSERT_EMAIL_EXISTS, "Email already exists!", 0, 0, 0);
+                    }
+                } else {
+                    return $this->returnError(Constants::USER_INSERT_INVALID_DATA, "Invalid employee role!", 0, 0, 0);
+                }
+            } else {
+                return $this->returnError(Constants::USER_INSERT_INVALID_EMAIL, "Invalid employee email!", 0, 0, 0);
+            }
+        } else {
+            return $this->returnError(Constants::USER_INSERT_EMPTY_DATA, "All fields are required!", 0, 0, 0);
         }
     }
 
@@ -322,21 +527,17 @@ class SQLOperations implements SQLOperationsInterface {
         return json_encode($error);
     }
 
-    function __destruct() {
-        $this->db_link->close();
-    }
-
     /**
      * This function gets all orders of all user or a certain user
      * @author AhmedSamir
      * @param array $$selectionCols required columns from the orders table
      * @return Response with the order contents
      */
-    public function getAllOrders($selectionCols , $userID = "") {
+    public function getAllOrders($selectionCols, $userID = "") {
         if ($selectionCols == "")
             $theString = array(Constants::ORDERS_BUYER_ID, Constants::ORDERS_COST, Constants::ORDERS_DATE, Constants::ORDERS_STATUS_ID);
         else
-            $theString = explode(",",$selectionCols);
+            $theString = explode(",", $selectionCols);
         if ($userID != "")
             $result = $this->db_link->query('select * FROM ' . Constants::TBL_ORDERS . ' WHERE ' . Constants::ORDERS_BUYER_ID . ' = ' . $userID);
         else
@@ -449,23 +650,23 @@ class SQLOperations implements SQLOperationsInterface {
         $status = Utilities::makeInputSafe($status);
         //Check if Order is Found
         $result = $this->db_link->query('SELECT * FROM ' . Constants::TBL_ORDERS . ' where ' . Constants::ORDERS_ID . ' = ' . $id . ' LIMIT 1');
-        if (!$result->fetch_assoc()){
+        if (!$result->fetch_assoc()) {
             $theResponse = new Response(Constants::ORDERS_UPDATE_FAILED, array(), "");
             return json_encode($theResponse);
         }
         //Check for empty fields 
-        if (!(is_numeric($status)) || !(is_numeric($buyerId)) || !(is_numeric($cost)) || $dueDate == ""){
+        if (!(is_numeric($status)) || !(is_numeric($buyerId)) || !(is_numeric($cost)) || $dueDate == "") {
             $theResponse = new Response(Constants::ORDERS_UPDATE_FAILED, array(), "");
             return json_encode($theResponse);
         }
         //Check for any non-logical parameter values
-        if ($buyerId <= 0 || $cost <= 0 || $status < 1 && $status > 5 || !Utilities::validateDate($dueDate)){
+        if ($buyerId <= 0 || $cost <= 0 || $status < 1 && $status > 5 || !Utilities::validateDate($dueDate)) {
             $theResponse = new Response(Constants::ORDERS_UPDATE_FAILED, array(), "");
             return json_encode($theResponse);
         }
         //Update the Order
         $this->db_link->query('UPDATE ' . Constants::TBL_ORDERS . ' set ' . Constants::ORDERS_BUYER_ID . ' = ' . $buyerId . ' , ' . Constants::ORDERS_COST . ' = ' . $cost . ' , ' . Constants::ORDERS_DATE . " = '" . $dueDate . "' , " . Constants::ORDERS_STATUS_ID . ' = ' . $status . ' where ' . Constants::ORDERS_ID . ' = ' . $id);
-        $theResponse =  $this->getOrder($this->db_link->insert_id);
+        $theResponse = $this->getOrder($this->db_link->insert_id);
         return $theResponse;
     }
 
@@ -510,9 +711,16 @@ class SQLOperations implements SQLOperationsInterface {
         $ret = array();
         while ($row = $result->fetch_assoc()) {
             array_push($ret, $row);
+            // Select from buyers -> Generate model
+            // Inject model into $row
+            // Return order status
         }
         $theResponse = new Response(Constants::DELIVERYREQUESTS_GET_SUCCESSFUL, $ret, "");
         return(json_encode($theResponse));
+    }
+
+    function __destruct() {
+        $this->db_link->close();
     }
 
 }

@@ -13,6 +13,15 @@ interface SQLOperationsInterface {
     function signUpUser($email, $pass1, $pass2, $role, $name, $tel, $extraData);
 
     function login($emial, $pass);
+
+    function editAccount($userID, $userType, $userNewData);
+
+    function getUsersUsingType($userType);
+
+    function deleteUser($userID);
+
+    function changeUserStatus($userID, $newStatus);
+
     public function getAllOrders($selectionCols, $userID = "");
 
     public function getOrder($id, $selectionCols);

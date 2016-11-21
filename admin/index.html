@@ -14,7 +14,6 @@
 	<script src="../js/jquery.min.js"></script>
 	<script src="../js/jquery-ui.js"></script>
 </head>
-
 <body>
 	<div class="container" id="container">
 		<header id="header" params="cartAmount: cartAmount">
@@ -23,7 +22,7 @@
 			</div>
 			<div class="header-rightside">
 				<div class="header-links">
-					<a class="header-username"><span>Ibrahim</span></a>
+					<a class="header-username"><span data-bind="text: getUserModel().name()"></span></a>
 					<a data-bind="click: logOut" class="header-logout"><span>Logout</span></a>
 				</div>
 			</div>
@@ -34,7 +33,8 @@
 		<div data-bind="if: checkUserRole() == USER_ADMIN">
 			<employees params="employeeTypeName: 'Accountants', employeeType : USER_ACCOUNTANT, employeeSingleName: 'Accountant'"></employees>
 			<employees params="employeeTypeName: 'Delivery Staff', employeeType : USER_DELIVERYMAN, employeeSingleName: 'Deliveryman'"></employees>
-			<users></users>
+			<users params="type: 'Sellers'"></users>
+			<users params="type: 'Buyers'"></users>
 		</div>
 		<div data-bind="if: checkUserRole() == USER_ACCOUNTANT || checkUserRole() == USER_DELIVERYMAN">
 			<orders></orders>
@@ -168,7 +168,7 @@
         </template>
 	<template id="users-template">
             <div class="category-items-short cart-items-short">
-                <a class="category-items-short--title">Users</a>
+                <a class="category-items-short--title" data-bind="text: type"></a>
                 <p class="no-items" data-bind="if: !usersArray().length">No Users</p>
                 <div class="categories-items-container" data-bind="foreach: usersArray">
                     <user-container class="single-category-item" params="value: $data, parent: $parent">

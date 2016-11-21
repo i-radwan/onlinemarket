@@ -29,6 +29,7 @@ class Constants {
     const LOGIN_EMPTY_DATA = 22;
     const LOGIN_OPERATION_FAILED = 23;
     const LOGIN_INCORRECT_DATA = 24;
+
     /**
      * Order operation functions (4x) constants
      */
@@ -46,11 +47,36 @@ class Constants {
      */
     const ORDERITEMS_GET_SUCCESSFUL = 50;
     const ORDERITEMS_GET_FAILED = 51;
+
     /**
      * DeliveryRequests operation functions (6x) constants
      */
     const DELIVERYREQUESTS_GET_SUCCESSFUL = 60;
     const DELIVERYREQUESTS_GET_FAILED = 61;
+
+    /**
+     * User operations constants
+     */
+    const USER_EDIT_ACCOUNT_SUCCESSFUL = 800;
+    const USER_EDIT_ACCOUNT_EMPTY_DATA = 801;
+    const USER_EDIT_ACCOUNT_FAILED = 802;
+    const USER_EDIT_ACCOUNT_INVALID_PASS = 803;
+    const USER_EDIT_ACCOUNT_INVALID_EMAIL = 804;
+    const USER_EDIT_ACCOUNT_EMAIL_EXISTS = 805;
+    const USER_EDIT_ACCOUNT_INVALID_ACCOUNT = 806;
+    const USER_GET_USERS_FAILED = 811;
+    const USER_GET_USERS_SUCCESSFUL = 810;
+    const USER_UPDATE_STATUS_INVALID_DATA = 821;
+    const USER_UPDATE_STATUS_SUCCESSFUL = 820;
+    const USER_UPDATE_STATUS_FAILED = 823;
+    const USER_DELETE_FAILED = 831;
+    const USER_DELETE_SUCCESSFUL = 830;
+    const USER_INSERT_FAILED = 841;
+    const USER_INSERT_SUCCESSFUL = 840;
+    const USER_INSERT_INVALID_DATA = 842;
+    const USER_INSERT_INVALID_EMAIL = 843;
+    const USER_INSERT_EMPTY_DATA = 844;
+    const USER_INSERT_EMAIL_EXISTS = 845;
 
     /**
      * Database Constants

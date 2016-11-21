@@ -7,6 +7,9 @@ const WEBSITE_LINK = "http://localhost/onlinemarket/";
 const ADMIN_LINK = "http://localhost/onlinemarket/admin";
 const LOGIN_ENDPOINT = "login";
 const SIGNUP_ENDPOINT = "signup";
+const USER_ENDPOINT = "user";
+const CHANGE_USER_STATUS_ENDPOINT = "block";
+const USER_EDIT_ENDPOINT = "edit";
 
 const OMARKET_PREFIX = "OMarket_";
 
@@ -14,6 +17,7 @@ const OMARKET_JWT = "OMarket_JWT";
 
 const USERS_FLD_ID = '_id';
 const USERS_FLD_EMAIL = 'email';
+const USERS_FLD_TMP_EMAIL = 'tmpEmail';
 const USERS_FLD_PASS = 'pass';
 const USERS_FLD_PASS1 = 'pass1';
 const USERS_FLD_PASS2 = 'pass2';
@@ -32,6 +36,7 @@ const BUYERS_FLD_CC_YEAR = 'cc_year';
 const SELLERS_FLD_USER_ID = 'user_id';
 const SELLERS_FLD_ADDRESS = 'address';
 const SELLERS_FLD_BACK_ACCOUNT = 'bankAccount';
+const SELLERS_FLD_BACK_ACCOUNT_SMALLCASE = 'bankaccount';
 
 const USER_BUYER = "1";
 const USER_SELLER = "2";
@@ -80,3 +85,23 @@ const LOGIN_INVALID_EMAIL = 21;
 const LOGIN_EMPTY_DATA = 22;
 const LOGIN_OPERATION_FAILED = 23;
 const LOGIN_INCORRECT_DATA = 24;
+
+/**
+ * User operations constants
+ */
+const USER_EDIT_ACCOUNT_SUCCESSFUL = 800;
+const USER_EDIT_ACCOUNT_EMPTY_DATA = 801;
+const USER_EDIT_ACCOUNT_FAILED = 802;
+const USER_EDIT_ACCOUNT_INVALID_PASS = 803;
+const USER_GET_USERS_FAILED = 811;
+const USER_GET_USERS_SUCCESSFUL = 810;
+const USER_UPDATE_STATUS_INVALID_DATA = 821;
+const USER_UPDATE_STATUS_SUCCESSFUL = 820;
+const USER_UPDATE_STATUS_FAILED = 823;
+const USER_DELETE_FAILED = 831;
+const USER_DELETE_SUCCESSFUL = 830;
+const USER_INSERT_FAILED = 841;
+const USER_INSERT_SUCCESSFUL = 840;
+const USER_INSERT_INVALID_DATA = 842;
+const USER_INSERT_INVALID_EMAIL = 843;
+const USER_INSERT_EMPTY_DATA = 844;

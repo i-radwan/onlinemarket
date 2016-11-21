@@ -53,10 +53,10 @@ function categorySpecModel(categoySpec) {
 }
 
 function employeeModel(employee) {
-	this.id = employee.id;
-	this.email = ko.observable(employee.email);
-	this.tmpEmail = ko.observable(employee.email);
-	this.pass = ko.observable("");
+	this[USERS_FLD_ID] = ko.observable(employee[USERS_FLD_ID]);
+	this[USERS_FLD_EMAIL] = ko.observable(employee[USERS_FLD_EMAIL]);
+	this[USERS_FLD_TMP_EMAIL] = ko.observable(employee[USERS_FLD_EMAIL]);
+	this[USERS_FLD_PASS] = ko.observable("");
 	this.editMode = ko.observable(false);
 }
 
@@ -81,7 +81,8 @@ function orderModel(order) {
 			return "Shipped";
 		if (self.status() == ORDER_STATUS_DELIVERED)
 			return "Delivered";
-		else return "Error";
+		else
+			return "Error";
 	});
 }
 
@@ -159,15 +160,39 @@ function singleProductViewModel(params) {
 function profileViewModel(params) {
 	var self = this;
 	self.userModel = getUserModel();
-
 	self.saveProfile = function () {
-		// ToDo save profile using API
-		//		console.log(self.userModel.address());
-		console.log(self.userModel.tel());
-		console.log(self.userModel.name());
-		console.log(self.userModel.bankAccount());
-		console.log(self.userModel.currentPass());
-		console.log(self.userModel.newPass());
+		var data = {};
+		data[USERS_FLD_NAME] = self.userModel.name();
+		data[USERS_FLD_TEL] = self.userModel.tel();
+		data[USERS_FLD_PASS1] = self.userModel.currentPass();
+		data[USERS_FLD_PASS2] = self.userModel.newPass();
+		if (self.userModel.type() == USER_SELLER) {
+			data[SELLERS_FLD_ADDRESS] = self.userModel.address();
+			data[SELLERS_FLD_BACK_ACCOUNT_SMALLCASE] = self.userModel.bankAccount();
+		}
+		$.ajax({
+			url: API_LINK + USER_ENDPOINT,
+			type: 'PUT',
+			data: data,
+			headers: {
+				'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
+			},
+			success: function (result) {
+				var returnedData = JSON.parse(result);
+				if (returnedData.statusCode == USER_EDIT_ACCOUNT_SUCCESSFUL) {
+					alert(returnedData.result);
+					localStorage.setItem(OMARKET_PREFIX + USERS_FLD_NAME, data[USERS_FLD_NAME]);
+					localStorage.setItem(OMARKET_PREFIX + USERS_FLD_TEL, data[USERS_FLD_TEL]);
+					if (self.userModel.type() == USER_SELLER) {
+						localStorage.setItem(OMARKET_PREFIX + SELLERS_FLD_ADDRESS, data[SELLERS_FLD_ADDRESS]);
+						localStorage.setItem(OMARKET_PREFIX + SELLERS_FLD_BACK_ACCOUNT_SMALLCASE, data[SELLERS_FLD_BACK_ACCOUNT_SMALLCASE]);
+					}
+					window.location = ADMIN_LINK;
+				} else {
+					alert(returnedData.errorMsg);
+				}
+			}
+		});
 	}
 }
 
@@ -176,8 +201,8 @@ function categoriesViewModel(params) {
 	self.categoriesArray = ko.observableArray();
 	self.newCategoryName = ko.observable("");
 	/**
-		This function initializes the categoriesArray
-	*/
+	 This function initializes the categoriesArray
+	 */
 	self.init = function () {
 		// Get all categories from API and add them to the array
 		getCategoriesArray().forEach(function (category) {
@@ -252,15 +277,16 @@ function employeesViewModel(params) {
 	self.employeeSingleName = params.employeeSingleName;
 	self.init = function () {
 		// Get all categories from API and add them to the array
-		getEmployeesArray(self.employeeType).forEach(function (employee) {
+		getAllUsers(self.employeeType).forEach(function (employee) {
 			self.employeesArray.push(new employeeModel(employee));
 		});
 	}();
 
 	self.removeEmployee = function (item, event) {
 		if (confirm("Are you sure?")) {
-			// ToDo call API to delete category first, and check if it has no products
-			self.employeesArray.remove(item.params);
+			if (deleteEmployee(item.params[USERS_FLD_ID])) {
+				self.employeesArray.remove(item.params);
+			}
 		}
 	}
 	self.addNewEmployee = function () {
@@ -276,13 +302,15 @@ function employeesViewModel(params) {
 			}
 		});
 		if (isUnique) {
-			// ToDo insert using API, get id, add to array
-			self.employeesArray.push(new employeeModel({
-				id: 20,
-				email: self.newEmployeeEmail().trim()
-			}));
-			self.newEmployeeEmail("");
-			self.newEmployeePass("");
+			var newID = addEmployee(self.newEmployeeEmail(), self.newEmployeePass(), self.employeeType);
+			if (newID != -1) {
+				var newEmp = {};
+				newEmp[USERS_FLD_ID] = newID;
+				newEmp[USERS_FLD_EMAIL] = self.newEmployeeEmail().trim();
+				self.employeesArray.push(new employeeModel(newEmp));
+				self.newEmployeeEmail("");
+				self.newEmployeePass("");
+			}
 		} else {
 			alert("Please choose different unique email!");
 		}
@@ -296,16 +324,17 @@ function singleEmployeeViewModel(params) {
 	self.init = function () {}();
 	self.save = function (item, event) {
 		if (item.params.tmpEmail().trim().length > 0) {
-			// ToDo: trim, call API to update employee (Check if password is empty update just the email)
 			var isUnique = true;
 			ko.utils.arrayForEach(self.parent.employeesArray(), function (employee, index) {
-				if (employee.email().trim() == item.params.tmpEmail().trim() && employee != item.params) {
+				if (employee.email().trim() == item.params[USERS_FLD_TMP_EMAIL]().trim() && employee != item.params) {
 					isUnique = false;
 				}
 			});
 			if (isUnique) {
-				item.params.email(item.params.tmpEmail().trim());
-				item.params.editMode(false);
+				if (editEmployee(item.params[USERS_FLD_ID](), item.params[USERS_FLD_TMP_EMAIL](), item.params[USERS_FLD_PASS]())) {
+					item.params.email(item.params[USERS_FLD_TMP_EMAIL]().trim());
+					item.params.editMode(false);
+				}
 			} else {
 				alert("Please choose different unique email!");
 			}
@@ -315,27 +344,37 @@ function singleEmployeeViewModel(params) {
 	}
 }
 
-
 function usersViewModel(params) {
 	var self = this;
+	self.type = params.type;
 	self.usersArray = ko.observableArray();
 	self.init = function () {
 		// Get all categories from API and add them to the array
-		getAllSellersAndBuyers().forEach(function (user) {
-			self.usersArray.push(new userModel(user));
-		});
+		if (self.type == "Sellers") {
+			getAllUsers(USER_SELLER).forEach(function (user) {
+				self.usersArray.push(new userModel(user));
+			});
+		} else if (self.type == "Buyers") {
+			getAllUsers(USER_BUYER).forEach(function (user) {
+				self.usersArray.push(new userModel(user));
+			});
+		}
 	}();
 
 	self.blockUser = function (item, event) {
 		if (confirm("Are you sure?")) {
 			// ToDo call API to delete category first, and check if it has no products
-			item.params[USERS_FLD_STATUS](USER_BANNED);
+			if (changeUserBanStatus(item.params[USERS_FLD_ID], USER_BANNED)) {
+				item.params[USERS_FLD_STATUS](USER_BANNED);
+			}
 		}
 	}
 	self.unblockUser = function (item, event) {
 		if (confirm("Are you sure?")) {
 			// ToDo call API to delete category first, and check if it has no products
-			item.params[USERS_FLD_STATUS](USER_ACTIVE);
+			if (changeUserBanStatus(item.params[USERS_FLD_ID], USER_ACTIVE)) {
+				item.params[USERS_FLD_STATUS](USER_ACTIVE);
+			}
 		}
 	}
 }
@@ -627,9 +666,9 @@ function getAllProducts() {
 				{
 					name: "Origin",
 					value: "Apple"
-				}
-			]
-		},
+                }
+            ]
+        },
 		{
 			id: 0,
 			name: "IPhone 6S",
@@ -643,10 +682,10 @@ function getAllProducts() {
 				{
 					name: "Origin",
 					value: "Apple"
-				}
-			]
+                }
+            ]
 
-		},
+        },
 		{
 			id: 0,
 			name: "IPhone 6S",
@@ -660,9 +699,9 @@ function getAllProducts() {
 				{
 					name: "Origin",
 					value: "Apple"
-				}
-			]
-		},
+                }
+            ]
+        },
 		{
 			id: 0,
 			name: "IPhone 6S",
@@ -676,9 +715,9 @@ function getAllProducts() {
 				{
 					name: "Origin",
 					value: "Apple"
-				}
-			]
-		},
+                }
+            ]
+        },
 		{
 			id: 0,
 			name: "IPhone 6S",
@@ -692,9 +731,9 @@ function getAllProducts() {
 				{
 					name: "Origin",
 					value: "Apple"
-				}
-			]
-		},
+                }
+            ]
+        },
 		{
 			id: 0,
 			name: "IPhone 6S",
@@ -708,9 +747,9 @@ function getAllProducts() {
 				{
 					name: "Origin",
 					value: "Apple"
-				}
-			]
-		},
+                }
+            ]
+        },
 		{
 			id: 0,
 			name: "IPhone 6S",
@@ -724,9 +763,9 @@ function getAllProducts() {
 				{
 					name: "Origin",
 					value: "Apple"
-				}
-			]
-		},
+                }
+            ]
+        },
 		{
 			id: 0,
 			name: "IPhone 6S",
@@ -740,10 +779,10 @@ function getAllProducts() {
 				{
 					name: "Origin",
 					value: "Apple"
-				}
-			]
-		}
-	];
+                }
+            ]
+        }
+    ];
 }
 /**
  * This function returns deliverman orders
@@ -756,20 +795,19 @@ function getDeliverymanOrders(DeliverymanID) {
 			issuedate: "2016-08-10",
 			cost: 1200,
 			status: "1",
-	}, {
+        }, {
 			id: 2,
 			issuedate: "2016-08-12",
 			cost: 1000,
 			status: "2",
-
-	},
+        },
 		{
 			id: 3,
 			issuedate: "2016-08-13",
 			cost: 1300,
 			status: "3",
 
-	}];
+        }];
 }
 /**
  * This function returns total filtered orders
@@ -782,104 +820,189 @@ function getOrders(filters) {
 			issuedate: "2016-08-10",
 			cost: 1200,
 			status: "1",
-	}, {
+        }, {
 			id: 2,
 			issuedate: "2016-08-12",
 			cost: 1000,
 			status: "2",
 
-	},
+        },
 		{
 			id: 3,
 			issuedate: "2016-08-13",
 			cost: 1300,
 			status: "3",
 
-	}];
+        }];
 }
 
 /**
- * This function returns all the sellers and buyers in the system
+ * This function returns all the users in the system for specific type
+ * @param {int} user type
  * @returns {Array} users array
  */
-function getAllSellersAndBuyers() {
-	return [{
-		_id: 1,
-		email: "asd1@asd.asd",
-		user_type: "1",
-		user_status: "1"
-	}, {
-		_id: 2,
-		email: "asd2@asd.asd",
-		user_type: "1",
-		user_status: "2"
-	}, {
-		_id: 3,
-		email: "asd3@asd.asd",
-		user_type: "2",
-		user_status: "1"
-	}, {
-		_id: 4,
-		email: "asd4@asd.asd",
-		user_type: "2",
-		user_status: "2"
-	}];
+function getAllUsers(userType) {
+	var ret = [];
+	$.ajax({
+		url: API_LINK + USER_ENDPOINT + '/' + userType,
+		type: 'GET',
+		async: false,
+		headers: {
+			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
+		},
+		success: function (result) {
+			var returnedData = JSON.parse(result);
+			ret = returnedData.result;
+		}
+	});
+	return ret;
 }
 
 /**
- * This function retrieves all the the employees from the server
- * @param {int}   type to select the employees type to retrieve from accountants/deliverymen
- * @returns {Array} Employees array -> contains employees objects
+ * This function changes the status of a selected user
+ * @param {int} userID user id
+ * @param {int} newStatus user new status (as constant)
+ * @returns {Boolean}
  */
-function getEmployeesArray(type) {
-	if (type == USER_ACCOUNTANT) {
-		return [{
-			id: 1,
-			email: "asd1@asd.asd"
-	}, {
-			id: 2,
-			email: "asd2@asd.asd"
-	}, {
-			id: 3,
-			email: "asd3@asd.asd"
-	}, {
-			id: 4,
-			email: "asd4@asd.asd"
-	}];
-	} else if (type == USER_DELIVERYMAN) {
-		return [{
-			id: 1,
-			email: "asd21@asd.asd"
-	}, {
-			id: 2,
-			email: "asd22@asd.asd"
-	}, {
-			id: 3,
-			email: "asd23@asd.asd"
-	}, {
-			id: 4,
-			email: "asd24@asd.asd"
-	}];
-	}
+function changeUserBanStatus(userID, newStatus) {
+	var statusChanged = false;
+	var data = {};
+	data[USERS_FLD_ID] = userID;
+	data[USERS_FLD_STATUS] = newStatus;
+	$.ajax({
+		url: API_LINK + USER_ENDPOINT + "/" + CHANGE_USER_STATUS_ENDPOINT,
+		type: 'PUT',
+		async: false,
+		data: data,
+		headers: {
+			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
+		},
+		success: function (result) {
+			var returnedData = JSON.parse(result);
+			if (returnedData.statusCode == USER_UPDATE_STATUS_SUCCESSFUL) {
+				statusChanged = true;
+			} else {
+				alert(returnedData.errorMsg);
+			}
+		}
+	});
+	return statusChanged;
+}
+
+/**
+ * This function deletes user with its ID
+ * @param   {number}  empID User ID
+ * @returns {boolean} True if deleted successfully
+ */
+function deleteEmployee(empID) {
+	var deleted = false;
+	var data = {};
+	data[USERS_FLD_ID] = empID;
+	$.ajax({
+		url: API_LINK + USER_ENDPOINT,
+		type: 'DELETE',
+		async: false,
+		data: data,
+		headers: {
+			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
+		},
+		success: function (result) {
+			var returnedData = JSON.parse(result);
+			if (returnedData.statusCode == USER_DELETE_SUCCESSFUL) {
+				deleted = true;
+			} else {
+				alert(returnedData.errorMsg);
+			}
+		}
+	});
+	return deleted;
+}
+
+/**
+ * This function adds employee to db
+ * @param   {email}   email new employee email
+ * @param   {string}  pass  new employee password
+ * @param   {int}  pass  new employee type
+ * @returns {int} new emp ID, -1 if operation failed
+ */
+function addEmployee(email, pass, empType) {
+	var newID = -1;
+	var data = {};
+	data[USERS_FLD_EMAIL] = email;
+	data[USERS_FLD_PASS] = pass;
+	data[USERS_FLD_USER_TYPE] = empType;
+	$.ajax({
+		url: API_LINK + USER_ENDPOINT,
+		type: 'POST',
+		async: false,
+		data: data,
+		headers: {
+			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
+		},
+		success: function (result) {
+			var returnedData = JSON.parse(result);
+			if (returnedData.statusCode == USER_INSERT_SUCCESSFUL) {
+				newID = returnedData.result;
+			} else {
+				alert(returnedData.errorMsg);
+			}
+		}
+	});
+	return newID;
+}
+
+
+/**
+ * This function adds employee to db
+ * @param   {int}   userID employee id
+ * @param   {email}   email new employee email
+ * @param   {string}  pass  new employee password
+ * @returns {boolean} true if operation succeeded
+ */
+function editEmployee(userID, email, pass) {
+	var edited = false;
+	var data = {};
+	data[USERS_FLD_EMAIL] = email;
+	data[USERS_FLD_PASS] = pass;
+	data[USERS_FLD_ID] = userID;
+	$.ajax({
+		url: API_LINK + USER_ENDPOINT + "/" + USER_EDIT_ENDPOINT,
+		type: 'PUT',
+		async: false,
+		data: data,
+		headers: {
+			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
+		},
+		success: function (result) {
+			var returnedData = JSON.parse(result);
+			if (returnedData.statusCode == USER_EDIT_ACCOUNT_SUCCESSFUL) {
+				edited = true;
+				alert(returnedData.result);
+			} else {
+				alert(returnedData.errorMsg);
+			}
+		}
+	});
+	return edited;
 }
 
 function getCategorySpecs(cateID) {
 	return [{
 		_id: 1,
 		name: "spec1"
-	}, {
+        }, {
 		_id: 2,
 		name: "spec2"
-	}, {
+        }, {
 		_id: 3,
 		name: "spec3"
-	}, {
+        }, {
 		_id: 4,
 		name: "spec4"
-	}, {
+        }, {
 		_id: 5,
 		name: "spec5"
-	}];
+        }];
 }
 /**
  * This function retrieves all the the categories from the server
@@ -891,66 +1014,66 @@ function getCategoriesArray() {
 		{
 			id: 1,
 			name: "Computers, IT & Networking"
-		},
+        },
 		{
 			id: 2,
 			name: "Mobile Phones, Tablets & Accessories"
-		},
+        },
 		{
 			id: 3,
 			name: "Car Electronics & Accessories"
-		},
+        },
 		{
 			id: 4,
 			name: "Books"
-		},
+        },
 		{
 			id: 5,
 			name: "Gaming"
-		},
+        },
 		{
 			id: 6,
 			name: "Electronic"
-		},
+        },
 		{
 			id: 7,
 			name: "Sports & Fitness"
-		},
+        },
 		{
 			id: 8,
 			name: "Perfumes & Fragrances"
-		},
+        },
 		{
 			id: 9,
 			name: "Health & Personal Care"
-		},
+        },
 		{
 			id: 10,
 			name: "Furniture"
-		},
+        },
 		{
 			id: 11,
 			name: "Apparel, Shoes & Accessories"
-		},
+        },
 		{
 			id: 12,
 			name: "Appliances"
-		},
+        },
 		{
 			id: 13,
 			name: "Art, Crafts & Collectables"
-		},
+        },
 		{
 			id: 14,
 			name: "Baby"
-		},
+        },
 		{
 			id: 15,
 			name: "Kitchen & Home Supplies"
-		},
+        },
 		{
 			id: 16,
 			name: "Toys"
-		}
-	];
+        }
+    ];
 }
