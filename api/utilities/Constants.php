@@ -103,6 +103,11 @@ class Constants {
     const DELIVERYREQUESTS_DELIVERYMANID = 'deliveryman_id';
     const DELIVERYREQUESTS_DUEDATE = 'duedate';
     //==================================
+    //Status CONSTANTS
+    const PENDING = 1;
+    const PICKED = 2;
+    const SHIPPED = 3;
+    const DELIVERED = 4;
     /**
      * User types (related to db)
      * Some checks in the code (signup function) depends on these values
