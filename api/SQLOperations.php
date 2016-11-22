@@ -267,7 +267,7 @@ class SQLOperations implements SQLOperationsInterface {
                 break;
             // For the next 3 cases, we currently don't give them extra data, so we will return the basic data only
             case Constants::USER_ACCOUNTANT:
-                $userModel = new Accountant($_id, $row[Constants::USERS_FLD_NAME], $row[Constants::USERS_FLD_EMAIL], $row[Constants::USERS_FLD_TEL],$userType, $row[Constants::USERS_FLD_STATUS]);
+                $userModel = new Accountant($_id, $row[Constants::USERS_FLD_NAME], $row[Constants::USERS_FLD_EMAIL], $row[Constants::USERS_FLD_TEL], $userType, $row[Constants::USERS_FLD_STATUS]);
                 break;
             case Constants::USER_DELIVERMAN:
                 $userModel = new Deliveryman($_id, $row[Constants::USERS_FLD_NAME], $row[Constants::USERS_FLD_EMAIL], $row[Constants::USERS_FLD_TEL], $userType, $row[Constants::USERS_FLD_STATUS]);
@@ -333,15 +333,53 @@ class SQLOperations implements SQLOperationsInterface {
      * @param array $$selectionCols required columns from the orders table
      * @return Response with the order contents
      */
-    public function getAllOrders($selectionCols , $userID = "") {
-        if ($selectionCols == "")
+    public function getAllOrders($selectionCols, $userID = "", $appliedFilters) {
+        $appliedFilters = json_decode($appliedFilters, true);
+        //the where String
+        $whereStringArray = array();
+        $stringCost = '';
+        $stringDate = '';
+        $stringStatus = array();
+        if ($appliedFilters['cost']['status']) {
+            $stringCost = constants::ORDERS_COST . ' >= ' . $appliedFilters['cost']['min'] . ' and ' . Constants::ORDERS_COST . " <= " . $appliedFilters['cost']['max'];
+            array_push($whereStringArray, $stringCost);
+        }
+        if ($appliedFilters['date']['status']) {
+            $stringDate = constants::ORDERS_DATE . ' >= ' . "'" . $appliedFilters['date']['min'] . "'" . ' and ' . Constants::ORDERS_DATE . ' <= ' . "'" . $appliedFilters['date']['max'] . "'";
+            array_push($whereStringArray, $stringDate);
+        }
+        if ($appliedFilters['status']['pending'])
+            array_push($stringStatus, Constants::PENDING);
+        if ($appliedFilters['status']['picked'])
+            array_push($stringStatus, Constants::PICKED);
+        if ($appliedFilters['status']['shipped'])
+            array_push($stringStatus, Constants::SHIPPED);
+        if ($appliedFilters['status']['delivered'])
+            array_push($stringStatus, Constants::DELIVERED);
+        if (count($stringStatus) > 0) {
+            $stringStatus = Constants::ORDERS_STATUS_ID . ' in ' . '(' . (implode(", ", $stringStatus)) . ')';
+            array_push($whereStringArray, $stringStatus);
+        }
+        if (count($whereStringArray) > 0)
+            $theWhereQuery = implode(" and ", $whereStringArray);
+        else
+            $theWhereQuery = '';
+        
+        if ($selectionCols == "") {
             $theString = array(Constants::ORDERS_BUYER_ID, Constants::ORDERS_COST, Constants::ORDERS_DATE, Constants::ORDERS_STATUS_ID);
-        else
-            $theString = explode(",",$selectionCols);
-        if ($userID != "")
-            $result = $this->db_link->query('select * FROM ' . Constants::TBL_ORDERS . ' WHERE ' . Constants::ORDERS_BUYER_ID . ' = ' . $userID);
-        else
-            $result = $this->db_link->query('select * FROM ' . Constants::TBL_ORDERS);
+            $selectionCols = ' * ';
+        } else
+            $theString = explode(",", $selectionCols);
+        if ($userID != "") {
+            $result = $this->db_link->query('SELECT ' . $selectionCols . ' FROM ' . Constants::TBL_ORDERS . ' WHERE ' . Constants::ORDERS_BUYER_ID . ' = ' . $userID . ' and ' . $theWhereQuery);
+        } else {
+            if (strlen($theWhereQuery) > 0){
+                $result = $this->db_link->query('SELECT ' . $selectionCols . ' FROM ' . Constants::TBL_ORDERS . ' WHERE ' . $theWhereQuery);
+            }
+            else {
+                $result = $this->db_link->query('SELECT ' . $selectionCols . ' FROM ' . Constants::TBL_ORDERS);
+            }
+        }
         $ret = array();
         while ($row = $result->fetch_assoc()) {
             $theOrder = new Order(); //Creating new object
@@ -441,32 +479,36 @@ class SQLOperations implements SQLOperationsInterface {
      * @param string @status the status of the order. 
      * @return Response with the order contents
      */
-    public function updateOrder($id, $buyerId, $cost, $dueDate, $status) {
+    //public function updateOrder($id, $buyerId, $cost, $dueDate, $status) {
+    public function updateOrder($id, $status) {
         //Make text safe
         $id = Utilities::makeInputSafe($id);
-        $buyerId = Utilities::makeInputSafe($buyerId);
-        $cost = Utilities::makeInputSafe($cost);
-        $dueDate = Utilities::makeInputSafe($dueDate);
+        //$buyerId = Utilities::makeInputSafe($buyerId);
+        //$cost = Utilities::makeInputSafe($cost);
+        //$dueDate = Utilities::makeInputSafe($dueDate);
         $status = Utilities::makeInputSafe($status);
         //Check if Order is Found
         $result = $this->db_link->query('SELECT * FROM ' . Constants::TBL_ORDERS . ' where ' . Constants::ORDERS_ID . ' = ' . $id . ' LIMIT 1');
-        if (!$result->fetch_assoc()){
+        if (!$result->fetch_assoc()) {
             $theResponse = new Response(Constants::ORDERS_UPDATE_FAILED, array(), "");
             return json_encode($theResponse);
         }
         //Check for empty fields 
-        if (!(is_numeric($status)) || !(is_numeric($buyerId)) || !(is_numeric($cost)) || $dueDate == ""){
+        //if (!(is_numeric($status)) || !(is_numeric($buyerId)) || !(is_numeric($cost)) || $dueDate == "") {
+        if (!(is_numeric($status))) {
             $theResponse = new Response(Constants::ORDERS_UPDATE_FAILED, array(), "");
             return json_encode($theResponse);
         }
         //Check for any non-logical parameter values
-        if ($buyerId <= 0 || $cost <= 0 || $status < 1 && $status > 5 || !Utilities::validateDate($dueDate)){
+        //if ($buyerId <= 0 || $cost <= 0 || $status < 1 && $status > 5 || !Utilities::validateDate($dueDate)) {
+        if ($status < Constants::PENDING && $status > Constants::DELIVERED) {
             $theResponse = new Response(Constants::ORDERS_UPDATE_FAILED, array(), "");
             return json_encode($theResponse);
         }
         //Update the Order
-        $this->db_link->query('UPDATE ' . Constants::TBL_ORDERS . ' set ' . Constants::ORDERS_BUYER_ID . ' = ' . $buyerId . ' , ' . Constants::ORDERS_COST . ' = ' . $cost . ' , ' . Constants::ORDERS_DATE . " = '" . $dueDate . "' , " . Constants::ORDERS_STATUS_ID . ' = ' . $status . ' where ' . Constants::ORDERS_ID . ' = ' . $id);
-        $theResponse =  $this->getOrder($this->db_link->insert_id);
+        //$this->db_link->query('UPDATE ' . Constants::TBL_ORDERS . ' set ' . Constants::ORDERS_BUYER_ID . ' = ' . $buyerId . ' , ' . Constants::ORDERS_COST . ' = ' . $cost . ' , ' . Constants::ORDERS_DATE . " = '" . $dueDate . "' , " . Constants::ORDERS_STATUS_ID . ' = ' . $status . ' where ' . Constants::ORDERS_ID . ' = ' . $id);
+        $this->db_link->query('UPDATE ' . Constants::TBL_ORDERS . ' set ' . Constants::ORDERS_STATUS_ID . ' = ' . $status . ' where ' . Constants::ORDERS_ID . ' = ' . $id);
+        $theResponse = $this->getOrder($this->db_link->insert_id);
         return $theResponse;
     }
 
@@ -514,7 +556,7 @@ class SQLOperations implements SQLOperationsInterface {
             $deliveryRequest['delivery_request'] = $row;
             //Get the Order (Buyer_id and Staus_id) through order_id
             $orderID = $row[Constants::DELIVERYREQUESTS_ORDERID];
-            $orderRow = $this->db_link->query('SELECT '. Constants::ORDERS_BUYER_ID. ' , '. Constants::ORDERS_STATUS_ID .' FROM ' . Constants::TBL_ORDERS. ' where '. Constants::ORDERS_ID . ' = '. $orderID);
+            $orderRow = $this->db_link->query('SELECT ' . Constants::ORDERS_BUYER_ID . ' , ' . Constants::ORDERS_STATUS_ID . ' FROM ' . Constants::TBL_ORDERS . ' where ' . Constants::ORDERS_ID . ' = ' . $orderID);
             //Generate Order Model "object"
             $theOrder = $orderRow->fetch_assoc();
             $theString = array(Constants::ORDERS_BUYER_ID, Constants::ORDERS_STATUS_ID);
@@ -523,7 +565,7 @@ class SQLOperations implements SQLOperationsInterface {
             $deliveryRequest['delivery_request']['order'] = $orderModel;
             //Get the Buyer through his ID
             $buyerID = $theOrder[Constants::ORDERS_BUYER_ID];
-            $buyerRow = $this->db_link->query('SELECT  * FROM '. Constants::TBL_BUYERS. ' WHERE '. Constants::BUYERS_FLD_USER_ID . ' = '. $buyerID);
+            $buyerRow = $this->db_link->query('SELECT  * FROM ' . Constants::TBL_BUYERS . ' WHERE ' . Constants::BUYERS_FLD_USER_ID . ' = ' . $buyerID);
             $theBuyer = $buyerRow->fetch_assoc();
             //print_r( $theBuyer);
             $deliveryRequest['delivery_request']['buyer'] = $theBuyer;
