@@ -136,6 +136,39 @@ $app->get('/user/{userType}', function (Request $request, Response $response) {
     }
 });
 
+$app->post('/cart', function (Request $request, Response $response) {
+    if (authUsers([Constants::USER_BUYER], $request, $response)) {
+        $sqlOperations = new SQLOperations();
+        $authHeader = $request->getHeader('Authorization');
+        list($jwt) = sscanf($authHeader[0], 'Bearer %s');
+        $data = getTokenData($jwt);
+        return $response->withStatus(200)->write($sqlOperations->addProductToCart($request->getParsedBody()[Constants::PRODUCTS_FLD_ID], $data[Constants::USERS_FLD_ID]));
+    } else {
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+    }
+});
+$app->put('/cart', function (Request $request, Response $response) {
+    if (authUsers([Constants::USER_BUYER], $request, $response)) {
+        $sqlOperations = new SQLOperations();
+        $authHeader = $request->getHeader('Authorization');
+        list($jwt) = sscanf($authHeader[0], 'Bearer %s');
+        $data = getTokenData($jwt);
+        return $response->withStatus(200)->write($sqlOperations->decreaseProductFromCart($request->getParsedBody()[Constants::PRODUCTS_FLD_ID], $data[Constants::USERS_FLD_ID]));
+    } else {
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+    }
+});
+$app->delete('/cart/{productID}', function (Request $request, Response $response) {
+    if (authUsers([Constants::USER_BUYER], $request, $response)) {
+        $sqlOperations = new SQLOperations();
+        $authHeader = $request->getHeader('Authorization');
+        list($jwt) = sscanf($authHeader[0], 'Bearer %s');
+        $data = getTokenData($jwt);
+        return $response->withStatus(200)->write($sqlOperations->removeProductFromCart($request->getAttribute('productID'), $data[Constants::USERS_FLD_ID]));
+    } else {
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+    }
+});
 // Add route callbacks
 //This GET Request takes One ID only and returns the selected Columns about that Order 
 $app->get('/order/{id}', function (Request $request, Response $response, $args = []) {

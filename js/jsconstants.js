@@ -10,6 +10,7 @@ const SIGNUP_ENDPOINT = "signup";
 const USER_ENDPOINT = "user";
 const CHANGE_USER_STATUS_ENDPOINT = "block";
 const USER_EDIT_ENDPOINT = "edit";
+const USER_CART_ENDPOINT = "cart";
 
 const OMARKET_PREFIX = "OMarket_";
 
@@ -52,7 +53,6 @@ const ORDER_STATUS_PICKED = "2";
 const ORDER_STATUS_SHIPPED = "3";
 const ORDER_STATUS_DELIVERED = "4";
 
-// Constants of the auth process response (fields names)
 const AUTH_RESPONSE_STATUS_CODE = "statusCode";
 const AUTH_RESPONSE_JWT = "jwt";
 const AUTH_RESPONSE_RESULT = "result";
@@ -62,6 +62,14 @@ const AUTH_RESPONSE_CC_YEAR = "ccYear";
 const AUTH_RESPONSE_CC_CCV = "ccCCV";
 const AUTH_RESPONSE_ERROR_MSG = "errorMsg";
 
+//THE CART ITEMS TABLE CONSTANTS
+const TBL_CART_ITEMS = 'cart_items';
+const CART_ITEMS_USER_ID = 'user_id';
+const CART_ITEMS_PRODUCT_ID = 'product_id';
+const CART_ITEMS_QUANTITY = 'quantity';
+
+//THE PRODUCT TABLE CONSTANTS (check with abdo)
+const PRODUCT_FLD_ID = '_id';
 /**
  * Sign up operation (1x) constants
  */
@@ -105,3 +113,20 @@ const USER_INSERT_SUCCESSFUL = 840;
 const USER_INSERT_INVALID_DATA = 842;
 const USER_INSERT_INVALID_EMAIL = 843;
 const USER_INSERT_EMPTY_DATA = 844;
+
+
+/**
+ * Cart operations constants
+ */
+const CART_ADD_ITEM_SUCCESSFUL = 901;
+const CART_ADD_ITEM_FAILED = 902;
+const CART_ADD_ITEM_EMPTY_DATA = 903;
+const CART_ADD_ITEM_NOT_AVAILABLE = 904;
+const CART_ADD_ITEM_USER_BANNED = 905;
+const CART_ADD_ITEM_LIMIT = 906;
+const CART_DELETE_ITEM_SUCCESSFUL = 910;
+const CART_DELETE_ITEM_FAILED = 911;
+const CART_DELETE_ITEM_EMPTY_DATA = 912;
+const CART_DECREASE_ITEM_SUCCESSFUL = 920;
+const CART_DECREASE_ITEM_FAILED = 921;
+const CART_DECREASE_ITEM_EMPTY_DATA = 922;

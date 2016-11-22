@@ -20,8 +20,17 @@ interface SQLOperationsInterface {
 
     function deleteUser($userID);
 
+    function addEmployee($data);
+
     function changeUserStatus($userID, $newStatus);
 
+    function addProductToCart($productId, $userID);
+
+    function removeProductFromCart($productID, $userID);
+
+    function decreaseProductFromCart($productID, $userID);
+    
+    
     public function getAllOrders($selectionCols, $userID = "");
 
     public function getOrder($id, $selectionCols);

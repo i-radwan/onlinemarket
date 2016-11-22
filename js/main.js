@@ -52,8 +52,8 @@ function leftMenuViewModel(params) {
 
 	self.categoriesArray = [];
 	/**
-		This function initializes the categoriesArray
-	*/
+	 This function initializes the categoriesArray
+	 */
 	self.init = function () {
 		// Get all categories from API and add them to the array
 		getCategoriesArray().forEach(function (category) {
@@ -125,8 +125,8 @@ function productsCollectionViewModel(params) {
 	}
 
 	/**
-		This function initializes the categoriesArray
-	*/
+	 This function initializes the categoriesArray
+	 */
 	self.init = function () {
 		self.changeProductsViewContent(params.categoryID());
 		// handle categoryID changed from the leftpanel module
@@ -160,8 +160,8 @@ function cartProductsViewModel(params) {
 	var self = this;
 	self.cartProductsArray = ko.observableArray(); // make observable
 	/**
-		This function initializes the categoriesArray
-	*/
+	 This function initializes the categoriesArray
+	 */
 	self.init = function () {
 		var cartProducts = getCartProducts();
 		cartProducts.forEach(function (product) {
@@ -230,8 +230,13 @@ function productViewModel(params) {
 	 * @param {object} event click event
 	 */
 	self.addToCart = function (product) {
-		onlineMarketMVVM.increaseCartAmount(product.params.price);
-		shouter.notifySubscribers(product.params, "addProductToCart");
+		// ToDo: edit later to abdo's constants
+		var cartItemId = addProductToCart(product.params.id);
+		if (cartItemId != -1) {
+			onlineMarketMVVM.increaseCartAmount(product.params.price);
+			product.params.cartItemID = cartItemId;
+			shouter.notifySubscribers(product.params, "addProductToCart");
+		}
 	}
 
 	self.increaseQuantity = function () {
@@ -574,9 +579,9 @@ function getSearchProducts(searchWord) {
 				{
 					name: "Origin",
 					value: "Apple"
-					}
-				]
-			},
+                }
+            ]
+        },
 		{
 			id: 2,
 			name: "IPhone 4S",
@@ -588,14 +593,14 @@ function getSearchProducts(searchWord) {
 				{
 					name: "Origin",
 					value: "Apple"
-					},
+                },
 				{
 					name: "Sold items",
 					value: "100"
-					}
-				]
+                }
+            ]
 
-			},
+        },
 		{
 			id: 3,
 			name: "IPhone 3S",
@@ -607,9 +612,9 @@ function getSearchProducts(searchWord) {
 				{
 					name: "Origin",
 					value: "Apple"
-					}
-				]
-			}];
+                }
+            ]
+        }];
 }
 
 /**
@@ -678,9 +683,9 @@ function getUserOrders() {
 						{
 							name: "Origin",
 							value: "Apple"
-					}
-				]
-			},
+                        }
+                    ]
+                },
 				{
 					id: 2,
 					name: "IPhone 4S",
@@ -692,14 +697,14 @@ function getUserOrders() {
 						{
 							name: "Origin",
 							value: "Apple"
-					},
+                        },
 						{
 							name: "Sold items",
 							value: "100"
-					}
-				]
+                        }
+                    ]
 
-			},
+                },
 				{
 					id: 3,
 					name: "IPhone 3S",
@@ -711,10 +716,10 @@ function getUserOrders() {
 						{
 							name: "Origin",
 							value: "Apple"
-					}
-				]
-			}]
-	}, {
+                        }
+                    ]
+                }]
+        }, {
 			id: 2,
 			duedate: "2016-08-12",
 			cost: 1000,
@@ -730,9 +735,9 @@ function getUserOrders() {
 						{
 							name: "Origin",
 							value: "Apple"
-					}
-				]
-			},
+                        }
+                    ]
+                },
 				{
 					id: 2,
 					name: "IPhone 4S",
@@ -744,14 +749,14 @@ function getUserOrders() {
 						{
 							name: "Origin",
 							value: "Apple"
-					},
+                        },
 						{
 							name: "Sold items",
 							value: "100"
-					}
-				]
+                        }
+                    ]
 
-			},
+                },
 				{
 					id: 3,
 					name: "IPhone 3S",
@@ -763,10 +768,10 @@ function getUserOrders() {
 						{
 							name: "Origin",
 							value: "Apple"
-					}
-				]
-			}]
-	},
+                        }
+                    ]
+                }]
+        },
 		{
 			id: 3,
 			duedate: "2016-08-13",
@@ -783,9 +788,9 @@ function getUserOrders() {
 						{
 							name: "Origin",
 							value: "Apple"
-					}
-				]
-			},
+                        }
+                    ]
+                },
 				{
 					id: 2,
 					name: "IPhone 4S",
@@ -797,14 +802,14 @@ function getUserOrders() {
 						{
 							name: "Origin",
 							value: "Apple"
-					},
+                        },
 						{
 							name: "Sold items",
 							value: "100"
-					}
-				]
+                        }
+                    ]
 
-			},
+                },
 				{
 					id: 3,
 					name: "IPhone 3S",
@@ -816,10 +821,10 @@ function getUserOrders() {
 						{
 							name: "Origin",
 							value: "Apple"
-					}
-				]
-			}]
-	}];
+                        }
+                    ]
+                }]
+        }];
 }
 
 /**
@@ -832,68 +837,68 @@ function getCategoriesArray() {
 		{
 			id: 1,
 			name: "Computers, IT & Networking"
-		},
+        },
 		{
 			id: 2,
 			name: "Mobile Phones, Tablets & Accessories"
-		},
+        },
 		{
 			id: 3,
 			name: "Car Electronics & Accessories"
-		},
+        },
 		{
 			id: 4,
 			name: "Books"
-		},
+        },
 		{
 			id: 5,
 			name: "Gaming"
-		},
+        },
 		{
 			id: 6,
 			name: "Electronic"
-		},
+        },
 		{
 			id: 7,
 			name: "Sports & Fitness"
-		},
+        },
 		{
 			id: 8,
 			name: "Perfumes & Fragrances"
-		},
+        },
 		{
 			id: 9,
 			name: "Health & Personal Care"
-		},
+        },
 		{
 			id: 10,
 			name: "Furniture"
-		},
+        },
 		{
 			id: 11,
 			name: "Apparel, Shoes & Accessories"
-		},
+        },
 		{
 			id: 12,
 			name: "Appliances"
-		},
+        },
 		{
 			id: 13,
 			name: "Art, Crafts & Collectables"
-		},
+        },
 		{
 			id: 14,
 			name: "Baby"
-		},
+        },
 		{
 			id: 15,
 			name: "Kitchen & Home Supplies"
-		},
+        },
 		{
 			id: 16,
 			name: "Toys"
-		}
-	];
+        }
+    ];
 }
 /**
  * This function gets the top categories from the server
@@ -907,23 +912,23 @@ function getTopCategories(count) {
 			id: 1,
 			name: "Computers, IT & Networking",
 			products: []
-			},
+        },
 		{
 			id: 2,
 			name: "Mobile Phones, Tablets & Accessories",
 			products: []
-			},
+        },
 		{
 			id: 3,
 			name: "Books",
 			products: []
-			},
+        },
 		{
 			id: 10,
 			name: "Furniture",
 			products: []
-			}
-		];
+        }
+    ];
 }
 
 /**
@@ -955,9 +960,9 @@ function getCategoryProducts(categoryID, limit) {
 					{
 						name: "Origin",
 						value: "Apple"
-					}
-				]
-			},
+                    }
+                ]
+            },
 			{
 				id: 2,
 				name: "IPhone 4S",
@@ -968,14 +973,14 @@ function getCategoryProducts(categoryID, limit) {
 					{
 						name: "Origin",
 						value: "Apple"
-					},
+                    },
 					{
 						name: "Sold items",
 						value: "100"
-					}
-				]
+                    }
+                ]
 
-			},
+            },
 			{
 				id: 3,
 				name: "IPhone 3S",
@@ -986,10 +991,10 @@ function getCategoryProducts(categoryID, limit) {
 					{
 						name: "Origin",
 						value: "Apple"
-					}
-				]
-			}
-		];
+                    }
+                ]
+            }
+        ];
 	} else {
 		return [
 			{
@@ -1002,9 +1007,9 @@ function getCategoryProducts(categoryID, limit) {
 					{
 						name: "Origin",
 						value: "Apple"
-				}
-			]
-		},
+                    }
+                ]
+            },
 			{
 				id: 0,
 				name: "IPhone 6S",
@@ -1015,14 +1020,14 @@ function getCategoryProducts(categoryID, limit) {
 					{
 						name: "Origin",
 						value: "Apple"
-				},
+                    },
 					{
 						name: "Sold items",
 						value: "100"
-				}
-			]
+                    }
+                ]
 
-		},
+            },
 			{
 				id: 0,
 				name: "IPhone 6S",
@@ -1033,9 +1038,9 @@ function getCategoryProducts(categoryID, limit) {
 					{
 						name: "Origin",
 						value: "Apple"
-				}
-			]
-		},
+                    }
+                ]
+            },
 			{
 				id: 0,
 				name: "IPhone 6S",
@@ -1046,9 +1051,9 @@ function getCategoryProducts(categoryID, limit) {
 					{
 						name: "Origin",
 						value: "Apple"
-				}
-			]
-		},
+                    }
+                ]
+            },
 			{
 				id: 0,
 				name: "IPhone 6S",
@@ -1059,9 +1064,9 @@ function getCategoryProducts(categoryID, limit) {
 					{
 						name: "Origin",
 						value: "Apple"
-				}
-			]
-		},
+                    }
+                ]
+            },
 			{
 				id: 0,
 				name: "IPhone 6S",
@@ -1072,9 +1077,9 @@ function getCategoryProducts(categoryID, limit) {
 					{
 						name: "Origin",
 						value: "Apple"
-				}
-			]
-		},
+                    }
+                ]
+            },
 			{
 				id: 0,
 				name: "IPhone 6S",
@@ -1085,9 +1090,9 @@ function getCategoryProducts(categoryID, limit) {
 					{
 						name: "Origin",
 						value: "Apple"
-				}
-			]
-		},
+                    }
+                ]
+            },
 			{
 				id: 0,
 				name: "IPhone 6S",
@@ -1098,10 +1103,10 @@ function getCategoryProducts(categoryID, limit) {
 					{
 						name: "Origin",
 						value: "Apple"
-				}
-			]
-		}
-	];
+                    }
+                ]
+            }
+        ];
 	}
 }
 
@@ -1122,9 +1127,9 @@ function getCartProducts() {
 				{
 					name: "Origin",
 					value: "Apple"
-					}
-				]
-			},
+                }
+            ]
+        },
 		{
 			id: 0,
 			name: "IPhone 1S",
@@ -1135,14 +1140,14 @@ function getCartProducts() {
 				{
 					name: "Origin",
 					value: "Apple"
-					},
+                },
 				{
 					name: "Sold items",
 					value: "100"
-					}
-				]
+                }
+            ]
 
-			},
+        },
 		{
 			id: 0,
 			name: "IPhone 2",
@@ -1153,9 +1158,9 @@ function getCartProducts() {
 				{
 					name: "Origin",
 					value: "Apple"
-					}
-				]
-			},
+                }
+            ]
+        },
 		{
 			id: 0,
 			name: "IPhone 2S",
@@ -1166,9 +1171,9 @@ function getCartProducts() {
 				{
 					name: "Origin",
 					value: "Apple"
-					}
-				]
-			},
+                }
+            ]
+        },
 		{
 			id: 0,
 			name: "IPhone 3",
@@ -1179,14 +1184,14 @@ function getCartProducts() {
 				{
 					name: "Origin",
 					value: "Apple"
-					},
+                },
 				{
 					name: "Sold items",
 					value: "100"
-					}
-				]
+                }
+            ]
 
-			},
+        },
 		{
 			id: 0,
 			name: "IPhone 3S",
@@ -1197,9 +1202,9 @@ function getCartProducts() {
 				{
 					name: "Origin",
 					value: "Apple"
-					}
-				]
-			},
+                }
+            ]
+        },
 		{
 			id: 0,
 			name: "IPhone 4",
@@ -1210,9 +1215,9 @@ function getCartProducts() {
 				{
 					name: "Origin",
 					value: "Apple"
-					}
-				]
-			},
+                }
+            ]
+        },
 		{
 			id: 0,
 			name: "IPhone 4S",
@@ -1223,14 +1228,14 @@ function getCartProducts() {
 				{
 					name: "Origin",
 					value: "Apple"
-					},
+                },
 				{
 					name: "Sold items",
 					value: "100"
-					}
-				]
+                }
+            ]
 
-			},
+        },
 		{
 			id: 0,
 			name: "IPhone 5",
@@ -1241,8 +1246,41 @@ function getCartProducts() {
 				{
 					name: "Origin",
 					value: "Apple"
-					}
-				]
+                }
+            ]
+        }
+    ];
+}
+
+/**
+ * This fucntion adds product to cart items
+ * @param {int} productID the required product ID
+ * @returns {object} response which contains status and cartItem ID
+ */
+function addProductToCart(productID) {
+	var newCartID = -1;
+	var data = {};
+	data[PRODUCT_FLD_ID] = productID;
+	$.ajax({
+		url: API_LINK + USER_CART_ENDPOINT,
+		type: 'POST',
+		async: false,
+		data: data,
+		headers: {
+			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
+		},
+		success: function (result) {
+                    console.log(result);
+			var returnedData = JSON.parse(result);
+			if (returnedData.statusCode == CART_ADD_ITEM_SUCCESSFUL) {
+				newCartID = returnedData.result;
+			} else if (returnedData.statusCode == CART_ADD_ITEM_USER_BANNED) {
+				alert(returnedData.errorMsg);
+				logOut();
+			} else {
+				alert(returnedData.errorMsg);
 			}
-		];
+		}
+	});
+	return newCartID;
 }

@@ -375,7 +375,7 @@ class SQLOperations implements SQLOperationsInterface {
         $userID = Utilities::makeInputSafe($data[Constants::USERS_FLD_ID]);
         if (strlen($email) > 0 && strlen($userID) > 0) {
             if (Utilities::checkValidEmail($email)) {
-                if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_USERS . "` WHERE `" . Constants::USERS_FLD_EMAIL . "` = '$email' AND `" . Constants::USERS_FLD_ID. "` != '$userID'  LIMIT 1")) {
+                if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_USERS . "` WHERE `" . Constants::USERS_FLD_EMAIL . "` = '$email' AND `" . Constants::USERS_FLD_ID . "` != '$userID'  LIMIT 1")) {
                     return $this->returnError(Constants::USER_EDIT_ACCOUNT_FAILED, "Please try again later!", 0, 0, 0);
                 }
                 if ($result->num_rows == 0) {
@@ -484,7 +484,7 @@ class SQLOperations implements SQLOperationsInterface {
                     }
                     if ($result->num_rows == 0) {
                         $hashPass = Utilities::hashPassword($pass1);
-                        if (!$result = $this->db_link->query("INSERT INTO `" . Constants::TBL_USERS . "` SET `" . Constants::USERS_FLD_EMAIL . "` = '$email', `" . Constants::USERS_FLD_PASS . "` = '$hashPass', `" . Constants::USERS_FLD_USER_TYPE . "` = '$empType', `" . Constants::USERS_FLD_NAME. "` = 'Emp',  `" . Constants::USERS_FLD_TEL. "` = '0'")) {
+                        if (!$result = $this->db_link->query("INSERT INTO `" . Constants::TBL_USERS . "` SET `" . Constants::USERS_FLD_EMAIL . "` = '$email', `" . Constants::USERS_FLD_PASS . "` = '$hashPass', `" . Constants::USERS_FLD_USER_TYPE . "` = '$empType', `" . Constants::USERS_FLD_NAME . "` = 'Emp',  `" . Constants::USERS_FLD_TEL . "` = '0'")) {
                             return $this->returnError(Constants::USER_INSERT_FAILED, "Please try again later!", 0, 0, 0);
                         }
                         $uID = $this->db_link->insert_id;
@@ -510,6 +510,119 @@ class SQLOperations implements SQLOperationsInterface {
         }
     }
 
+    /**
+     * This function adds product to cart, if it wasn't there already. If the product is already in the cart items table, this function increases the required quantity 
+     * @param type $productId the product id to be added to cart
+     * @param type $userID the user id 
+     * @return response object with cart item ID
+     */
+    function addProductToCart($productId, $userID) {
+        $productId = Utilities::makeInputSafe($productId);
+        $userID = Utilities::makeInputSafe($userID);
+        if (strlen($productId) > 0 && strlen($userID) > 0) {
+            if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_PRODUCTS . "` WHERE `" . Constants::PRODUCTS_FLD_ID . "` = '$productId' AND `" . Constants::PRODUCTS_FLD_AVA_STATUS . "` = '" . Constants::PRODUCT_AVAILABLE . "' AND `" . Constants::PRODUCTS_FLD_AVA_QUANTITY . "` > 0 ")) {
+                return $this->returnError(Constants::CART_ADD_ITEM_FAILED, "Please try again later!", 0, 0, 0);
+            }
+            if ($result->num_rows > 0) {
+                if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_USERS . "` WHERE `" . Constants::USERS_FLD_ID . "` = '$userID' AND `" . Constants::USERS_FLD_STATUS . "` = '" . Constants::USER_BANNED . "'")) {
+                    return $this->returnError(Constants::CART_ADD_ITEM_FAILED, "Please try again later!", 0, 0, 0);
+                }
+                if ($result->num_rows == 0) {
+                    if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_CART_ITEMS . "` WHERE `" . Constants::CART_ITEMS_USER_ID . "` = '$userID' AND `" . Constants::CART_ITEMS_PRODUCT_ID . "` = '$productId'")) {
+                        return $this->returnError(Constants::CART_ADD_ITEM_FAILED, "Please try again later!", 0, 0, 0);
+                    }
+                    if ($result->num_rows == 0) {
+                        // product isn't in cart 
+                        if (!$result = $this->db_link->query("INSERT INTO `" . Constants::TBL_CART_ITEMS . "` SET `" . Constants::CART_ITEMS_USER_ID . "` = '$userID', `" . Constants::CART_ITEMS_PRODUCT_ID . "` = '$productId'")) {
+                            return $this->returnError(Constants::CART_ADD_ITEM_FAILED, "Please try again later!", 0, 0, 0);
+                        }
+                    } else {
+                        // product already exists
+                        if (!$result = $this->db_link->query("UPDATE `" . Constants::TBL_CART_ITEMS . "` SET `" . Constants::CART_ITEMS_QUANTITY . "` = " . Constants::CART_ITEMS_QUANTITY . " + 1 WHERE `" . Constants::CART_ITEMS_PRODUCT_ID . "` = '$productId' AND  `" . Constants::CART_ITEMS_USER_ID . "` = '$userID' AND `" . Constants::CART_ITEMS_QUANTITY . "` <= 9 LIMIT 1")) {
+                            return $this->returnError(Constants::CART_ADD_ITEM_FAILED, "Please try again later!", 0, 0, 0);
+                        }
+                        if ($this->db_link->affected_rows == 0) {
+                            return $this->returnError(Constants::CART_ADD_ITEM_LIMIT, "Cart limit exceeded!", 0, 0, 0);
+                        }
+                    }
+                    $cartItemID = $this->db_link->insert_id;
+                    // reduce product qunatity
+                    if (!$result = $this->db_link->query("UPDATE `" . Constants::TBL_PRODUCTS . "` SET `" . Constants::PRODUCTS_FLD_AVA_QUANTITY . "` = " . Constants::PRODUCTS_FLD_AVA_QUANTITY . " - 1 WHERE`" . Constants::PRODUCTS_FLD_ID . "` = '$productId' AND `" . Constants::PRODUCTS_FLD_AVA_QUANTITY . "` > 0 LIMIT 1")) {
+                        return $this->returnError(Constants::CART_ADD_ITEM_FAILED, "Please try again later!", 0, 0, 0);
+                    }
+                    if ($this->db_link->affected_rows == 1) {
+                        $theResponse = new Response(Constants::CART_ADD_ITEM_SUCCESSFUL, $cartItemID, "");
+                        return(json_encode($theResponse));
+                    } else {
+                        return $this->returnError(Constants::CART_ADD_ITEM_NOT_AVAILABLE, "This product isn't available!", 0, 0, 0);
+                    }
+                } else {
+                    return $this->returnError(Constants::CART_ADD_ITEM_USER_BANNED, "Please contact OMarket administration!", 0, 0, 0);
+                }
+            } else {
+                return $this->returnError(Constants::CART_ADD_ITEM_NOT_AVAILABLE, "This product isn't available!", 0, 0, 0);
+            }
+        } else {
+            return $this->returnError(Constants::CART_ADD_ITEM_EMPTY_DATA, "All fields are required!", 0, 0, 0);
+        }
+    }
+
+    /**
+     * This function removes product from cart
+     * @param type $productId the product id to be removed from the cart
+     * @param type $userID the user id 
+     * @return response object status object
+     */
+    function removeProductFromCart($productID, $userID) {
+        $productId = Utilities::makeInputSafe($productID);
+        $userID = Utilities::makeInputSafe($userID);
+        if (strlen($productId) > 0 && strlen($userID) > 0) {
+            if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_CART_ITEMS . "` WHERE `" . Constants::CART_ITEMS_USER_ID . "` = '$userID' AND `" . Constants::CART_ITEMS_PRODUCT_ID . "` = '$productId' LIMIT 1")) {
+                return $this->returnError(Constants::CART_DELETE_ITEM_FAILED, "Please try again later!", 0, 0, 0);
+            }
+            $row = $result->fetch_assoc();
+            $quantity = $row[Constants::CART_ITEMS_QUANTITY];
+            if (!$result = $this->db_link->query("DELETE FROM `" . Constants::TBL_CART_ITEMS . "` WHERE `" . Constants::CART_ITEMS_USER_ID . "` = '$userID' AND `" . Constants::CART_ITEMS_PRODUCT_ID . "` = '$productId' LIMIT 1")) {
+                return $this->returnError(Constants::CART_DELETE_ITEM_FAILED, "Please try again later!", 0, 0, 0);
+            }
+            if ($this->db_link->affected_rows == 0) {
+                return $this->returnError(Constants::CART_DELETE_ITEM_FAILED, "Please try again later!", 0, 0, 0);
+            }
+            if (!$result = $this->db_link->query("UPDATE `" . Constants::TBL_PRODUCTS . "` SET `" . Constants::PRODUCTS_FLD_AVA_QUANTITY . "` = " . Constants::PRODUCTS_FLD_AVA_QUANTITY . " + $quantity WHERE`" . Constants::PRODUCTS_FLD_ID . "` = '$productId' LIMIT 1")) {
+                return $this->returnError(Constants::CART_DELETE_ITEM_FAILED, "Please try again later!", 0, 0, 0);
+            }
+            $theResponse = new Response(Constants::CART_DELETE_ITEM_SUCCESSFUL, "", "");
+            return(json_encode($theResponse));
+        } else {
+            return $this->returnError(Constants::CART_DELETE_ITEM_EMPTY_DATA, "Missing data!", 0, 0, 0);
+        }
+    }
+
+    /**
+     * This function removes product from cart
+     * @param type $productId the product id to be removed from the cart
+     * @param type $userID the user id 
+     * @return response object status object
+     */
+    function decreaseProductFromCart($productID, $userID) {
+        $productId = Utilities::makeInputSafe($productID);
+        $userID = Utilities::makeInputSafe($userID);
+        if (strlen($productId) > 0 && strlen($userID) > 0) {
+           if (!$result = $this->db_link->query("UPDATE `" . Constants::TBL_CART_ITEMS . "` SET `" . Constants::CART_ITEMS_QUANTITY . "` = " . Constants::CART_ITEMS_QUANTITY . " - 1 WHERE `" . Constants::CART_ITEMS_PRODUCT_ID . "` = '$productId' AND `" . Constants::CART_ITEMS_USER_ID . "` = '$userID' AND `" . Constants::CART_ITEMS_QUANTITY . "` > 1 LIMIT 1")) {
+                return $this->returnError(Constants::CART_DECREASE_ITEM_FAILED, "Please try again later!", 0, 0, 0);
+            }
+            if ($this->db_link->affected_rows == 0) {
+                return $this->returnError(Constants::CART_DECREASE_ITEM_FAILED, "Please try again later!", 0, 0, 0);
+            }
+            if (!$result = $this->db_link->query("UPDATE `" . Constants::TBL_PRODUCTS . "` SET `" . Constants::PRODUCTS_FLD_AVA_QUANTITY . "` = " . Constants::PRODUCTS_FLD_AVA_QUANTITY . " + 1 WHERE`" . Constants::PRODUCTS_FLD_ID . "` = '$productId' LIMIT 1")) {
+                return $this->returnError(Constants::CART_DECREASE_ITEM_FAILED, "Please try again later!", 0, 0, 0);
+            }
+            $theResponse = new Response(Constants::CART_DECREASE_ITEM_SUCCESSFUL, "", "");
+            return(json_encode($theResponse));
+        } else {
+            return $this->returnError(Constants::CART_DECREASE_ITEM_EMPTY_DATA, "Missing data!", 0, 0, 0);
+        }
+    }
     /**
      * This function generates the error json 
      * @param type $code error code (Constants::)
