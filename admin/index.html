@@ -14,7 +14,6 @@
 	<script src="../js/jquery.min.js"></script>
 	<script src="../js/jquery-ui.js"></script>
 </head>
-
 <body>
 	<div class="container" id="container">
 		<header id="header" params="cartAmount: cartAmount">
@@ -23,7 +22,7 @@
 			</div>
 			<div class="header-rightside">
 				<div class="header-links">
-					<a class="header-username"><span>Ibrahim</span></a>
+					<a class="header-username"><span data-bind="text: getUserModel().name()"></span></a>
 					<a data-bind="click: logOut" class="header-logout"><span>Logout</span></a>
 				</div>
 			</div>
@@ -33,10 +32,11 @@
 		</div>
 		<div data-bind="if: checkUserRole() == USER_ADMIN">
 			<employees params="employeeTypeName: 'Accountants', employeeType : USER_ACCOUNTANT, employeeSingleName: 'Accountant'"></employees>
-			<employees params="employeeTypeName: 'Delivery Staff', employeeType : USER_DELIVERMAN, employeeSingleName: 'Deliveryman'"></employees>
-			<users></users>
+			<employees params="employeeTypeName: 'Delivery Staff', employeeType : USER_DELIVERYMAN, employeeSingleName: 'Deliveryman'"></employees>
+			<users params="type: 'Sellers'"></users>
+			<users params="type: 'Buyers'"></users>
 		</div>
-		<div data-bind="if: checkUserRole() == USER_ACCOUNTANT || checkUserRole() == USER_DELIVERMAN">
+		<div data-bind="if: checkUserRole() == USER_ACCOUNTANT || checkUserRole() == USER_DELIVERYMAN">
 			<orders></orders>
 		</div>
 		<div data-bind="if: checkUserRole() == USER_SELLER ||  checkUserRole() == USER_ADMIN">
@@ -86,10 +86,10 @@
 	<template id="orders-template">
             <div class="category-items-short cart-items-short">
                 <a class="category-items-short--title">Orders</a>
-                <div class="orders-filters">
+                <div class="orders-filters" data-bind="if: checkUserRole() == USER_ACCOUNTANT">
                     <div class="orders-filters--div">
                         <div class="checkbox checkbox-info checkbox-circle">
-                            <input id="checkbox8" class="styled" type="checkbox">
+                            <input id="checkbox8" class="styled" type="checkbox" data-bind="checked: priceEnabled">
                             <label for="checkbox8" class="orders-filters--label">
                                 Cost: 
                             </label>
@@ -100,25 +100,25 @@
                     <div class="orders-filters--div">
                         <div>
                             <div class="checkbox checkbox-info checkbox-circle">
-                                <input id="checkbox1" class="styled" type="checkbox">
+                                <input id="checkbox1" class="styled" type="checkbox" data-bind="checked: pending">
                                 <label for="checkbox1" class="orders-filters--label-small">
                                     Pending 
                                 </label>
                             </div>
                             <div class="checkbox checkbox-info checkbox-circle">
-                                <input id="checkbox2" class="styled" type="checkbox">
+                                <input id="checkbox2" class="styled" type="checkbox" data-bind="checked: picked">
                                 <label for="checkbox2" class="orders-filters--label-small">
                                     Picked 
                                 </label>
                             </div>
                             <div class="checkbox checkbox-info checkbox-circle">
-                                <input id="checkbox3" class="styled" type="checkbox">
+                                <input id="checkbox3" class="styled" type="checkbox" data-bind="checked: shipped">
                                 <label for="checkbox3" class="orders-filters--label-small">
                                     Shipped 
                                 </label>
                             </div>
                             <div class="checkbox checkbox-info checkbox-circle">
-                                <input id="checkbox4" class="styled" type="checkbox">
+                                <input id="checkbox4" class="styled" type="checkbox" data-bind="checked: delivered">
                                 <label for="checkbox4" class="orders-filters--label-small">
                                     Delivered 
                                 </label>
@@ -127,13 +127,15 @@
                     </div>
                     <div class="orders-filters--div">
                         <div class="checkbox checkbox-info checkbox-circle">
-                            <input id="checkbox10" class="styled" type="checkbox">
+                            <input id="checkbox10" class="styled" type="checkbox" data-bind="checked: dateEnabled">
                             <label for="checkbox10" class="orders-filters--label">
                                 Date: 
                             </label>
                         </div>
-                        <input type="text" placeholder="From..." id="startdate" class="orders-filters--datepicker" readonly>
-                        <input type="text" placeholder="...To" id="enddate" class="orders-filters--datepicker" readonly></div>
+                        <input type="text" placeholder="From..." id="startdate" class="orders-filters--datepicker" readonly
+                        data-bind="textInput: minDate">
+                        <input type="text" placeholder="...To" id="enddate" class="orders-filters--datepicker" readonly
+                        data-bind="textInput: maxDate"></div>
                     <div class="orders-filters--div orders-filters--div-small">
                         <button class="orders-filters--filter-button" data-bind="click: loadOrders">Filter</button>
                     </div>
@@ -158,15 +160,17 @@
             </div>
             <div class="order-actions">
                 <p><strong>Status</strong>: <span data-bind="text: params.textStatus()"></span></p>
-                <span class="order-cancel" data-bind="if: params.status() == ORDER_STATUS_PENDING, click:function(){changeOrderStatus(ORDER_STATUS_PICKED)}">mark picked</span>
-                <span class="order-cancel" data-bind="if: params.status() == ORDER_STATUS_PICKED, click:function(){changeOrderStatus(ORDER_STATUS_SHIPPED)}">mark shipped</span>
-                <span class="order-cancel" data-bind="if: params.status() == ORDER_STATUS_SHIPPED, click:function(){changeOrderStatus(ORDER_STATUS_DELIVERED)}">mark delivered</span>
+				<span data-bind="if: checkUserRole() == USER_DELIVERYMAN">
+					<span class="order-cancel" data-bind="if: params.status() == ORDER_STATUS_PENDING, click:function(){changeOrderStatus(ORDER_STATUS_PICKED)}">mark picked</span>
+					<span class="order-cancel" data-bind="if: params.status() == ORDER_STATUS_PICKED, click:function(){changeOrderStatus(ORDER_STATUS_SHIPPED)}">mark shipped</span>
+					<span class="order-cancel" data-bind="if: params.status() == ORDER_STATUS_SHIPPED, click:function(){changeOrderStatus(ORDER_STATUS_DELIVERED)}">mark delivered</span>
+                </span>
             </div>
 
         </template>
 	<template id="users-template">
             <div class="category-items-short cart-items-short">
-                <a class="category-items-short--title">Users</a>
+                <a class="category-items-short--title" data-bind="text: type"></a>
                 <p class="no-items" data-bind="if: !usersArray().length">No Users</p>
                 <div class="categories-items-container" data-bind="foreach: usersArray">
                     <user-container class="single-category-item" params="value: $data, parent: $parent">

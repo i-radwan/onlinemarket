@@ -11,4 +11,4 @@ define(db_user, "Samir");
 define(db_pass, "samir");
 
 //Disable errors
-error_reporting(0);
+//error_reporting(0);

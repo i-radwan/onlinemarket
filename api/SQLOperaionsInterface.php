@@ -13,6 +13,23 @@ interface SQLOperationsInterface {
     function signUpUser($email, $pass1, $pass2, $role, $name, $tel, $extraData);
 
     function login($emial, $pass);
+
+    function editAccount($userID, $userType, $userNewData);
+
+    function getUsersUsingType($userType);
+
+    function deleteUser($userID);
+
+    function addEmployee($data);
+
+    function changeUserStatus($userID, $newStatus);
+
+    function addProductToCart($productId, $userID);
+
+    function removeProductFromCart($productID, $userID);
+
+    function decreaseProductFromCart($productID, $userID);
+    
     public function getAllOrders($selectionCols, $userID = "", $appliedFilters);
 
     public function getOrder($id, $selectionCols);

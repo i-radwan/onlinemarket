@@ -29,6 +29,7 @@ class Constants {
     const LOGIN_EMPTY_DATA = 22;
     const LOGIN_OPERATION_FAILED = 23;
     const LOGIN_INCORRECT_DATA = 24;
+
     /**
      * Order operation functions (4x) constants
      */
@@ -46,6 +47,7 @@ class Constants {
      */
     const ORDERITEMS_GET_SUCCESSFUL = 50;
     const ORDERITEMS_GET_FAILED = 51;
+
     /**
      * DeliveryRequests operation functions (6x) constants
      */
@@ -53,8 +55,50 @@ class Constants {
     const DELIVERYREQUESTS_GET_FAILED = 61;
 
     /**
+     * User operations constants
+     */
+    const USER_EDIT_ACCOUNT_SUCCESSFUL = 800;
+    const USER_EDIT_ACCOUNT_EMPTY_DATA = 801;
+    const USER_EDIT_ACCOUNT_FAILED = 802;
+    const USER_EDIT_ACCOUNT_INVALID_PASS = 803;
+    const USER_EDIT_ACCOUNT_INVALID_EMAIL = 804;
+    const USER_EDIT_ACCOUNT_EMAIL_EXISTS = 805;
+    const USER_EDIT_ACCOUNT_INVALID_ACCOUNT = 806;
+    const USER_GET_USERS_FAILED = 811;
+    const USER_GET_USERS_SUCCESSFUL = 810;
+    const USER_UPDATE_STATUS_INVALID_DATA = 821;
+    const USER_UPDATE_STATUS_SUCCESSFUL = 820;
+    const USER_UPDATE_STATUS_FAILED = 823;
+    const USER_DELETE_FAILED = 831;
+    const USER_DELETE_SUCCESSFUL = 830;
+    const USER_INSERT_FAILED = 841;
+    const USER_INSERT_SUCCESSFUL = 840;
+    const USER_INSERT_INVALID_DATA = 842;
+    const USER_INSERT_INVALID_EMAIL = 843;
+    const USER_INSERT_EMPTY_DATA = 844;
+    const USER_INSERT_EMAIL_EXISTS = 845;
+
+    /**
+     * Cart operations constants
+     */
+    const CART_ADD_ITEM_SUCCESSFUL = 901;
+    const CART_ADD_ITEM_FAILED = 902;
+    const CART_ADD_ITEM_EMPTY_DATA = 903;
+    const CART_ADD_ITEM_NOT_AVAILABLE = 904;
+    const CART_ADD_ITEM_USER_BANNED = 905;
+    const CART_ADD_ITEM_LIMIT = 906;
+    const CART_DELETE_ITEM_SUCCESSFUL = 910;
+    const CART_DELETE_ITEM_FAILED = 911;
+    const CART_DELETE_ITEM_EMPTY_DATA = 912;
+    const CART_DECREASE_ITEM_SUCCESSFUL = 920;
+    const CART_DECREASE_ITEM_FAILED = 921;
+    const CART_DECREASE_ITEM_EMPTY_DATA = 922;
+
+    /**
      * Database Constants
      */
+    //==================================
+    //THE USERS TABLE CONSTANTS
     const TBL_USERS = 'users';
     const USERS_FLD_ID = '_id';
     const USERS_FLD_EMAIL = 'email';
@@ -63,6 +107,8 @@ class Constants {
     const USERS_FLD_NAME = 'name';
     const USERS_FLD_TEL = 'tel';
     const USERS_FLD_STATUS = 'user_status';
+    //==================================
+    //THE BUYERS TABLE CONSTANTS
     const TBL_BUYERS = 'buyers';
     const BUYERS_FLD_USER_ID = 'user_id';
     const BUYERS_FLD_ADDRESS = 'address';
@@ -70,16 +116,30 @@ class Constants {
     const BUYERS_FLD_CC_CCV = 'cc_ccv';
     const BUYERS_FLD_CC_MONTH = 'cc_month';
     const BUYERS_FLD_CC_YEAR = 'cc_year';
+    //==================================
+    //THE SELLERS TABLE CONSTANTS
     const TBL_SELLERS = 'sellers';
     const SELLERS_FLD_USER_ID = 'user_id';
     const SELLERS_FLD_ADDRESS = 'address';
     const SELLERS_FLD_BACK_ACCOUNT = 'bankaccount';
+    //==================================
+    //THE ADMINS TABLE CONSTANTS
     const TBL_ADMINS = 'admins';
     const ADMINS_FLD_USER_ID = 'user_id';
+    //==================================
+    //THE ACCOUNTATNS TABLE CONSTANTS
     const TBL_ACCOUNTANTS = 'accountants';
     const ACCOUNTANTS_FLD_USER_ID = 'user_id';
+    //==================================
+    //THE DELIVERYMEN TABLE CONSTANTS
     const TBL_DELIVERYMEN = 'deliverymen';
     const DELIVERYMEN_FLD_USER_ID = 'user_id';
+    //==================================
+    //THE CART ITEMS TABLE CONSTANTS
+    const TBL_CART_ITEMS = 'cart_items';
+    const CART_ITEMS_USER_ID = 'user_id';
+    const CART_ITEMS_PRODUCT_ID = 'product_id';
+    const CART_ITEMS_QUANTITY = 'quantity';
     //==================================
     //THE ORDER TABLE CONSTANTS
     const TBL_ORDERS = 'orders';
@@ -102,6 +162,14 @@ class Constants {
     const DELIVERYREQUESTS_ORDERID = 'order_id';
     const DELIVERYREQUESTS_DELIVERYMANID = 'deliveryman_id';
     const DELIVERYREQUESTS_DUEDATE = 'duedate';
+    //==================================
+    //THE PRODUCTS (Check with abdo)
+    const TBL_PRODUCTS = "products";
+    const PRODUCTS_FLD_ID = "_id";
+    const PRODUCTS_FLD_AVA_QUANTITY = "available_quantity";
+    const PRODUCTS_FLD_AVA_STATUS = "availability_id";
+    const PRODUCT_AVAILABLE = "1"; // Relative to DB
+    const PRODUCT_INAVAILABLE = "2"; // Relative to DB
     //==================================
     //Status CONSTANTS
     const PENDING = 1;
