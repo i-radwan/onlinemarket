@@ -391,6 +391,15 @@ function ordersViewModel(params) {
     self.ordersArray = ko.observableArray();
     self.minPrice = 0;
     self.maxPrice = 5000;
+    self.dateEnabled = ko.observable(false);
+    self.priceEnabled = ko.observable(false);
+    self.minDate = ko.observable("");
+    self.maxDate = ko.observable("");
+    self.pending = ko.observable(false);
+    self.picked = ko.observable(false);
+    self.shipped = ko.observable(false);
+    self.delivered = ko.observable(false);
+
     self.totalCost = ko.observable(0);
 
 
@@ -406,6 +415,46 @@ function ordersViewModel(params) {
         self.userID = getUserID();
         // Get all categories from API and add them to the array
         if (checkUserRole() == USER_ACCOUNTANT) {
+			
+            var filters = {};
+            filters[ORDER_FILTER_COST] = {};
+            filters[ORDER_FILTER_COST][ORDER_FILTER_STATUS] = self.priceEnabled();
+            filters[ORDER_FILTER_COST][ORDER_FILTER_MIN] = self.minPrice;
+            filters[ORDER_FILTER_COST][ORDER_FILTER_MAX] = self.maxPrice;
+            
+            filters[ORDER_FILTER_DATE] = {};
+            filters[ORDER_FILTER_DATE][ORDER_FILTER_STATUS] = self.dateEnabled();
+            filters[ORDER_FILTER_DATE][ORDER_FILTER_MIN] = self.minDate();
+            filters[ORDER_FILTER_DATE][ORDER_FILTER_MAX] = self.maxDate();
+            
+            filters[ORDER_FILTER_STATUS] = {};
+            filters[ORDER_FILTER_STATUS][ORDER_FILTER_PENDING] = self.pending();
+            filters[ORDER_FILTER_STATUS][ORDER_FILTER_PICKED] = self.picked();
+            filters[ORDER_FILTER_STATUS][ORDER_FILTER_SHPPED] = self.shipped();
+            filters[ORDER_FILTER_STATUS][ORDER_FILTER_DELIVERED] = self.delivered();
+            var data = {};
+			data['filters'] = filters;
+            console.log(JSON.stringify(data));
+            /**
+             filters{
+             cost:{
+             status: 'T',
+             min: 0,
+             max: 1000
+             },
+             date:{
+             status: 'T',
+             min: '2013-12-12',
+             max: '2013-12-17'
+             },
+             status:{
+             pending: 'T',
+             picked: 'T',
+             shipped: 'F',
+             delivered: 'T'
+             }
+             }
+             */
             getOrders(null).forEach(function (order) {
                 self.ordersArray.push(new orderModel(order));
             });
@@ -431,8 +480,8 @@ function ordersViewModel(params) {
                     $(".orders-filters--pricetext").html("$" + ui.values[0] + " - $" + ui.values[1]);
                 }
             });
-            $("#startdate").datepicker();
-            $("#enddate").datepicker();
+            $("#startdate").datepicker({dateFormat: 'yy-mm-dd'});
+            $("#enddate").datepicker({dateFormat: 'yy-mm-dd'});
         });
         self.loadOrders();
     }();
@@ -608,7 +657,6 @@ function checkUserRole() {
  */
 function getUserModel() {
     var user = {};
-    //	console.log(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_NAME));
     user.name = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_NAME));
     user.email = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_EMAIL));
     user.type = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_USER_TYPE));

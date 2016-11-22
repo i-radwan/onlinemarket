@@ -89,7 +89,7 @@
                 <div class="orders-filters" data-bind="if: checkUserRole() == USER_ACCOUNTANT">
                     <div class="orders-filters--div">
                         <div class="checkbox checkbox-info checkbox-circle">
-                            <input id="checkbox8" class="styled" type="checkbox">
+                            <input id="checkbox8" class="styled" type="checkbox" data-bind="checked: priceEnabled">
                             <label for="checkbox8" class="orders-filters--label">
                                 Cost: 
                             </label>
@@ -100,25 +100,25 @@
                     <div class="orders-filters--div">
                         <div>
                             <div class="checkbox checkbox-info checkbox-circle">
-                                <input id="checkbox1" class="styled" type="checkbox">
+                                <input id="checkbox1" class="styled" type="checkbox" data-bind="checked: pending">
                                 <label for="checkbox1" class="orders-filters--label-small">
                                     Pending 
                                 </label>
                             </div>
                             <div class="checkbox checkbox-info checkbox-circle">
-                                <input id="checkbox2" class="styled" type="checkbox">
+                                <input id="checkbox2" class="styled" type="checkbox" data-bind="checked: picked">
                                 <label for="checkbox2" class="orders-filters--label-small">
                                     Picked 
                                 </label>
                             </div>
                             <div class="checkbox checkbox-info checkbox-circle">
-                                <input id="checkbox3" class="styled" type="checkbox">
+                                <input id="checkbox3" class="styled" type="checkbox" data-bind="checked: shipped">
                                 <label for="checkbox3" class="orders-filters--label-small">
                                     Shipped 
                                 </label>
                             </div>
                             <div class="checkbox checkbox-info checkbox-circle">
-                                <input id="checkbox4" class="styled" type="checkbox">
+                                <input id="checkbox4" class="styled" type="checkbox" data-bind="checked: delivered">
                                 <label for="checkbox4" class="orders-filters--label-small">
                                     Delivered 
                                 </label>
@@ -127,13 +127,15 @@
                     </div>
                     <div class="orders-filters--div">
                         <div class="checkbox checkbox-info checkbox-circle">
-                            <input id="checkbox10" class="styled" type="checkbox">
+                            <input id="checkbox10" class="styled" type="checkbox" data-bind="checked: dateEnabled">
                             <label for="checkbox10" class="orders-filters--label">
                                 Date: 
                             </label>
                         </div>
-                        <input type="text" placeholder="From..." id="startdate" class="orders-filters--datepicker" readonly>
-                        <input type="text" placeholder="...To" id="enddate" class="orders-filters--datepicker" readonly></div>
+                        <input type="text" placeholder="From..." id="startdate" class="orders-filters--datepicker" readonly
+                        data-bind="textInput: minDate">
+                        <input type="text" placeholder="...To" id="enddate" class="orders-filters--datepicker" readonly
+                        data-bind="textInput: maxDate"></div>
                     <div class="orders-filters--div orders-filters--div-small">
                         <button class="orders-filters--filter-button" data-bind="click: loadOrders">Filter</button>
                     </div>

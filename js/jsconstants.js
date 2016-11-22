@@ -68,6 +68,17 @@ const CART_ITEMS_USER_ID = 'user_id';
 const CART_ITEMS_PRODUCT_ID = 'product_id';
 const CART_ITEMS_QUANTITY = 'quantity';
 
+// ORDERS FILTERS CONSTANTS
+const ORDER_FILTER_COST = 'cost';
+const ORDER_FILTER_DATE = 'date';
+const ORDER_FILTER_STATUS = 'status';
+const ORDER_FILTER_MIN = 'min';
+const ORDER_FILTER_MAX = 'max';
+const ORDER_FILTER_PENDING = 'pending';
+const ORDER_FILTER_PICKED = 'picked';
+const ORDER_FILTER_SHPPED = 'shipped';
+const ORDER_FILTER_DELIVERED = 'delivered';
+
 //THE PRODUCT TABLE CONSTANTS (check with abdo)
 const PRODUCT_FLD_ID = '_id';
 /**
