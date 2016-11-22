@@ -69,8 +69,9 @@ $app->get('/orders/[{id}]', function (Request $request, Response $response, $arg
     $sqlOperations = new SQLOperations();
     $id = $args['id'];
     $selectionCols = $request->getParam('fields');
+    $appliedFilters = $request->getParam('filters');
     if (trim($id) != "" && is_numeric($id) || trim($id) == "") { // certain user
-        return $response->withStatus(200)->write($sqlOperations->getAllOrders($selectionCols, trim($id)));
+      return $response->withStatus(200)->write($sqlOperations->getAllOrders($selectionCols, trim($id),$appliedFilters));
     } else {
         return $response->withStatus(404);
     }
@@ -98,11 +99,12 @@ $app->put('/order/{id}', function (Request $request, Response $response, $args) 
     $sqlOperations = new SQLOperations();
     $id = $args['id'];
     $postVars = $request->getParsedBody();
-    $buyerID = $postVars[Constants::ORDERS_BUYER_ID];
-    $cost = $postVars[Constants::ORDERS_COST];
-    $date = $postVars[Constants::ORDERS_DATE];
+    //$buyerID = $postVars[Constants::ORDERS_BUYER_ID];
+    //$cost = $postVars[Constants::ORDERS_COST];
+    //$date = $postVars[Constants::ORDERS_DATE];
     $status = $postVars[Constants::ORDERS_STATUS_ID];
-    return $response->withStatus(200)->write($sqlOperations->updateOrder($id, $buyerID, $cost, $date, $status));
+    //return $response->withStatus(200)->write($sqlOperations->updateOrder($id, $buyerID, $cost, $date, $status));
+    return $response->withStatus(200)->write($sqlOperations->updateOrder($id, $status));
 });
 //Get Order Items
 $app->get('/orderitems/{orderid}/{buyerid}', function (Request $request, Response $response, $args) {
