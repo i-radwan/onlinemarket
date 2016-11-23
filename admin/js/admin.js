@@ -434,28 +434,7 @@ function ordersViewModel(params) {
             filters[ORDER_FILTER_STATUS][ORDER_FILTER_DELIVERED] = self.delivered();
             var data = {};
 			data['filters'] = filters;
-            console.log(JSON.stringify(data));
-            /**
-             filters{
-             cost:{
-             status: 'T',
-             min: 0,
-             max: 1000
-             },
-             date:{
-             status: 'T',
-             min: '2013-12-12',
-             max: '2013-12-17'
-             },
-             status:{
-             pending: 'T',
-             picked: 'T',
-             shipped: 'F',
-             delivered: 'T'
-             }
-             }
-             */
-            getOrders(null).forEach(function (order) {
+            getOrders(JSON.stringify(data)).forEach(function (order) {
                 self.ordersArray.push(new orderModel(order));
             });
         } else if (self.userID != -1 && checkUserRole() == USER_DELIVERYMAN) {
@@ -863,6 +842,7 @@ function getDeliverymanOrders(DeliverymanID) {
  * @returns {Array} user orders
  */
 function getOrders(filters) {
+	// ToDo get orders using filters 
     return [{
             id: 1,
             issuedate: "2016-08-10",
