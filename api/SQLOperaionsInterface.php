@@ -43,4 +43,20 @@ interface SQLOperationsInterface {
     public function getOrderItems($orderID, $buyerID);
 
     public function getDeliveryRequests($deliveryManID);
+    
+    public function addCategory($name);
+    
+    public function deleteCategory($id);
+    
+    public function selectCategory($id);
+    
+    public function updateCategory($id, $name);
+    
+    public function addRate($buyerId, $productId, $rate);
+    
+    public function getAvgRate($productId);
+    
+    public function getProductRate($productId, $buyerId);
+    
+    public function addCategorySpec($categoryId, $name);
 }
