@@ -788,14 +788,12 @@ class SQLOperations implements SQLOperationsInterface {
      * This function Updates one order By taking its attributes 
      * @author AhmedSamir
      * @param int $id the order id
-     * @param int $buyerId the buyer id
-     * @param float $cost the cost
-     * @param date $dueDate the date of the order
-     * @param string @status the status of the order. 
+     * @param int @status the status of the order. 
+     * @param int $userID the current user id (-1 means deliveryman)
      * @return Response with the order contents
      */
     //public function updateOrder($id, $buyerId, $cost, $dueDate, $status) {
-    public function updateOrder($id, $status) {
+    public function updateOrder($id, $status, $userID = -1) {
         //Make text safe
         $id = Utilities::makeInputSafe($id);
         //$buyerId = Utilities::makeInputSafe($buyerId);
@@ -803,28 +801,31 @@ class SQLOperations implements SQLOperationsInterface {
         //$dueDate = Utilities::makeInputSafe($dueDate);
         $status = Utilities::makeInputSafe($status);
         //Check if Order is Found
-        $result = $this->db_link->query('SELECT * FROM ' . Constants::TBL_ORDERS . ' where ' . Constants::ORDERS_ID . ' = ' . $id . ' LIMIT 1');
-        if (!$result->fetch_assoc()) {
-            $theResponse = new Response(Constants::ORDERS_UPDATE_FAILED, array(), "");
-            return json_encode($theResponse);
+        if ($userID != -1) {
+            $result = $this->db_link->query('SELECT * FROM ' . Constants::TBL_ORDERS . ' where ' . Constants::ORDERS_ID . ' = ' . $id . ' AND ' . Constants::ORDERS_BUYER_ID . ' = ' . $userID . ' LIMIT 1');
+        } else {
+            $result = $this->db_link->query('SELECT * FROM ' . Constants::TBL_ORDERS . ' where ' . Constants::ORDERS_ID . ' = ' . $id . ' LIMIT 1');
+        } 
+        
+        if ($result->num_rows == 0) {
+            return $this->returnError(Constants::ORDERS_UPDATE_FAILED, "Please try again later!".$this->db_link->error);
         }
         //Check for empty fields 
         //if (!(is_numeric($status)) || !(is_numeric($buyerId)) || !(is_numeric($cost)) || $dueDate == "") {
         if (!(is_numeric($status))) {
-            $theResponse = new Response(Constants::ORDERS_UPDATE_FAILED, array(), "");
-            return json_encode($theResponse);
+            return $this->returnError(Constants::ORDERS_UPDATE_FAILED, "Please try again later!");
         }
         //Check for any non-logical parameter values
         //if ($buyerId <= 0 || $cost <= 0 || $status < 1 && $status > 5 || !Utilities::validateDate($dueDate)) {
-        if ($status < Constants::PENDING && $status > Constants::DELIVERED) {
-            $theResponse = new Response(Constants::ORDERS_UPDATE_FAILED, array(), "");
-            return json_encode($theResponse);
+        if ($status < Constants::PENDING || $status > Constants::DELIVERED) {
+            return $this->returnError(Constants::ORDERS_UPDATE_FAILED, "Please try again later!");
         }
         //Update the Order
         //$this->db_link->query('UPDATE ' . Constants::TBL_ORDERS . ' set ' . Constants::ORDERS_BUYER_ID . ' = ' . $buyerId . ' , ' . Constants::ORDERS_COST . ' = ' . $cost . ' , ' . Constants::ORDERS_DATE . " = '" . $dueDate . "' , " . Constants::ORDERS_STATUS_ID . ' = ' . $status . ' where ' . Constants::ORDERS_ID . ' = ' . $id);
         $this->db_link->query('UPDATE ' . Constants::TBL_ORDERS . ' set ' . Constants::ORDERS_STATUS_ID . ' = ' . $status . ' where ' . Constants::ORDERS_ID . ' = ' . $id);
-        $theResponse = $this->getOrder($this->db_link->insert_id);
-        return $theResponse;
+
+        $theResponse = new Response(Constants::ORDERS_UPDATE_SUCCESS, "" , "");
+        return (json_encode($theResponse));
     }
 
     /**
@@ -863,7 +864,7 @@ class SQLOperations implements SQLOperationsInterface {
      */
     public function getDeliveryRequests($deliveryManID) {
         $deliveryManID = Utilities::makeInputSafe($deliveryManID);
-        $result = $this->db_link->query("SELECT o.".Constants::ORDERS_ID.", d.".Constants::DELIVERYREQUESTS_DUEDATE.", o.".Constants::ORDERS_COST.", o.".Constants::ORDERS_STATUS_ID.", u.".Constants::USERS_FLD_NAME.", u.".Constants::USERS_FLD_TEL.", b.".Constants::BUYERS_FLD_ADDRESS." FROM ".Constants::TBL_USERS." u, ".Constants::TBL_BUYERS." b, ".Constants::TBL_DELIVERYREQUESTS." d, ".Constants::TBL_ORDERS." o WHERE d.".Constants::DELIVERYREQUESTS_ORDERID."=o.".Constants::ORDERS_ID." AND u.".Constants::USERS_FLD_ID." = o.".Constants::ORDERS_BUYER_ID." AND u.".Constants::USERS_FLD_ID." = b.".Constants::BUYERS_FLD_USER_ID." AND d.".Constants::DELIVERYREQUESTS_DELIVERYMANID." = " . $deliveryManID);
+        $result = $this->db_link->query("SELECT o." . Constants::ORDERS_ID . ", d." . Constants::DELIVERYREQUESTS_DUEDATE . ", o." . Constants::ORDERS_COST . ", o." . Constants::ORDERS_STATUS_ID . ", u." . Constants::USERS_FLD_NAME . ", u." . Constants::USERS_FLD_TEL . ", b." . Constants::BUYERS_FLD_ADDRESS . " FROM " . Constants::TBL_USERS . " u, " . Constants::TBL_BUYERS . " b, " . Constants::TBL_DELIVERYREQUESTS . " d, " . Constants::TBL_ORDERS . " o WHERE d." . Constants::DELIVERYREQUESTS_ORDERID . "=o." . Constants::ORDERS_ID . " AND u." . Constants::USERS_FLD_ID . " = o." . Constants::ORDERS_BUYER_ID . " AND u." . Constants::USERS_FLD_ID . " = b." . Constants::BUYERS_FLD_USER_ID . " AND d." . Constants::DELIVERYREQUESTS_DELIVERYMANID . " = " . $deliveryManID . " AND o." .Constants::ORDERS_STATUS_ID." != " . Constants::ORDER_DELIVERED);
         $ret = array();
         while ($row = $result->fetch_assoc()) {
             array_push($ret, $row);
@@ -871,7 +872,7 @@ class SQLOperations implements SQLOperationsInterface {
         $theResponse = new Response(Constants::DELIVERYREQUESTS_GET_SUCCESSFUL, $ret, "");
         return(json_encode($theResponse));
     }
-
+    
     function __destruct() {
         $this->db_link->close();
     }

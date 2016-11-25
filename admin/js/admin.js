@@ -504,13 +504,13 @@ function ordersViewModel(params) {
 function singleOrderViewModel(params) {
 	var self = this;
 	self.params = params.value;
-
 	self.changeOrderStatus = function (orderStatus) {
-		
-		// update via API ToDO
-		self.params.status(orderStatus);
-		if (orderStatus == ORDER_STATUS_DELIVERED)
-			shouter.notifySubscribers(self.params.id, "removeDeliveredOrder");
+		if (changeOrderStatus(self.params[DELIVERYREQUESTS_ORDER_ID], orderStatus)) {
+			// update via API ToDO
+			self.params[ORDERS_STATUS_ID](orderStatus);
+			if (orderStatus == ORDER_STATUS_DELIVERED)
+				shouter.notifySubscribers(self.params.id, "removeDeliveredOrder");
+		}
 	};
 }
 
@@ -847,6 +847,37 @@ function getAllProducts() {
         }
     ];
 }
+/**
+ * This function changes the status of a order 
+ * @param {int} orderID order id
+ * @param {int} newStatus order new status (as constant)
+ * @returns {Boolean}
+ */
+function changeOrderStatus(orderID, newStatus) {
+	var statusChanged = false;
+	var data = {};
+	data[DELIVERYREQUESTS_STATUS_ID] = newStatus;
+	$.ajax({
+		url: API_LINK + ORDER_ENDPOINT + "/" + orderID,
+		type: 'PUT',
+		async: false,
+		data: data,
+		headers: {
+			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
+		},
+		success: function (result) {
+			console.log(result);
+			var returnedData = JSON.parse(result);
+			if (returnedData.statusCode == ORDERS_UPDATE_SUCCESS) {
+				statusChanged = true;
+			} else {
+				alert(returnedData.errorMsg);
+			}
+		}
+	});
+	return statusChanged;
+}
+
 /**
  * This function returns deliverman orders
  * @param string filters : filters to be applied

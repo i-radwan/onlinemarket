@@ -12,6 +12,7 @@ const CHANGE_USER_STATUS_ENDPOINT = "block";
 const USER_EDIT_ENDPOINT = "edit";
 const USER_CART_ENDPOINT = "cart";
 const ORDERS_ENDPOINT = "orders";
+const ORDER_ENDPOINT = "order";
 const DELIVERYREQUESTS_ENDPOINT = "deliveryrequests";
 
 const OMARKET_PREFIX = "OMarket_";
@@ -94,6 +95,7 @@ const DELIVERYREQUESTS_ORDERID = 'order_id';
 const DELIVERYREQUESTS_DELIVERYMANID = 'deliveryman_id';
 const DELIVERYREQUESTS_DUEDATE = 'duedate';
 const DELIVERYREQUESTS_STATUS_ID = 'status_id';
+const DELIVERYREQUESTS_ORDER_ID = '_id';
 
 //THE PRODUCT TABLE CONSTANTS (check with abdo)
 const PRODUCT_FLD_ID = '_id';

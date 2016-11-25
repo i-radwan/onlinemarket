@@ -250,4 +250,12 @@ class Constants {
     const USER_ACTIVE = "1";
     const USER_BANNED = "2";
 
+    /**
+     * Order status
+     */
+    const ORDER_STATUSES = array("1", "2", "3", "4");
+    const ORDER_PENDING = "1";
+    const ORDER_PICKED = "2";
+    const ORDER_SHIPPED= "3";
+    const ORDER_DELIVERED = "4";
 }

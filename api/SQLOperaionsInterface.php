@@ -38,7 +38,7 @@ interface SQLOperationsInterface {
 
     public function deleteOrder($id);
 
-    public function updateOrder($id, $status);
+    public function updateOrder($id, $status, $userID = -1);
 
     public function getOrderItems($orderID, $buyerID);
 

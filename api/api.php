@@ -219,15 +219,22 @@ $app->post('/order/', function (Request $request, Response $response) {
 });
 //Update Order
 $app->put('/order/{id}', function (Request $request, Response $response, $args) {
-    $sqlOperations = new SQLOperations();
-    $id = $args['id'];
-    $postVars = $request->getParsedBody();
-    //$buyerID = $postVars[Constants::ORDERS_BUYER_ID];
-    //$cost = $postVars[Constants::ORDERS_COST];
-    //$date = $postVars[Constants::ORDERS_DATE];
-    $status = $postVars[Constants::ORDERS_STATUS_ID];
-    //return $response->withStatus(200)->write($sqlOperations->updateOrder($id, $buyerID, $cost, $date, $status));
-    return $response->withStatus(200)->write($sqlOperations->updateOrder($id, $status));
+    if (authUsers([Constants::USER_DELIVERMAN, Constants::USER_BUYER], $request, $response)) {
+        $sqlOperations = new SQLOperations();
+        $userID = -1;
+        $authHeader = $request->getHeader('Authorization');
+        list($jwt) = sscanf($authHeader[0], 'Bearer %s');
+        $data = getTokenData($jwt);
+        if($data[Constants::USERS_FLD_USER_TYPE] == Constants::USER_BUYER){
+            $userID = $data[Constants::USERS_FLD_ID];
+        }
+        $id = $args['id'];
+        $postVars = $request->getParsedBody();
+        $status = $postVars[Constants::ORDERS_STATUS_ID];
+        return $response->withStatus(200)->write($sqlOperations->updateOrder($id, $status, $userID));
+    } else {
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+    }
 });
 //Get Order Items
 $app->get('/orderitems/{orderid}/{buyerid}', function (Request $request, Response $response, $args) {
