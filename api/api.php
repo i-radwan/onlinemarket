@@ -46,7 +46,6 @@ function authUsers($userType, Request $request, Response $response) {
     return false;
 }
 
-
 // For Testing @ToDo To be removed
 $app->get('/hello/{name}', function (Request $request, Response $response) {
     //$name = $request->getAttribute("name");
@@ -178,6 +177,17 @@ $app->delete('/cart/{productID}', function (Request $request, Response $response
         return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
     }
 });
+
+$app->post('/category', function (Request $request, Response $response) {
+    if (authUsers([Constants::USER_ADMIN], $request, $response)) {
+        $sqlOperations = new SQLOperations();
+        $postVars = $request->getParsedBody();
+        $cateName = $postVars[Constants::CATEGORIES_FLD_NAME];
+        return $response->withStatus(200)->write($sqlOperations->addCategory($cateName));
+    } else {
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+    }
+});
 //Get All ORDERS (May be needed for accountant)
 // reponds to both `/orders/` and `/orders/123`
 // but not to `/orders`
@@ -197,7 +207,6 @@ $app->get('/orders/[{id}]', function (Request $request, Response $response, $arg
     }
 });
 
-// Add route callbacks
 //This GET Request takes One ID only and returns the selected Columns about that Order 
 // @ToDo check and test and if not useful remove it 
 $app->get('/order/{id}', function (Request $request, Response $response, $args = []) {
@@ -237,7 +246,7 @@ $app->put('/order/{id}', function (Request $request, Response $response, $args) 
         $authHeader = $request->getHeader('Authorization');
         list($jwt) = sscanf($authHeader[0], 'Bearer %s');
         $data = getTokenData($jwt);
-        if($data[Constants::USERS_FLD_USER_TYPE] == Constants::USER_BUYER){
+        if ($data[Constants::USERS_FLD_USER_TYPE] == Constants::USER_BUYER) {
             $userID = $data[Constants::USERS_FLD_ID];
         }
         $id = $args['id'];

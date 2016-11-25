@@ -250,12 +250,15 @@ function categoriesViewModel(params) {
 			}
 		});
 		if (isUnique) {
-			// ToDo insert using API, get id, add to array
-			self.categoriesArray.push(new categoryModel({
-				id: 20,
-				name: self.newCategoryName().trim()
-			}));
-			self.newCategoryName("");
+			var newID = addCategory(self.newCategoryName().trim());
+			if (newID > 0) {
+				// ToDo insert using API, get id, add to array
+				self.categoriesArray.push(new categoryModel({
+					id: newID,
+					name: self.newCategoryName().trim()
+				}));
+				self.newCategoryName("");
+			}
 		} else {
 			alert("Please choose different unique name!");
 		}
@@ -858,7 +861,7 @@ function changeOrderStatus(orderID, newStatus) {
 	var data = {};
 	data[DELIVERYREQUESTS_STATUS_ID] = newStatus;
 	$.ajax({
-		url: API_LINK + ORDER_ENDPOINT + "/" + orderID,
+		url: API_LINK + CATEGORY_ENDPOINT + "/" + orderID,
 		type: 'PUT',
 		async: false,
 		data: data,
@@ -1083,6 +1086,37 @@ function editEmployee(userID, email, pass) {
 	});
 	return edited;
 }
+
+/**
+ * This function adds category to db
+ * @param   {string}  name new category name
+ * @returns {int} new category ID, -1 if operation failed
+ */
+function addCategory(name) {
+	var newID = -1;
+	var data = {};
+	data[CATEGORIES_FLD_NAME] = name;
+	$.ajax({
+		url: API_LINK + CATEGORY_ENDPOINT,
+		type: 'POST',
+		async: false,
+		data: data,
+		headers: {
+			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
+		},
+		success: function (result) {
+			console.log(result);
+			var returnedData = JSON.parse(result);
+			if (returnedData.statusCode == CATEGORY_ADD_SUCCESS) {
+				newID = returnedData.result;
+			} else {
+				alert(returnedData.errorMsg);
+			}
+		}
+	});
+	return newID;
+}
+
 
 function getCategorySpecs(cateID) {
 	return [{
