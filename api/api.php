@@ -178,6 +178,15 @@ $app->delete('/cart/{productID}', function (Request $request, Response $response
     }
 });
 
+$app->delete('/category/{categoryID}', function (Request $request, Response $response) {
+    if (authUsers([Constants::USER_ADMIN], $request, $response)) {
+        $sqlOperations = new SQLOperations();
+        return $response->withStatus(200)->write($sqlOperations->deleteCategory($request->getAttribute('categoryID')));
+    } else {
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+    }
+});
+
 $app->post('/category', function (Request $request, Response $response) {
     if (authUsers([Constants::USER_ADMIN], $request, $response)) {
         $sqlOperations = new SQLOperations();
@@ -187,6 +196,21 @@ $app->post('/category', function (Request $request, Response $response) {
     } else {
         return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
     }
+});
+$app->put('/category', function (Request $request, Response $response) {
+    if (authUsers([Constants::USER_ADMIN], $request, $response)) {
+        $sqlOperations = new SQLOperations();
+        $putVars = $request->getParsedBody();
+        $cateID = $putVars[Constants::CATEGORIES_FLD_ID];
+        $newCateName = $putVars[Constants::CATEGORIES_FLD_NAME];
+        return $response->withStatus(200)->write($sqlOperations->updateCategory($cateID, $newCateName));
+    } else {
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+    }
+});
+$app->get('/category', function (Request $request, Response $response) {
+        $sqlOperations = new SQLOperations();
+        return $response->withStatus(200)->write($sqlOperations->getAllCategories());
 });
 //Get All ORDERS (May be needed for accountant)
 // reponds to both `/orders/` and `/orders/123`

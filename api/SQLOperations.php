@@ -944,18 +944,19 @@ class SQLOperations implements SQLOperationsInterface {
      * This function deletes category
      * @parm integer $id
      * @return response success if deleted
+     * @checkedByIAR
      */
     public function deleteCategory($id) {
         $id = Utilities::makeInputSafe($id);
-        if (strlen(trim($id)) != 0) {
+        if (strlen($id) != 0) {
             //checking if there is a prodcut using that category's id
             $check = $this->db_link->query("SELECT * FROM `" . Constants::TBL_PRODUCTS . "` WHERE " . Constants::PRODUCTS_FLD_CATEGORY_ID . " ='$id'");
             if ($check->num_rows == 0) {
-                if (!$result = $this->db_link->query("DELETE FROM `" . Constants::TBL_CATEGORIES . "` WHERE `" . Constants::CATEGORIES_FLD_USER_ID . "` = '$id' LIMIT 1")) {
+                if (!$result = $this->db_link->query("DELETE FROM `" . Constants::TBL_CATEGORIES . "` WHERE `" . Constants::CATEGORIES_FLD_ID . "` = '$id' LIMIT 1")) {
                     return $this->returnError(Constants::CATEGORY_DELETE_FAILED, "Please try again later!");
                 } else {
                     // successul response
-                    $theResponse = new Response(Constants::CATEGORY_DELETE_SUCCESS, array(), "");
+                    $theResponse = new Response(Constants::CATEGORY_DELETE_SUCCESS, "DELETE FROM `" . Constants::TBL_CATEGORIES . "` WHERE `" . Constants::CATEGORIES_FLD_ID . "` = '$id' LIMIT 1", "");
                     return(json_encode($theResponse));
                 }
             } else {
@@ -975,7 +976,7 @@ class SQLOperations implements SQLOperationsInterface {
         if (strlen(trim($id)) != 0) {
             $id = Utilities::makeInputSafe($id);
 
-            if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_CATEGORIES . "` WHERE `" . Constants::CATEGORIES_FLD_USER_ID . "` = '$id' LIMIT 1")) {
+            if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_CATEGORIES . "` WHERE `" . Constants::CATEGORIES_FLD_ID . "` = '$id' LIMIT 1")) {
                 return $this->returnError(Constants::CATEGORY_SELECT_FAILED, "Please try again later!");
             }
             if ($result->num_rows == 1) {
@@ -996,36 +997,56 @@ class SQLOperations implements SQLOperationsInterface {
      * This function updates category
      * @parm integer $id, string $name
      * @return response
+     * @checkedByIAR
      */
     public function updateCategory($id, $name) {
-        if ((strlen(trim($id)) != 0) && (strlen(trim($name)) != 0)) {
-            $name = Utilities::makeInputSafe($name);
-            $id = Utilities::makeInputSafe($id);
+        $name = Utilities::makeInputSafe($name);
+        $id = Utilities::makeInputSafe($id);
 
+        if ((strlen($id) != 0) && (strlen($name) != 0)) {
 
-            if (!($result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_CATEGORIES . "` WHERE `" . Constants::CATEGORIES_FLD_USER_ID . "`=" . $id))) {
+            if (!($result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_CATEGORIES . "` WHERE `" . Constants::CATEGORIES_FLD_ID . "`=" . $id))) {
                 return $this->returnError(Constants::CATEGORY_UPDATE_FAILED, "Please try again later!");
             }
 
             if ($result->num_rows == 1) {
                 //check if name is repeated
-                if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_CATEGORIES . "` WHERE `" . Constants::CATEGORIES_FLD_NAME . "` = '$name' LIMIT 1")) {
+                if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_CATEGORIES . "` WHERE `" . Constants::CATEGORIES_FLD_NAME . "` = '$name' AND  `".Constants::CATEGORIES_FLD_ID."` != $id LIMIT 1")) {
                     return $this->returnError(Constants::CATEGORY_INSERT_FAILED, "Please try again later!");
                 }
                 if ($result->num_rows == 1) {
                     return $this->returnError(Constants::CATEGORY_NAME_REPETION, "Category's name already exists,Please enter another name.");
                 } else {
-
-                    $this->db_link->query("  UPDATE `" . Constants::TBL_CATEGORIES . "` SET `" . Constants::CATEGORIES_FLD_NAME . "` = '$name' " . "WHERE `" . Constants::TBL_CATEGORIES . "`.`" . Constants::CATEGORIES_FLD_USER_ID . "` = $id");
-                    $theResponse = new Response(Constants::CATEGORY_UPDATE_SUCCESS, array(), "");
+                    $this->db_link->query("UPDATE `" . Constants::TBL_CATEGORIES . "` SET `" . Constants::CATEGORIES_FLD_NAME . "` = '$name' " . "WHERE `" . Constants::TBL_CATEGORIES . "`.`" . Constants::CATEGORIES_FLD_ID . "` = $id");
+                    $theResponse = new Response(Constants::CATEGORY_UPDATE_SUCCESS,"UPDATE `" . Constants::TBL_CATEGORIES . "` SET `" . Constants::CATEGORIES_FLD_NAME . "` = '$name' " . "WHERE `" . Constants::TBL_CATEGORIES . "`.`" . Constants::CATEGORIES_FLD_ID . "` = $id", "");
                     return(json_encode($theResponse));
                 }
+            } else {
+                return $this->returnError(Constants::CATEGORY_UPDATE_FAILED, "Please try again later!");
             }
         } else {
             return $this->returnError(Constants::CATEGORY_EMPTY_DATA, "All fields are required!");
         }
     }
 
+    
+    /**
+     * This function gets all categories
+     * @return response with array 
+     */
+    public function getAllCategories() {
+        if (!$result = $this->db_link->query('SELECT * FROM `' . Constants::TBL_CATEGORIES . '`')) {
+            return returnError(Constants::CATEGORY_GET_ALL_CATEGORIES_FAILED, "Please try again later!");
+        } else {
+            $ret = array();
+            while ($row = $result->fetch_assoc()) {
+                array_push($ret, $row);
+            }
+            $theResponse = new Response(Constants::CATEGORY_GET_ALL_CATEGORIES_SUCCESS, $ret, ""); //tp do constants
+            return(json_encode($theResponse));
+        }
+    }
+    
     /**
      * This function adds non existed rate or updates existed rate
      * @parm integer $buyerId, integer $productId, float $rate
@@ -1165,7 +1186,7 @@ class SQLOperations implements SQLOperationsInterface {
             $name = Utilities::makeInputSafe($name);
             $categoryId = Utilities::makeInputSafe($categoryId);
             //check if cat id exists 
-            if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_CATEGORIES . "` WHERE `" . Constants::CATEGORIES_FLD_USER_ID . "` = '$categoryId' LIMIT 1")) {
+            if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_CATEGORIES . "` WHERE `" . Constants::CATEGORIES_FLD_ID . "` = '$categoryId' LIMIT 1")) {
                 return $this->returnError(Constants::CATEGORY_SPECS_INSERT_FAILED, "Please try again later!");
             }
             //check if name is repeated

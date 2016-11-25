@@ -832,73 +832,25 @@ function getUserOrders() {
  * @returns {Array} Categories array -> contains categories objects
  */
 function getCategoriesArray() {
-	//dummy data till the API is ready
-	return [
-		{
-			id: 1,
-			name: "Computers, IT & Networking"
-        },
-		{
-			id: 2,
-			name: "Mobile Phones, Tablets & Accessories"
-        },
-		{
-			id: 3,
-			name: "Car Electronics & Accessories"
-        },
-		{
-			id: 4,
-			name: "Books"
-        },
-		{
-			id: 5,
-			name: "Gaming"
-        },
-		{
-			id: 6,
-			name: "Electronic"
-        },
-		{
-			id: 7,
-			name: "Sports & Fitness"
-        },
-		{
-			id: 8,
-			name: "Perfumes & Fragrances"
-        },
-		{
-			id: 9,
-			name: "Health & Personal Care"
-        },
-		{
-			id: 10,
-			name: "Furniture"
-        },
-		{
-			id: 11,
-			name: "Apparel, Shoes & Accessories"
-        },
-		{
-			id: 12,
-			name: "Appliances"
-        },
-		{
-			id: 13,
-			name: "Art, Crafts & Collectables"
-        },
-		{
-			id: 14,
-			name: "Baby"
-        },
-		{
-			id: 15,
-			name: "Kitchen & Home Supplies"
-        },
-		{
-			id: 16,
-			name: "Toys"
-        }
-    ];
+	var ret = [];
+	$.ajax({
+		url: API_LINK + CATEGORY_ENDPOINT,
+		type: 'GET',
+		async: false,
+		headers: {
+			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
+		},
+		success: function (result) {
+			console.log(result);
+			var returnedData = JSON.parse(result);
+			if (returnedData.statusCode == CATEGORY_GET_ALL_CATEGORIES_SUCCESS) {
+				ret = returnedData.result;
+			} else {
+				alert(returnedData.errorMsg);
+			}
+		}
+	});
+	return ret;
 }
 /**
  * This function gets the top categories from the server

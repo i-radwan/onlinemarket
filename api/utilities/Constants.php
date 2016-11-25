@@ -57,6 +57,8 @@ class Constants {
     const CATEGORY_SELECT_SUCCESS = 39;
     const CATEGORY_UPDATE_SUCCESS = 301;
     const CATEGORY_DELETE_FAILED_FOREIGNKEY = 302;
+    const CATEGORY_GET_ALL_CATEGORIES_SUCCESS = 303;
+    const CATEGORY_GET_ALL_CATEGORIES_FAILED = 304;
 
     /**
      * OrderItems operation functions (5x) constants
@@ -208,7 +210,7 @@ class Constants {
     //THE CATEGORIES TABLE CONSTANTS
     const TBL_CATEGORIES = 'categories';
     const CATEGORIES_FLD_NAME = 'name';
-    const CATEGORIES_FLD_USER_ID = '_id';
+    const CATEGORIES_FLD_ID = '_id';
     //==================================
     //THE RATE TABLE CONSTANTS
     const TBL_RATE = 'rates';

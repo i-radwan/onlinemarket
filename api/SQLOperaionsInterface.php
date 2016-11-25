@@ -52,6 +52,8 @@ interface SQLOperationsInterface {
     
     public function updateCategory($id, $name);
     
+    public function getAllCategories();
+    
     public function addRate($buyerId, $productId, $rate);
     
     public function getAvgRate($productId);

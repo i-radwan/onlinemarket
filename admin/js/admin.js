@@ -40,8 +40,8 @@ function productModel(product) {
 
 function categoryModel(category) {
 	var self = this;
-	self.id = category.id;
-	self.name = ko.observable(category.name);
+	self[CATEGORIES_FLD_ID] = category[CATEGORIES_FLD_ID];
+	self[CATEGORIES_FLD_NAME] = ko.observable(category[CATEGORIES_FLD_NAME]);
 	self.tmpName = ko.observable(category.name);
 	self.editMode = ko.observable(false);
 }
@@ -234,8 +234,8 @@ function categoriesViewModel(params) {
 
 	self.removeCategory = function (item, event) {
 		if (confirm("Are you sure?")) {
-			// ToDo call API to delete category first, and check if it has no products
-			self.categoriesArray.remove(item.params);
+			if (deleteCategory(item.params[CATEGORIES_FLD_ID]))
+				self.categoriesArray.remove(item.params);
 		}
 	}
 	self.addNewCategory = function () {
@@ -252,11 +252,11 @@ function categoriesViewModel(params) {
 		if (isUnique) {
 			var newID = addCategory(self.newCategoryName().trim());
 			if (newID > 0) {
-				// ToDo insert using API, get id, add to array
-				self.categoriesArray.push(new categoryModel({
-					id: newID,
-					name: self.newCategoryName().trim()
-				}));
+				var categorymodel = {};
+				categorymodel[CATEGORIES_FLD_ID] = newID;
+				categorymodel[CATEGORIES_FLD_NAME] = self.newCategoryName().trim();
+
+				self.categoriesArray.push(new categoryModel(categorymodel));
 				self.newCategoryName("");
 			}
 		} else {
@@ -272,16 +272,17 @@ function singleCategoryViewModel(params) {
 	self.init = function () {}();
 	self.save = function (item, event) {
 		if (item.params.tmpName().trim().length > 0) {
-			// ToDo: trim, call API to update categoryName
 			var isUnique = true;
 			ko.utils.arrayForEach(self.parent.categoriesArray(), function (category, index) {
-				if (category.name().trim() == item.params.tmpName().trim() && (category != item.params)) {
+				if (category[CATEGORIES_FLD_NAME]().trim() == item.params.tmpName().trim() && (category != item.params)) {
 					isUnique = false;
 				}
 			});
 			if (isUnique) {
-				item.params.name(item.params.tmpName().trim());
-				item.params.editMode(false);
+				if (editCategory(item.params[CATEGORIES_FLD_ID], item.params.tmpName())) {
+					item.params[CATEGORIES_FLD_NAME](item.params.tmpName().trim());
+					item.params.editMode(false);
+				}
 			} else {
 				alert("Please choose different unique name!");
 			}
@@ -861,7 +862,7 @@ function changeOrderStatus(orderID, newStatus) {
 	var data = {};
 	data[DELIVERYREQUESTS_STATUS_ID] = newStatus;
 	$.ajax({
-		url: API_LINK + CATEGORY_ENDPOINT + "/" + orderID,
+		url: API_LINK + ORDER_ENDPOINT + "/" + orderID,
 		type: 'PUT',
 		async: false,
 		data: data,
@@ -1105,7 +1106,6 @@ function addCategory(name) {
 			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
 		},
 		success: function (result) {
-			console.log(result);
 			var returnedData = JSON.parse(result);
 			if (returnedData.statusCode == CATEGORY_ADD_SUCCESS) {
 				newID = returnedData.result;
@@ -1117,6 +1117,63 @@ function addCategory(name) {
 	return newID;
 }
 
+/**
+ * This function updates category name
+ * @param   {int}  id  category id
+ * @param   {string}  name new category name
+ * @returns {boolean} true if updated
+ */
+function editCategory(id, name) {
+	var updated = false;
+	var data = {};
+	data[CATEGORIES_FLD_NAME] = name;
+	data[CATEGORIES_FLD_ID] = id;
+	$.ajax({
+		url: API_LINK + CATEGORY_ENDPOINT,
+		type: 'PUT',
+		async: false,
+		data: data,
+		headers: {
+			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
+		},
+		success: function (result) {
+			var returnedData = JSON.parse(result);
+			if (returnedData.statusCode == CATEGORY_UPDATE_SUCCESS) {
+				updated = true;
+			} else {
+				alert(returnedData.errorMsg);
+			}
+		}
+	});
+	return updated;
+}
+
+
+/**
+ * This function deletes category with its ID
+ * @param   {number}  cateID Category ID
+ * @returns {boolean} True if deleted successfully
+ */
+function deleteCategory(cateID) {
+	var deleted = false;
+	$.ajax({
+		url: API_LINK + CATEGORY_ENDPOINT + "/" + cateID,
+		type: 'DELETE',
+		async: false,
+		headers: {
+			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
+		},
+		success: function (result) {
+			var returnedData = JSON.parse(result);
+			if (returnedData.statusCode == CATEGORY_DELETE_SUCCESS) {
+				deleted = true;
+			} else {
+				alert(returnedData.errorMsg);
+			}
+		}
+	});
+	return deleted;
+}
 
 function getCategorySpecs(cateID) {
 	return [{
@@ -1141,71 +1198,23 @@ function getCategorySpecs(cateID) {
  * @returns {Array} Categories array -> contains categories objects
  */
 function getCategoriesArray() {
-	//dummy data till the API is ready
-	return [
-		{
-			id: 1,
-			name: "Computers, IT & Networking"
-        },
-		{
-			id: 2,
-			name: "Mobile Phones, Tablets & Accessories"
-        },
-		{
-			id: 3,
-			name: "Car Electronics & Accessories"
-        },
-		{
-			id: 4,
-			name: "Books"
-        },
-		{
-			id: 5,
-			name: "Gaming"
-        },
-		{
-			id: 6,
-			name: "Electronic"
-        },
-		{
-			id: 7,
-			name: "Sports & Fitness"
-        },
-		{
-			id: 8,
-			name: "Perfumes & Fragrances"
-        },
-		{
-			id: 9,
-			name: "Health & Personal Care"
-        },
-		{
-			id: 10,
-			name: "Furniture"
-        },
-		{
-			id: 11,
-			name: "Apparel, Shoes & Accessories"
-        },
-		{
-			id: 12,
-			name: "Appliances"
-        },
-		{
-			id: 13,
-			name: "Art, Crafts & Collectables"
-        },
-		{
-			id: 14,
-			name: "Baby"
-        },
-		{
-			id: 15,
-			name: "Kitchen & Home Supplies"
-        },
-		{
-			id: 16,
-			name: "Toys"
-        }
-    ];
+	var ret = [];
+	$.ajax({
+		url: API_LINK + CATEGORY_ENDPOINT,
+		type: 'GET',
+		async: false,
+		headers: {
+			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
+		},
+		success: function (result) {
+			console.log(result);
+			var returnedData = JSON.parse(result);
+			if (returnedData.statusCode == CATEGORY_GET_ALL_CATEGORIES_SUCCESS) {
+				ret = returnedData.result;
+			} else {
+				alert(returnedData.errorMsg);
+			}
+		}
+	});
+	return ret;
 }
