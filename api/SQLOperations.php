@@ -876,7 +876,7 @@ class SQLOperations implements SQLOperationsInterface {
             //Order is found and is associated with this buyer , Therefore go and get its items.
             $ret = array();
             $query = $this->db_link->query('SELECT * FROM ' . Constants::TBL_ORDERITEMS . ' where ' . Constants::ORDERITEMS_ORDERID . ' = ' . $orderID);
-            while ($item = $query->fetch_assoc()) {
+            while ($item = $query->fetch_assoc()) { // @ToDo I don't want the order items themselves only, I need them along side with products so please check with abdo to get the products and add the quantity to the returning array
                 array_push($ret, $item);
             }
             $theResponse = new Response(Constants::ORDERITEMS_GET_SUCCESSFUL, $ret, "");
