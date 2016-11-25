@@ -30,8 +30,7 @@ interface SQLOperationsInterface {
 
     function decreaseProductFromCart($productID, $userID);
     
-    
-    public function getAllOrders($selectionCols, $userID = "");
+    public function getAllOrders($selectionCols, $userID = "", $appliedFilters);
 
     public function getOrder($id, $selectionCols);
 
@@ -39,9 +38,25 @@ interface SQLOperationsInterface {
 
     public function deleteOrder($id);
 
-    public function updateOrder($id, $buyerId, $cost, $date, $status);
+    public function updateOrder($id, $status);
 
     public function getOrderItems($orderID, $buyerID);
 
     public function getDeliveryRequests($deliveryManID);
+    
+    public function addCategory($name);
+    
+    public function deleteCategory($id);
+    
+    public function selectCategory($id);
+    
+    public function updateCategory($id, $name);
+    
+    public function addRate($buyerId, $productId, $rate);
+    
+    public function getAvgRate($productId);
+    
+    public function getProductRate($productId, $buyerId);
+    
+    public function addCategorySpec($categoryId, $name);
 }

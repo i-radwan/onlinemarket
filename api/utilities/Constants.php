@@ -43,6 +43,22 @@ class Constants {
     const ORDERS_UPDATE_FAILED = 47;
 
     /**
+     * Category operation functions (3x) constants
+     */
+    const CATEGORY_INSERT_FAILED = 30;
+    const CATEGORY_NAME_REPETION = 31;
+    const CATEGORY_ADD_SUCCESS = 32;
+    const CATEGORY_DELETE_SUCCESS = 33;
+    const CATEGORY_EMPTY_DATA = 34;
+    const CATEGORY_DELETE_FAILED = 35;
+    const CATEGORY_INVALID_ID = 36;
+    const CATEGORY_SELECT_FAILED = 37;
+    const CATEGORY_UPDATE_FAILED = 38;
+    const CATEGORY_SELECT_SUCCESS = 39;
+    const CATEGORY_UPDATE_SUCCESS = 301;
+    const CATEGORY_DELETE_FAILED_FOREIGNKEY = 302;
+
+    /**
      * OrderItems operation functions (5x) constants
      */
     const ORDERITEMS_GET_SUCCESSFUL = 50;
@@ -53,6 +69,22 @@ class Constants {
      */
     const DELIVERYREQUESTS_GET_SUCCESSFUL = 60;
     const DELIVERYREQUESTS_GET_FAILED = 61;
+
+    /**
+     * Rates operation functions (7x) constants
+     */
+    const RATE_INSERT_FAILED = 70;
+    const RATE_INSERT_SUCCESS = 71;
+    const RATE_AVGERAGE_FAILED = 72;
+    const RATE_AVERAGE_SUCCESS = 73;
+    const RATE_AVERAGE_INVALID_PRODUCT = 74;
+    const RATE_AVERAGE_EMPTY_DATA = 75;
+    const RATE_GET_INVALID_PRODUCT = 76;
+    const RATE_GET_EMPTY_DATA = 77;
+    const RATE_GET_INVALID_BUYER = 78;
+    const RATE_GET_SUCCESS = 79;
+    const RATE_GET_FAILED = 700;
+    const RATE_UPDATE_SUCCESS = 701;
 
     /**
      * User operations constants
@@ -165,12 +197,41 @@ class Constants {
     //==================================
     //THE PRODUCTS (Check with abdo)
     const TBL_PRODUCTS = "products";
-    const PRODUCTS_FLD_ID = "_id";
+    const PRODUCTS_FLD_ID = "_id"; //const PRODUCTS_FLD_USER_ID = '_id';
     const PRODUCTS_FLD_AVA_QUANTITY = "available_quantity";
     const PRODUCTS_FLD_AVA_STATUS = "availability_id";
     const PRODUCT_AVAILABLE = "1"; // Relative to DB
-    const PRODUCT_INAVAILABLE = "2"; // Relative to DB
+    const PRODUCT_INAVAILABLE = "2"; // Relative to DB'
+    const PRODUCTS_FLD_CATEGORY_ID = 'category_id';
+    const PRODUCTS_FLD_RATE = 'rate';
     //==================================
+    //THE CATEGORIES TABLE CONSTANTS
+    const TBL_CATEGORIES = 'categories';
+    const CATEGORIES_FLD_NAME = 'name';
+    const CATEGORIES_FLD_USER_ID = '_id';
+    //==================================
+    //THE RATE TABLE CONSTANTS
+    const TBL_RATE = 'rates';
+    const RATE_FLD_PRODUCT_ID = 'product_id';
+    const RATE_FLD_RATE = 'rate';
+    //==================================
+    //THE PRODUCT SPEC TABLE CONSTANTS
+    const TBL_PRODUCT_SPEC = 'product_spec';
+    const PRODUCT_SPEC_FLD_PRODUCT_ID = 'product_id';
+    const PRODUCT_SPEC_FLD_CAT_ID = 'categories_spec_id';
+    const PRODUCT_SPEC_FLD_VALUE = 'value';
+    //==================================
+    //THE CATEGORIES SPEC TABLE CONSTANTS
+    const TBL_CATEGORIES_SPEC = 'categories_spec';
+    const CATEGORIES_SPEC_FLD_NAME = 'name';
+    const CATEGORIES_SPEC_FLD_CATID = 'category_id';
+    const CATEGORIES_SPEC_FLD_ID = '_id';
+    //Status CONSTANTS
+    const PENDING = 1;
+    const PICKED = 2;
+    const SHIPPED = 3;
+    const DELIVERED = 4;
+
     /**
      * User types (related to db)
      * Some checks in the code (signup function) depends on these values
