@@ -19,6 +19,13 @@ function getTokenData($jwt) {
     return ((array) $token->data);
 }
 
+/**
+ * This function is used to authenticate user and check its role to match the given array
+ * @param array $userType array of allowed user_roles constants
+ * @param Request $request
+ * @param Response $response
+ * @return boolean true if authorized 
+ */
 function authUsers($userType, Request $request, Response $response) {
     $authHeader = $request->getHeader('Authorization');
     list($jwt) = sscanf($authHeader[0], 'Bearer %s');
@@ -39,6 +46,8 @@ function authUsers($userType, Request $request, Response $response) {
     return false;
 }
 
+
+// For Testing @ToDo To be removed
 $app->get('/hello/{name}', function (Request $request, Response $response) {
     //$name = $request->getAttribute("name");
     //echo "Hello, $name";
@@ -190,6 +199,7 @@ $app->get('/orders/[{id}]', function (Request $request, Response $response, $arg
 
 // Add route callbacks
 //This GET Request takes One ID only and returns the selected Columns about that Order 
+// @ToDo check and test and if not useful remove it 
 $app->get('/order/{id}', function (Request $request, Response $response, $args = []) {
     $sqlOperations = new SQLOperations();
     $id = $request->getAttribute('id');
@@ -199,7 +209,8 @@ $app->get('/order/{id}', function (Request $request, Response $response, $args =
     return $response->withStatus(200)->write($sqlOperations->getOrder($id, $selectionCols));
 });
 
-//Delete Certain Order by the ID (Semi Finished) (Middleware Authorization)/ WithStatus 401 / Retuen respone 
+//Delete Certain Order by the ID (Semi Finished) (Middleware Authorization)/ WithStatus 401 / Retuen respone
+// @ToDo authenticate and let users only delete their only orders
 $app->delete('/order/{id}', function (Request $request, Response $response, $args) {
     //middleware (authorization)
     //with status (401) Error
@@ -208,6 +219,7 @@ $app->delete('/order/{id}', function (Request $request, Response $response, $arg
     return $response->withStatus(200)->write($sqlOperations->deleteOrder($id));
 });
 //Add Order
+// @ToDo check and test
 $app->post('/order/', function (Request $request, Response $response) {
     $sqlOperations = new SQLOperations();
     $postVars = $request->getParsedBody();
@@ -237,6 +249,7 @@ $app->put('/order/{id}', function (Request $request, Response $response, $args) 
     }
 });
 //Get Order Items
+// @ToDo check if working, get user id from jwt
 $app->get('/orderitems/{orderid}/{buyerid}', function (Request $request, Response $response, $args) {
     $sqlOperations = new SQLOperations();
     $orderID = $request->getAttribute('orderid');
