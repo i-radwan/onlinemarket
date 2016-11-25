@@ -211,7 +211,7 @@ $app->delete('/order/{id}', function (Request $request, Response $response, $arg
 $app->post('/order/', function (Request $request, Response $response) {
     $sqlOperations = new SQLOperations();
     $postVars = $request->getParsedBody();
-    $buyerID = $postVars[Constants::ORDERS_BUYER_ID];
+    $buyerID = $postVars[Constants::ORDERS_BUYER_ID]; // @IAR @ToDo get id from jwt
     $cost = $postVars[Constants::ORDERS_COST];
     $date = $postVars[Constants::ORDERS_DATE];
     $status = $postVars[Constants::ORDERS_STATUS_ID];

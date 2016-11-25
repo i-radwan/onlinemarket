@@ -42,6 +42,7 @@ class SQLOperations implements SQLOperationsInterface {
      * @param string $tel
      * @param object $extraData
      * @return object user details object, or error object in case anything went wrong
+     * @checkedByIAR
      */
     public function signUpUser($email, $pass1, $pass2, $role, $name, $tel, $extraData) {
         // 0. Check if non-empty data
@@ -166,6 +167,7 @@ class SQLOperations implements SQLOperationsInterface {
      * @param email $email user's email
      * @param string $pass user's password
      * @return object user details object, or error object in case anything went wrong
+     * @checkedByIAR
      */
     public function login($email, $pass) {
         // Check if not empty data
@@ -209,6 +211,7 @@ class SQLOperations implements SQLOperationsInterface {
      * This function generates JWT for the user
      * @param array $row the user row from DB
      * @return string jwt
+     * @checkedByIAR
      */
     function generateUserToken($row) {
         $tokenId = base64_encode(openssl_random_pseudo_bytes(64));
@@ -241,6 +244,7 @@ class SQLOperations implements SQLOperationsInterface {
      * This function generates user model given the db row
      * @param array $row user db row array
      * @return object userModel generated from db row
+     * @checkedByIAR
      */
     function generateUserModel($row) {
         $userType = $row[Constants::USERS_FLD_USER_TYPE];
@@ -283,6 +287,7 @@ class SQLOperations implements SQLOperationsInterface {
      * This function refreshes the user hash in db on successful login
      * @param array $row user db row
      * @param string $pass user entered password
+     * @checkedByIAR
      */
     function refreshUserHash($row, $pass) {
         $_id = $row[Constants::USERS_FLD_ID];
@@ -297,6 +302,7 @@ class SQLOperations implements SQLOperationsInterface {
      * @param type $userType user type 
      * @param type $userNewData user new data object from request
      * @return object the result
+     * @checkedByIAR
      */
     function editAccount($userID, $userType, $userNewData) {
 
@@ -369,6 +375,7 @@ class SQLOperations implements SQLOperationsInterface {
      * This function edits the specified user data
      * @param type $data new user's data object
      * @return type response object
+     * @checkedByIAR
      */
     function editEmpAccount($data) {
         $email = Utilities::makeInputSafe($data[Constants::USERS_FLD_EMAIL]);
@@ -411,6 +418,7 @@ class SQLOperations implements SQLOperationsInterface {
      * This function returns all the users with a specific type
      * @param int $userType user type to retrieve
      * @return array array of users
+     * @checkedByIAR
      */
     function getUsersUsingType($userType) {
         $userType = Utilities::makeInputSafe($userType);
@@ -433,6 +441,7 @@ class SQLOperations implements SQLOperationsInterface {
      * @param int $userID
      * @param int $newStatus user new status
      * @return object status code, msg
+     * @checkedByIAR
      */
     function changeUserStatus($userID, $newStatus) {
         $userID = Utilities::makeInputSafe($userID);
@@ -453,6 +462,7 @@ class SQLOperations implements SQLOperationsInterface {
      * This function deletes specific user
      * @param int $userID
      * @return object status code, result 
+     * @checkedByIAR
      */
     function deleteUser($userID) {
         $userID = Utilities::makeInputSafe($userID);
@@ -472,6 +482,7 @@ class SQLOperations implements SQLOperationsInterface {
      * @param string $pass1 emp password 
      * @param string $pass2 emp password again
      * @param int $empType emp type (Accountant, Deliveryman)
+     * @checkedByIAR
      */
     function addEmployee($data) {
         $email = Utilities::makeInputSafe($data[Constants::USERS_FLD_EMAIL]);
@@ -516,6 +527,7 @@ class SQLOperations implements SQLOperationsInterface {
      * @param type $productId the product id to be added to cart
      * @param type $userID the user id 
      * @return response object with cart item ID
+     * @checkedByIAR
      */
     function addProductToCart($productId, $userID) {
         $productId = Utilities::makeInputSafe($productId);
@@ -573,6 +585,7 @@ class SQLOperations implements SQLOperationsInterface {
      * @param type $productId the product id to be removed from the cart
      * @param type $userID the user id 
      * @return response object status object
+     * @checkedByIAR
      */
     function removeProductFromCart($productID, $userID) {
         $productId = Utilities::makeInputSafe($productID);
@@ -604,6 +617,7 @@ class SQLOperations implements SQLOperationsInterface {
      * @param type $productId the product id to be removed from the cart
      * @param type $userID the user id 
      * @return response object status object
+     * @checkedByIAR
      */
     function decreaseProductFromCart($productID, $userID) {
         $productId = Utilities::makeInputSafe($productID);
@@ -633,6 +647,7 @@ class SQLOperations implements SQLOperationsInterface {
      * @param type $column column to check id against it
      * @param type $tbl table to delete record form it
      * @return string the json encoded error
+     * @checkedByIAR
      */
     function returnError($code, $msg, $idToDelete = 0, $column = 0, $tbl = 0) {
         $error = new Error($code, $msg);
@@ -647,6 +662,7 @@ class SQLOperations implements SQLOperationsInterface {
      * @author AhmedSamir
      * @param array $$selectionCols required columns from the orders table
      * @return Response with the order contents
+     * @checkedByIAR
      */
     public function getAllOrders($selectionCols, $appliedFilters, $userID = "") {
         $appliedFilters = json_decode($appliedFilters, true);
@@ -712,8 +728,10 @@ class SQLOperations implements SQLOperationsInterface {
      * @param array $selectionCols required columns from the orders table
      * @param int $id order id
      * @return Response with the order contents 
+     * @checkedByIARButNotTestedYet
      */
     public function getOrder($id, $selectionCols) {
+        $selectionCols = Utilities::makeInputSafe($selectionCols); // @IAR
         if ($selectionCols == "") { //Select all columns
             $result = $this->db_link->query('SELECT * FROM ' . Constants::TBL_ORDERS . ' WHERE ' . Constants::ORDERS_ID . ' = ' . $id . ' LIMIT 1');
             $theString = array(Constants::ORDERS_BUYER_ID, Constants::ORDERS_COST, Constants::ORDERS_DATE, Constants::ORDERS_STATUS_ID);
@@ -743,23 +761,26 @@ class SQLOperations implements SQLOperationsInterface {
      * @param date $dueDate the date of the order
      * @param string @status the status of the order (Initially it's pending) 
      * @return Response with the order contents
+     * @checkedByIARByNotTested
      */
     public function addOrder($buyerId, $cost, $dueDate, $status = 1) {
         //Make text safe
         $buyerId = Utilities::makeInputSafe($buyerId);
         $cost = Utilities::makeInputSafe($cost);
         $dueDate = Utilities::makeInputSafe($dueDate);
-        $status = Utilities::makeInputSafe($status);
+        // @IAR removed status because it will pending by default when adding the order for the first time
+        // @ToDo check for date format using utilities function checkDate and return proper msg
         //Check for empty fields 
-        if ($status == "" || !is_numeric($buyerId) || !is_numeric($cost) || $dueDate == "")
+        if (!is_numeric($buyerId) || !is_numeric($cost) || $dueDate == "")
             return new Response(Constants::ORDERS_ADD_FAILED, json_encode(array()), $jwt);
         //Check for any non-logical parameter values
-        if ($buyerId <= 0 || $cost <= 0 || $status < 1 && $status > 5 || !Utilities::validateDate($dueDate))
+        if ($buyerId <= 0 || $cost <= 0 || !Utilities::validateDate($dueDate))
             return new Response(Constants::ORDERS_ADD_FAILED, json_encode(array()), $jwt);
         //Insert Sql Statment
-        $this->db_link->query('INSERT INTO ' . Constants::TBL_ORDERS . ' (' . Constants::ORDERS_BUYER_ID . ',' . Constants::ORDERS_COST . ',' . Constants::ORDERS_DATE . ',' . Constants::ORDERS_STATUS_ID . ')' . ' VALUE (' . $buyerId . ',' . $cost . ",'" . $dueDate . "'," . $status . ')');
-        echo 'INSERT INTO ' . Constants::TBL_ORDERS . ' (' . Constants::ORDERS_BUYER_ID . ',' . Constants::ORDERS_COST . ',' . Constants::ORDERS_DATE . ',' . Constants::ORDERS_STATUS_ID . ')' . ' VALUE (' . $buyerId . ',' . $cost . ",'" . $dueDate . "'," . $status . ')';
+        $this->db_link->query('INSERT INTO ' . Constants::TBL_ORDERS . ' (' . Constants::ORDERS_BUYER_ID . ',' . Constants::ORDERS_COST . ',' . Constants::ORDERS_DATE . ')' . ' VALUE (' . $buyerId . ',' . $cost . ",'" . $dueDate . ')');
+//        echo 'INSERT INTO ' . Constants::TBL_ORDERS . ' (' . Constants::ORDERS_BUYER_ID . ',' . Constants::ORDERS_COST . ',' . Constants::ORDERS_DATE . ',' . Constants::ORDERS_STATUS_ID . ')' . ' VALUE (' . $buyerId . ',' . $cost . ",'" . $dueDate . "'," . $status . ')';
         //Return the created order by the getOrder function
+        // @ToDo return response object ya Samiiir 
         return $this->getOrder($this->db_link->insert_id);
     }
 
@@ -768,17 +789,25 @@ class SQLOperations implements SQLOperationsInterface {
      * @author AhmedSamir
      * @param int $orderID the order id
      * @return Response with the operation code
+     * @checkedByIARByNotTested
      */
     public function deleteOrder($orderID) {
+        // @ToDO No need to select first you  can execute delete operation and then check if something affected by $this->db_link->affected_rows if  = 0 no order with this ID
+        
         $result = $this->db_link->query('SELECT * FROM ' . Constants::TBL_ORDERS . ' where ' . Constants::ORDERS_ID . ' = ' . $orderID . ' LIMIT 1');
         if ($result->fetch_assoc() != "") {
             //Delete First the order items
+            // @ToDo first of all get the order items and then add the quantity back to product.quantity
+            // @ToDo add new order status deleted and don't delete it completely (Don't return the deleted orders in the get functions)
+            // @ToDo instead of deleting from orders_items, you can easily set constraint to cascade so the order items get deleted once the order itself is deleted
+            // @ToDo when returning successful don't set the msg to any thing (not even empty array) 
             $this->db_link->query('DELETE FROM ' . Constants::TBL_ORDERITEMS . ' WHERE ' . Constants::ORDERITEMS_ORDERID . ' = ' . $orderID);
             //Then delete the order
             $this->db_link->query('DELETE FROM ' . Constants::TBL_ORDERS . ' WHERE ' . Constants::ORDERS_ID . ' = ' . $orderID);
             $theResponse = new Response(Constants::ORDERS_DELETE_SUCCESS, array(), "");
             return json_encode($theResponse);
         } else {
+            // ToDo return error object
             $theResponse = new Response(Constants::ORDERS_DELETE_FAILED, array(), "");
             return json_encode($theResponse);
         }
@@ -791,6 +820,7 @@ class SQLOperations implements SQLOperationsInterface {
      * @param int @status the status of the order. 
      * @param int $userID the current user id (-1 means deliveryman)
      * @return Response with the order contents
+     * @checkedByIAR
      */
     //public function updateOrder($id, $buyerId, $cost, $dueDate, $status) {
     public function updateOrder($id, $status, $userID = -1) {
@@ -834,6 +864,7 @@ class SQLOperations implements SQLOperationsInterface {
      * @param int $orderID the order ID
      * @param int $buyerID the buyer ID
      * @return Response with the order items
+     * @checkedByIARNotTested
      */
     public function getOrderItems($orderID, $buyerID) {
         //Make Input Safe
@@ -841,7 +872,7 @@ class SQLOperations implements SQLOperationsInterface {
         $buyerID = Utilities::makeInputSafe($buyerID);
         //Check if Order is in the Order Items and of the same buyer
         $result = $this->db_link->query('SELECT * FROM ' . Constants::TBL_ORDERS . ' where ' . Constants::ORDERS_ID . ' = ' . $orderID . ' and ' . Constants::ORDERS_BUYER_ID . ' = ' . $buyerID . ' LIMIT 1');
-        if ($result->fetch_assoc()) {
+        if ($result->fetch_assoc()) { // @ToDo check with $result->num_rows if 0 no rows exist with given ID
             //Order is found and is associated with this buyer , Therefore go and get its items.
             $ret = array();
             $query = $this->db_link->query('SELECT * FROM ' . Constants::TBL_ORDERITEMS . ' where ' . Constants::ORDERITEMS_ORDERID . ' = ' . $orderID);
@@ -851,6 +882,7 @@ class SQLOperations implements SQLOperationsInterface {
             $theResponse = new Response(Constants::ORDERITEMS_GET_SUCCESSFUL, $ret, "");
             return(json_encode($theResponse));
         } else {
+            // @ToDo return error object, proper msg to user
             $theResponse = new Response(Constants::ORDERITEMS_GET_FAILED, array(), "");
             return(json_encode($theResponse));
         }
@@ -861,6 +893,7 @@ class SQLOperations implements SQLOperationsInterface {
      * @author AhmedSamir
      * @param int $deliveryManID the delivery Man ID
      * @return Response with the delivery requests
+     * @checkedByIAR
      */
     public function getDeliveryRequests($deliveryManID) {
         $deliveryManID = Utilities::makeInputSafe($deliveryManID);

@@ -20,6 +20,18 @@ class Utilities {
     }
 
     /**
+     * This function checks if the assigned date format matches DB format
+     * @param string $date required date to be checked
+     * @return boolean
+     */
+    static public function checkDate($date) {
+        if (preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $date)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    /**
      * This function makes the input form data safe for SQL
      * @param string $data : input data
      * @return string output safe data
