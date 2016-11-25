@@ -609,7 +609,7 @@ class SQLOperations implements SQLOperationsInterface {
         $productId = Utilities::makeInputSafe($productID);
         $userID = Utilities::makeInputSafe($userID);
         if (strlen($productId) > 0 && strlen($userID) > 0) {
-           if (!$result = $this->db_link->query("UPDATE `" . Constants::TBL_CART_ITEMS . "` SET `" . Constants::CART_ITEMS_QUANTITY . "` = " . Constants::CART_ITEMS_QUANTITY . " - 1 WHERE `" . Constants::CART_ITEMS_PRODUCT_ID . "` = '$productId' AND `" . Constants::CART_ITEMS_USER_ID . "` = '$userID' AND `" . Constants::CART_ITEMS_QUANTITY . "` > 1 LIMIT 1")) {
+            if (!$result = $this->db_link->query("UPDATE `" . Constants::TBL_CART_ITEMS . "` SET `" . Constants::CART_ITEMS_QUANTITY . "` = " . Constants::CART_ITEMS_QUANTITY . " - 1 WHERE `" . Constants::CART_ITEMS_PRODUCT_ID . "` = '$productId' AND `" . Constants::CART_ITEMS_USER_ID . "` = '$userID' AND `" . Constants::CART_ITEMS_QUANTITY . "` > 1 LIMIT 1")) {
                 return $this->returnError(Constants::CART_DECREASE_ITEM_FAILED, "Please try again later!", 0, 0, 0);
             }
             if ($this->db_link->affected_rows == 0) {
@@ -624,6 +624,7 @@ class SQLOperations implements SQLOperationsInterface {
             return $this->returnError(Constants::CART_DECREASE_ITEM_EMPTY_DATA, "Missing data!", 0, 0, 0);
         }
     }
+
     /**
      * This function generates the error json 
      * @param type $code error code (Constants::)
@@ -647,19 +648,20 @@ class SQLOperations implements SQLOperationsInterface {
      * @param array $$selectionCols required columns from the orders table
      * @return Response with the order contents
      */
-    public function getAllOrders($selectionCols, $userID = "", $appliedFilters) {
+    public function getAllOrders($selectionCols, $appliedFilters, $userID = "") {
         $appliedFilters = json_decode($appliedFilters, true);
+        $appliedFilters = $appliedFilters['filters'];
         //the where String
         $whereStringArray = array();
         $stringCost = '';
         $stringDate = '';
         $stringStatus = array();
         if ($appliedFilters['cost']['status']) {
-            $stringCost = constants::ORDERS_COST . ' >= ' . $appliedFilters['cost']['min'] . ' and ' . Constants::ORDERS_COST . " <= " . $appliedFilters['cost']['max'];
+            $stringCost = constants::ORDERS_COST . ' >= ' . Utilities::makeInputSafe($appliedFilters['cost']['min']) . ' and ' . Constants::ORDERS_COST . " <= " . Utilities::makeInputSafe($appliedFilters['cost']['max']);
             array_push($whereStringArray, $stringCost);
         }
         if ($appliedFilters['date']['status']) {
-            $stringDate = constants::ORDERS_DATE . ' >= ' . "'" . $appliedFilters['date']['min'] . "'" . ' and ' . Constants::ORDERS_DATE . ' <= ' . "'" . $appliedFilters['date']['max'] . "'";
+            $stringDate = constants::ORDERS_DATE . ' >= ' . "'" . Utilities::makeInputSafe($appliedFilters['date']['min']) . "'" . ' and ' . Constants::ORDERS_DATE . ' <= ' . "'" . Utilities::makeInputSafe($appliedFilters['date']['max']) . "'";
             array_push($whereStringArray, $stringDate);
         }
         if ($appliedFilters['status']['pending'])
@@ -678,7 +680,7 @@ class SQLOperations implements SQLOperationsInterface {
             $theWhereQuery = implode(" and ", $whereStringArray);
         else
             $theWhereQuery = '';
-        
+
         if ($selectionCols == "") {
             $theString = array(Constants::ORDERS_BUYER_ID, Constants::ORDERS_COST, Constants::ORDERS_DATE, Constants::ORDERS_STATUS_ID);
             $selectionCols = ' * ';
@@ -687,10 +689,9 @@ class SQLOperations implements SQLOperationsInterface {
         if ($userID != "") {
             $result = $this->db_link->query('SELECT ' . $selectionCols . ' FROM ' . Constants::TBL_ORDERS . ' WHERE ' . Constants::ORDERS_BUYER_ID . ' = ' . $userID . ' and ' . $theWhereQuery);
         } else {
-            if (strlen($theWhereQuery) > 0){
+            if (strlen($theWhereQuery) > 0) {
                 $result = $this->db_link->query('SELECT ' . $selectionCols . ' FROM ' . Constants::TBL_ORDERS . ' WHERE ' . $theWhereQuery);
-            }
-            else {
+            } else {
                 $result = $this->db_link->query('SELECT ' . $selectionCols . ' FROM ' . Constants::TBL_ORDERS);
             }
         }
@@ -862,28 +863,10 @@ class SQLOperations implements SQLOperationsInterface {
      */
     public function getDeliveryRequests($deliveryManID) {
         $deliveryManID = Utilities::makeInputSafe($deliveryManID);
-        $deliveryManID = Utilities::makeInputSafe($deliveryManID);
-        $result = $this->db_link->query('SELECT * FROM ' . Constants::TBL_DELIVERYREQUESTS . ' where ' . Constants::DELIVERYREQUESTS_DELIVERYMANID . ' = ' . $deliveryManID);
+        $result = $this->db_link->query("SELECT o.".Constants::ORDERS_ID.", d.".Constants::DELIVERYREQUESTS_DUEDATE.", o.".Constants::ORDERS_COST.", o.".Constants::ORDERS_STATUS_ID.", u.".Constants::USERS_FLD_NAME.", u.".Constants::USERS_FLD_TEL.", b.".Constants::BUYERS_FLD_ADDRESS." FROM ".Constants::TBL_USERS." u, ".Constants::TBL_BUYERS." b, ".Constants::TBL_DELIVERYREQUESTS." d, ".Constants::TBL_ORDERS." o WHERE d.".Constants::DELIVERYREQUESTS_ORDERID."=o.".Constants::ORDERS_ID." AND u.".Constants::USERS_FLD_ID." = o.".Constants::ORDERS_BUYER_ID." AND u.".Constants::USERS_FLD_ID." = b.".Constants::BUYERS_FLD_USER_ID." AND d.".Constants::DELIVERYREQUESTS_DELIVERYMANID." = " . $deliveryManID);
         $ret = array();
         while ($row = $result->fetch_assoc()) {
-            $deliveryRequest = array();
-            $deliveryRequest['delivery_request'] = $row;
-            //Get the Order (Buyer_id and Staus_id) through order_id
-            $orderID = $row[Constants::DELIVERYREQUESTS_ORDERID];
-            $orderRow = $this->db_link->query('SELECT ' . Constants::ORDERS_BUYER_ID . ' , ' . Constants::ORDERS_STATUS_ID . ' FROM ' . Constants::TBL_ORDERS . ' where ' . Constants::ORDERS_ID . ' = ' . $orderID);
-            //Generate Order Model "object"
-            $theOrder = $orderRow->fetch_assoc();
-            $theString = array(Constants::ORDERS_BUYER_ID, Constants::ORDERS_STATUS_ID);
-            $orderModel = new Order();
-            $orderModel->setAttributes($theOrder, $theString);
-            $deliveryRequest['delivery_request']['order'] = $orderModel;
-            //Get the Buyer through his ID
-            $buyerID = $theOrder[Constants::ORDERS_BUYER_ID];
-            $buyerRow = $this->db_link->query('SELECT  * FROM ' . Constants::TBL_BUYERS . ' WHERE ' . Constants::BUYERS_FLD_USER_ID . ' = ' . $buyerID);
-            $theBuyer = $buyerRow->fetch_assoc();
-            //print_r( $theBuyer);
-            $deliveryRequest['delivery_request']['buyer'] = $theBuyer;
-            array_push($ret, $deliveryRequest);
+            array_push($ret, $row);
         }
         $theResponse = new Response(Constants::DELIVERYREQUESTS_GET_SUCCESSFUL, $ret, "");
         return(json_encode($theResponse));
@@ -892,8 +875,7 @@ class SQLOperations implements SQLOperationsInterface {
     function __destruct() {
         $this->db_link->close();
     }
-    
-    
+
     /**
      * This function Adds category
      * @parm string $name
@@ -1003,7 +985,7 @@ class SQLOperations implements SQLOperationsInterface {
                 } else {
 
                     $this->db_link->query("  UPDATE `" . Constants::TBL_CATEGORIES . "` SET `" . Constants::CATEGORIES_FLD_NAME . "` = '$name' " . "WHERE `" . Constants::TBL_CATEGORIES . "`.`" . Constants::CATEGORIES_FLD_USER_ID . "` = $id");
-                    $theResponse = new Response(Constants::CATEGORY_UPDATE_SUCCESS, array(), ""); 
+                    $theResponse = new Response(Constants::CATEGORY_UPDATE_SUCCESS, array(), "");
                     return(json_encode($theResponse));
                 }
             }

@@ -30,7 +30,7 @@ interface SQLOperationsInterface {
 
     function decreaseProductFromCart($productID, $userID);
     
-    public function getAllOrders($selectionCols, $userID = "", $appliedFilters);
+    public function getAllOrders($selectionCols, $appliedFilters, $userID = "");
 
     public function getOrder($id, $selectionCols);
 

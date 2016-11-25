@@ -11,6 +11,8 @@ const USER_ENDPOINT = "user";
 const CHANGE_USER_STATUS_ENDPOINT = "block";
 const USER_EDIT_ENDPOINT = "edit";
 const USER_CART_ENDPOINT = "cart";
+const ORDERS_ENDPOINT = "orders";
+const DELIVERYREQUESTS_ENDPOINT = "deliveryrequests";
 
 const OMARKET_PREFIX = "OMarket_";
 
@@ -48,10 +50,6 @@ const USER_DELIVERYMAN = "5";
 const USER_ACTIVE = "1";
 const USER_BANNED = "2";
 
-const ORDER_STATUS_PENDING = "1";
-const ORDER_STATUS_PICKED = "2";
-const ORDER_STATUS_SHIPPED = "3";
-const ORDER_STATUS_DELIVERED = "4";
 
 const AUTH_RESPONSE_STATUS_CODE = "statusCode";
 const AUTH_RESPONSE_JWT = "jwt";
@@ -61,6 +59,18 @@ const AUTH_RESPONSE_CC_MONTH = "ccMonth";
 const AUTH_RESPONSE_CC_YEAR = "ccYear";
 const AUTH_RESPONSE_CC_CCV = "ccCCV";
 const AUTH_RESPONSE_ERROR_MSG = "errorMsg";
+
+
+const ORDERS_ID = 'id';
+const ORDERS_DATE = 'date';
+const ORDERS_COST = 'cost';
+const ORDERS_BUYER_ID = 'buyer_id';
+const ORDERS_STATUS_ID = 'statusId';
+
+const ORDER_STATUS_PENDING = "1";
+const ORDER_STATUS_PICKED = "2";
+const ORDER_STATUS_SHIPPED = "3";
+const ORDER_STATUS_DELIVERED = "4";
 
 //THE CART ITEMS TABLE CONSTANTS
 const TBL_CART_ITEMS = 'cart_items';
@@ -78,6 +88,12 @@ const ORDER_FILTER_PENDING = 'pending';
 const ORDER_FILTER_PICKED = 'picked';
 const ORDER_FILTER_SHPPED = 'shipped';
 const ORDER_FILTER_DELIVERED = 'delivered';
+
+const DELIVERYREQUESTS_ID = '_id';
+const DELIVERYREQUESTS_ORDERID = 'order_id';
+const DELIVERYREQUESTS_DELIVERYMANID = 'deliveryman_id';
+const DELIVERYREQUESTS_DUEDATE = 'duedate';
+const DELIVERYREQUESTS_STATUS_ID = 'status_id';
 
 //THE PRODUCT TABLE CONSTANTS (check with abdo)
 const PRODUCT_FLD_ID = '_id';
@@ -141,3 +157,21 @@ const CART_DELETE_ITEM_EMPTY_DATA = 912;
 const CART_DECREASE_ITEM_SUCCESSFUL = 920;
 const CART_DECREASE_ITEM_FAILED = 921;
 const CART_DECREASE_ITEM_EMPTY_DATA = 922;
+
+/**
+ * Order operation functions (4x) constants
+ */
+const ORDERS_GET_SUCCESSFUL = 40;
+const ORDERS_GET_FAILED = 41;
+const ORDERS_DELETE_SUCCESS = 42;
+const ORDERS_DELETE_FAILED = 43;
+const ORDERS_ADD_SUCCESS = 44;
+const ORDERS_ADD_FAILED = 45;
+const ORDERS_UPDATE_SUCCESS = 46;
+const ORDERS_UPDATE_FAILED = 47;
+
+/**
+ * DeliveryRequests operation functions (6x) constants
+ */
+const DELIVERYREQUESTS_GET_SUCCESSFUL = 60;
+const DELIVERYREQUESTS_GET_FAILED = 61;

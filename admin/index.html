@@ -14,6 +14,7 @@
 	<script src="../js/jquery.min.js"></script>
 	<script src="../js/jquery-ui.js"></script>
 </head>
+
 <body>
 	<div class="container" id="container">
 		<header id="header" params="cartAmount: cartAmount">
@@ -154,16 +155,32 @@
         </template>
 	<template id="single-order-template">
             <div class="order-details">
-                <p><strong>Order</strong>: #<span data-bind="text: params.id"></span></p>
-                <p><strong>Date</strong>: <span data-bind="text: params.issuedate"></span></p>
-                <p><strong>Total</strong>: <span data-bind="text: params.cost"></span>$</p>
+                <p><strong>Order</strong>: #<span data-bind="text: params[ORDERS_ID]"></span></p>
+                <p><strong>Date</strong>: <span data-bind="text: params[ORDERS_DATE]"></span></p>
+                <p><strong>Total</strong>: <span data-bind="text: params[ORDERS_COST]"></span>$</p>
             </div>
             <div class="order-actions">
                 <p><strong>Status</strong>: <span data-bind="text: params.textStatus()"></span></p>
+			</div>
+
+        </template>
+	<template id="single-delivery-request-template">
+            <div class="order-details">
+                <p><strong>Order</strong>: #<span data-bind="text: params[DELIVERYREQUESTS_ID]"></span></p>
+                <p><strong>Buyer</strong>: </p>
+				<p style="padding-left:20px;"><span>Name: </span><span data-bind="text: params[USERS_FLD_NAME]"></span></p>
+				<p style="padding-left:20px;"><span>Tel: </span><span data-bind="text: params[USERS_FLD_TEL]"></span></p>
+				<p style="padding-left:20px;"><span>Address: </span><span data-bind="text: params[BUYERS_FLD_ADDRESS]"></span></p>
+               
+            </div>
+            <div class="order-actions">
+                 <p><strong>Due Date</strong>: <span data-bind="text: params[DELIVERYREQUESTS_DUEDATE]"></span></p>
+                 <p><strong>Total</strong>: <span data-bind="text: params[ORDERS_COST]"></span>$</p>
+                <p><strong>Status</strong>: <span data-bind="text: params.textStatus()"></span></p>
 				<span data-bind="if: checkUserRole() == USER_DELIVERYMAN">
-					<span class="order-cancel" data-bind="if: params.status() == ORDER_STATUS_PENDING, click:function(){changeOrderStatus(ORDER_STATUS_PICKED)}">mark picked</span>
-					<span class="order-cancel" data-bind="if: params.status() == ORDER_STATUS_PICKED, click:function(){changeOrderStatus(ORDER_STATUS_SHIPPED)}">mark shipped</span>
-					<span class="order-cancel" data-bind="if: params.status() == ORDER_STATUS_SHIPPED, click:function(){changeOrderStatus(ORDER_STATUS_DELIVERED)}">mark delivered</span>
+					<span class="order-cancel" data-bind="if: params[ORDERS_STATUS_ID]() == ORDER_STATUS_PENDING, click:function(){changeOrderStatus(ORDER_STATUS_PICKED)}">mark picked</span>
+					<span class="order-cancel" data-bind="if: params[ORDERS_STATUS_ID]() == ORDER_STATUS_PICKED, click:function(){changeOrderStatus(ORDER_STATUS_SHIPPED)}">mark shipped</span>
+					<span class="order-cancel" data-bind="if: params[ORDERS_STATUS_ID]() == ORDER_STATUS_SHIPPED, click:function(){changeOrderStatus(ORDER_STATUS_DELIVERED)}">mark delivered</span>
                 </span>
             </div>
 

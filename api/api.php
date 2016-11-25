@@ -169,6 +169,25 @@ $app->delete('/cart/{productID}', function (Request $request, Response $response
         return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
     }
 });
+//Get All ORDERS (May be needed for accountant)
+// reponds to both `/orders/` and `/orders/123`
+// but not to `/orders`
+$app->get('/orders/[{id}]', function (Request $request, Response $response, $args = []) {
+    if (authUsers([Constants::USER_ACCOUNTANT], $request, $response)) {
+        $sqlOperations = new SQLOperations();
+        $id = $args['id'];
+        $selectionCols = $request->getParam('fields');
+        $appliedFilters = $request->getParam('filters');
+        if ((trim($id) != "" && is_numeric($id)) || trim($id) == "") { // certain user
+            return $response->withStatus(200)->write($sqlOperations->getAllOrders($selectionCols, $appliedFilters, trim($id)));
+        } else {
+            return $response->withStatus(400);
+        }
+    } else {
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+    }
+});
+
 // Add route callbacks
 //This GET Request takes One ID only and returns the selected Columns about that Order 
 $app->get('/order/{id}', function (Request $request, Response $response, $args = []) {
@@ -179,20 +198,7 @@ $app->get('/order/{id}', function (Request $request, Response $response, $args =
     //Return the response with the order object written in it in JSON 
     return $response->withStatus(200)->write($sqlOperations->getOrder($id, $selectionCols));
 });
-//Get All ORDERS (May be needed for accountant)
-// reponds to both `/orders/` and `/orders/123`
-// but not to `/orders`
-$app->get('/orders/[{id}]', function (Request $request, Response $response, $args = []) {
-    $sqlOperations = new SQLOperations();
-    $id = $args['id'];
-    $selectionCols = $request->getParam('fields');
-    $appliedFilters = $request->getParam('filters');
-    if (trim($id) != "" && is_numeric($id) || trim($id) == "") { // certain user
-      return $response->withStatus(200)->write($sqlOperations->getAllOrders($selectionCols, trim($id),$appliedFilters));
-    } else {
-        return $response->withStatus(404);
-    }
-});
+
 //Delete Certain Order by the ID (Semi Finished) (Middleware Authorization)/ WithStatus 401 / Retuen respone 
 $app->delete('/order/{id}', function (Request $request, Response $response, $args) {
     //middleware (authorization)
@@ -231,20 +237,17 @@ $app->get('/orderitems/{orderid}/{buyerid}', function (Request $request, Respons
     return $response->withStatus(200)->write($sqlOperations->getOrderItems($orderID, $buyerID));
 });
 //Get Delivery Requests Items
-$app->get('/deliveryrequests/', function (Request $request, Response $response) {
-    $authHeader = $request->getHeader('Authorization');
-    list($jwt) = sscanf($authHeader[0], 'Bearer %s');
-    try {
-        $data = getTokenData($jwt);
-        $deliveryManID = $data[Constants::USERS_FLD_ID];
+$app->get('/deliveryrequests', function (Request $request, Response $response) {
+    if (authUsers([Constants::USER_DELIVERMAN], $request, $response)) {
         $sqlOperations = new SQLOperations();
-    } catch (Exception $ex) { // already handled in middleware        
+        $authHeader = $request->getHeader('Authorization');
+        list($jwt) = sscanf($authHeader[0], 'Bearer %s');
+        $data = getTokenData($jwt);
+        return $response->withStatus(200)->write($sqlOperations->getDeliveryRequests($data[Constants::USERS_FLD_ID]));
+    } else {
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
     }
-    return $response->withStatus(200)->write($sqlOperations->getDeliveryRequests($deliveryManID));
-})->add($deliverymanAuthMW);
+});
 
 // Run application
 $app->run();
-//echo $sqlOperations->login("i.radwan1996@gmail.com", "2006");
-//echo $sqlOperations->signUpUser("i.radwan1996aasa.@hotmail.coam", "2006", "2006", Constants::USER_BUYER, "Ibrahims", "00120120123", [Constants::BUYERS_FLD_ADDRESS => "6B, Pyramids Gardens", Constants::BUYERS_FLD_CCNUMBER => "123141212", Constants::BUYERS_FLD_CC_CCV => "123", Constants::BUYERS_FLD_CC_MONTH => "10", Constants::BUYERS_FLD_CC_YEAR => "2018"]);
-//$sqlOperations->secure("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE0Nzc5MDg1ODksImp0aSI6IkFsb3I3Umw2V3hod09uTExWWHo2c0wzVmlCYXFjRTdmbjlyWHlCbjY4azkySzNzQWJGYUNGdHlCZ2pNVjRMZmtrejVRdklKMmJIVGNxbEh6aVpyb01RPT0iLCJpc3MiOiJsb2NhbGhvc3QiLCJuYmYiOjE0Nzc5MDg1OTksImV4cCI6MTQ3NzkwODY1OSwiZGF0YSI6eyJfaWQiOiIxOSIsImVtYWlsIjoiaS5yYWR3YW4xOTk2QGhvdG1haWwuY29hbSIsIm5hbWUiOiJJYnJhaGltcyIsInRlbCI6IjAwMjAxMDk3Nzk5ODU2IiwidXNlcl90eXBlIjoiMSJ9fQ.HNMDLmoa5tWB8FPSf_EYuR2td7w_4qUdbbbjXrGcCJNnqpv5e9fdb_LmI7X3liflyNDgrxUyIVMACYxaAO-v4A");
