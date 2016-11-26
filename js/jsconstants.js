@@ -129,6 +129,7 @@ const PRODUCTS_FLD_DESCRIPTION = 'description';
 
 const PRODUCT_AVAILABLE = "1"; // Relative to DB
 const PRODUCT_INAVAILABLE = "2"; // Relative to DB'
+const PRODUCT_DELETED = "3"; // Relative to DB'
 
 const PRODUCT_SPEC_FLD_PRODUCT_ID = 'product_id';
 const PRODUCT_SPEC_FLD_CAT_ID = 'categories_spec_id';

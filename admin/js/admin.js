@@ -39,6 +39,9 @@ function productModel(product) {
     });
     // Add less important details to more array
     var extraData = [PRODUCTS_FLD_ORIGIN, PRODUCTS_FLD_PROVIDER, PRODUCTS_FLD_SIZE, PRODUCTS_FLD_WEIGHT, PRODUCTS_FLD_AVA_QUANTITY, PRODUCTS_FLD_SOLDITEMS, PRODUCTS_FLD_DESCRIPTION];
+    if(checkUserRole() == USER_SELLER){
+        extraData.unshift(PRODUCTS_FLD_EARNINGS);
+    }
     for (var data in extraData) {
         var moreData = {};
         moreData[PRODUCT_SPEC_CSNAME] = ((extraData[data] == 'available_quantity') ? 'Available Quantity':extraData[data]);

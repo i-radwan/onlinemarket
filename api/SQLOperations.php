@@ -1312,9 +1312,11 @@ class SQLOperations implements SQLOperationsInterface {
 
     /**
      * This function gets all products with specifications ,1 spec of a product per row
+     * @param int $cateID category id to get its products
+     * @param int $sellerID seller id to get his/her products
      * @return response with array 
      */
-    public function getAllProducts() {
+    public function getAllProducts($cateID = -1, $sellerID = -1) {
         /**
          * Query:
          *  SELECT p.*, ps._id as 'PSID',  cs.name as 'CSNAME', ps.value as 'PSVALUE', u.name as 'seller_name', c.name as 'category_name', a.status as 'availability_status' FROM products p
@@ -1325,7 +1327,11 @@ class SQLOperations implements SQLOperationsInterface {
          *  JOIN availability_status a ON a._id = p.availability_id
          *  ORDER BY p._id DESC
          */
-        if (!$result = $this->db_link->query("SELECT p.*, ps." . Constants::PRODUCT_SPEC_FLD_ID . " as '".Constants::PRODUCT_SPEC_PSID."',  cs." . Constants::CATEGORIES_SPEC_FLD_NAME . " as '".Constants::PRODUCT_SPEC_CSNAME."', ps." . Constants::PRODUCT_SPEC_FLD_VALUE . " as '".Constants::PRODUCT_SPEC_PSVALUE."' , u.".Constants::USERS_FLD_NAME." as '".Constants::PRODUCT_SELLER_NAME."' , c.".Constants::CATEGORIES_FLD_NAME." as '".Constants::PRODUCT_CATEGORY_NAME."' , a.".Constants::AVAILABILITY_FLD_STATUS." as '".Constants::PRODUCT_AVAILABILITY_STATUS."' FROM " . Constants::TBL_PRODUCTS . " p LEFT OUTER JOIN " . Constants::TBL_PRODUCT_SPEC . " ps ON ps." . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . " = p." . Constants::PRODUCTS_FLD_ID . " LEFT OUTER JOIN " . Constants::TBL_CATEGORIES_SPEC . " cs ON cs." . Constants::CATEGORIES_SPEC_FLD_CATID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " AND ps." . Constants::PRODUCT_SPEC_FLD_CAT_ID . " = cs." . Constants::CATEGORIES_SPEC_FLD_ID . " JOIN ".Constants::TBL_USERS." u ON u.".Constants::USERS_FLD_ID." = p.".Constants::PRODUCTS_FLD_SELLER_ID." JOIN ".Constants::TBL_CATEGORIES." c ON c.".Constants::CATEGORIES_FLD_ID." = p.".Constants::PRODUCTS_FLD_CATEGORY_ID." JOIN ".Constants::TBL_AVAILABILITY_STATUS." a ON a.".Constants::AVAILABILITY_FLD_ID." = p.".Constants::PRODUCTS_FLD_AVA_STATUS." ORDER BY p." . Constants::PRODUCTS_FLD_ID . " DESC")) {
+        $query = "SELECT p.*, ps." . Constants::PRODUCT_SPEC_FLD_ID . " as '" . Constants::PRODUCT_SPEC_PSID . "',  cs." . Constants::CATEGORIES_SPEC_FLD_NAME . " as '" . Constants::PRODUCT_SPEC_CSNAME . "', ps." . Constants::PRODUCT_SPEC_FLD_VALUE . " as '" . Constants::PRODUCT_SPEC_PSVALUE . "' , u." . Constants::USERS_FLD_NAME . " as '" . Constants::PRODUCT_SELLER_NAME . "' , c." . Constants::CATEGORIES_FLD_NAME . " as '" . Constants::PRODUCT_CATEGORY_NAME . "' , a." . Constants::AVAILABILITY_FLD_STATUS . " as '" . Constants::PRODUCT_AVAILABILITY_STATUS . "' FROM " . Constants::TBL_PRODUCTS . " p LEFT OUTER JOIN " . Constants::TBL_PRODUCT_SPEC . " ps ON ps." . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . " = p." . Constants::PRODUCTS_FLD_ID . " LEFT OUTER JOIN " . Constants::TBL_CATEGORIES_SPEC . " cs ON cs." . Constants::CATEGORIES_SPEC_FLD_CATID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " AND ps." . Constants::PRODUCT_SPEC_FLD_CAT_ID . " = cs." . Constants::CATEGORIES_SPEC_FLD_ID . " JOIN " . Constants::TBL_USERS . " u ON u." . Constants::USERS_FLD_ID . " = p." . Constants::PRODUCTS_FLD_SELLER_ID . " JOIN " . Constants::TBL_CATEGORIES . " c ON c." . Constants::CATEGORIES_FLD_ID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " JOIN " . Constants::TBL_AVAILABILITY_STATUS . " a ON a." . Constants::AVAILABILITY_FLD_ID . " = p." . Constants::PRODUCTS_FLD_AVA_STATUS . " ORDER BY p." . Constants::PRODUCTS_FLD_ID . " DESC";
+        if ($sellerID > 0) {
+            $query = "SELECT p.*, ps." . Constants::PRODUCT_SPEC_FLD_ID . " as '" . Constants::PRODUCT_SPEC_PSID . "',  cs." . Constants::CATEGORIES_SPEC_FLD_NAME . " as '" . Constants::PRODUCT_SPEC_CSNAME . "', ps." . Constants::PRODUCT_SPEC_FLD_VALUE . " as '" . Constants::PRODUCT_SPEC_PSVALUE . "' , u." . Constants::USERS_FLD_NAME . " as '" . Constants::PRODUCT_SELLER_NAME . "' , c." . Constants::CATEGORIES_FLD_NAME . " as '" . Constants::PRODUCT_CATEGORY_NAME . "' , a." . Constants::AVAILABILITY_FLD_STATUS . " as '" . Constants::PRODUCT_AVAILABILITY_STATUS . "' FROM " . Constants::TBL_PRODUCTS . " p LEFT OUTER JOIN " . Constants::TBL_PRODUCT_SPEC . " ps ON ps." . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . " = p." . Constants::PRODUCTS_FLD_ID . " LEFT OUTER JOIN " . Constants::TBL_CATEGORIES_SPEC . " cs ON cs." . Constants::CATEGORIES_SPEC_FLD_CATID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " AND ps." . Constants::PRODUCT_SPEC_FLD_CAT_ID . " = cs." . Constants::CATEGORIES_SPEC_FLD_ID . " JOIN " . Constants::TBL_USERS . " u ON u." . Constants::USERS_FLD_ID . " = p." . Constants::PRODUCTS_FLD_SELLER_ID . " JOIN " . Constants::TBL_CATEGORIES . " c ON c." . Constants::CATEGORIES_FLD_ID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " JOIN " . Constants::TBL_AVAILABILITY_STATUS . " a ON a." . Constants::AVAILABILITY_FLD_ID . " = p." . Constants::PRODUCTS_FLD_AVA_STATUS . " WHERE p.".Constants::PRODUCTS_FLD_SELLER_ID." = '$sellerID' AND p.".Constants::PRODUCTS_FLD_AVAILABILITY_ID." != ".Constants::PRODUCT_DELETED." ORDER BY p." . Constants::PRODUCTS_FLD_ID . " DESC";
+        }
+        if (!$result = $this->db_link->query($query)) {
             return $this->returnError(Constants::PRODUCTS_GET_ALL_PRODUCTS_FAILED, "Please try again later!");
         } else {
             $ret = array();
@@ -1583,17 +1589,18 @@ class SQLOperations implements SQLOperationsInterface {
     /**
      * This function deletes product
      * @param integer $productId
-     * @param boolean $isAdmin if is ADmin is true : Before deleting the product we will reduce all orders that have this product then delete it
+     * @param boolean $isAdmin if is ADmin is true : Before deleting the product we will reduce all orders that have this product then delete it, else the product will be marked as deleted only
+     * @param int $sellerID seller ID who wants to delete this product to verify that this is his product (-1 means admin)
      * @return response 
      * @checkedByIAR
      * @todo Check for seller
      */
-    public function deleteProduct($productId, $isAdmin = false) {
+    public function deleteProduct($productId, $isAdmin = false, $sellerID = -1) {
         //input safe
         if (strlen(trim($productId)) != 0) {
             $productId = Utilities::makeInputSafe($productId);
-            if (!$isAdmin) {
-                if (!$result = $this->db_link->query("DELETE FROM `" . Constants::TBL_PRODUCTS . "` WHERE `" . Constants::PRODUCTS_FLD_ID . "` = '$productId'")) {
+            if (!$isAdmin && $sellerID > 0) {
+                if (!$result = $this->db_link->query("UPDATE `" . Constants::TBL_PRODUCTS . "` SET `".Constants::PRODUCTS_FLD_AVAILABILITY_ID."` = ".Constants::PRODUCT_DELETED."  WHERE `" . Constants::PRODUCTS_FLD_ID . "` = '$productId' AND `".Constants::PRODUCTS_FLD_SELLER_ID."` = '$sellerID'")) {
                     return $this->returnError(Constants::PRODUCT_DELETE_FAILED, "Please try again later!");
                 } else {
                     $theResponse = new Response(Constants::PRODUCT_DELETE_SUCCESS, "", "");

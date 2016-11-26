@@ -265,8 +265,6 @@ class Constants {
     const TBL_PRODUCTS = "products";
     const PRODUCTS_FLD_AVA_QUANTITY = "available_quantity";
     const PRODUCTS_FLD_AVA_STATUS = "availability_id";
-    const PRODUCT_AVAILABLE = "1"; // Relative to DB
-    const PRODUCT_INAVAILABLE = "2"; // Relative to DB'
     const PRODUCTS_FLD_CATEGORY_ID = 'category_id';
     const PRODUCTS_FLD_RATE = 'rate';
     const PRODUCTS_FLD_ID = '_id';
@@ -350,5 +348,12 @@ class Constants {
     const ORDER_PICKED = "2";
     const ORDER_SHIPPED = "3";
     const ORDER_DELIVERED = "4";
+
+    /**
+     * Product availability statuses
+     */
+    const PRODUCT_AVAILABLE = "1"; // Relative to DB
+    const PRODUCT_INAVAILABLE = "2"; // Relative to DB'
+    const PRODUCT_DELETED = "3"; // Relative to DB'
 
 }

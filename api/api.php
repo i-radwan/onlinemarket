@@ -254,14 +254,20 @@ $app->delete('/product/{productID}', function (Request $request, Response $respo
         $sqlOperations = new SQLOperations();
         $data = getTokenData($request);
         $isAdmin = ($data[Constants::USERS_FLD_USER_TYPE] == Constants::USER_ADMIN);
-        return $response->withStatus(200)->write($sqlOperations->deleteProduct($request->getAttribute('productID'), $isAdmin));
+        $sellerID = (($data[Constants::USERS_FLD_USER_TYPE] == Constants::USER_SELLER) ? $data[Constants::USERS_FLD_ID] : -1);
+        return $response->withStatus(200)->write($sqlOperations->deleteProduct($request->getAttribute('productID'), $isAdmin, $sellerID));
     } else {
         return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
     }
 });
 $app->get('/product', function (Request $request, Response $response) {
+    if (authUsers([Constants::USER_SELLER], $request, $response)) {
+        $sqlOperations = new SQLOperations();
+        return $response->withStatus(200)->write($sqlOperations->getAllProducts(-1, getTokenData($request)[Constants::USERS_FLD_ID]));
+    } else {
         $sqlOperations = new SQLOperations();
         return $response->withStatus(200)->write($sqlOperations->getAllProducts());
+    }
 });
 /**
  * Orders requests

@@ -307,6 +307,7 @@ header {
 	float: right;
 	font-family: 'Raleway', helvetica;
 	word-wrap: break-word;
+	margin-top: 5px;
 }
 
 .categories-single-item--load-more {
