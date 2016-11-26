@@ -1,90 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-	<meta charset="UTF-8">
-	<title>OMarket - Control Panel</title>
-	<link rel="stylesheet" href="../css/jquery-ui.css">
-	<link href="../css/font-awesome/css/font-awesome.min.css" rel="stylesheet">
-	<link rel="stylesheet" href="../css/build.css">
-	<link href="../css/fonts.css" rel="stylesheet">
-	<link href="../css/style.css" rel="stylesheet">
-	<link href="css/style.css" rel="stylesheet">
-	<link rel="icon" href="../img/OMarket.ico">
-	<script src="../js/jquery.min.js"></script>
-	<script src="../js/jquery-ui.js"></script>
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <title>OMarket - Control Panel</title>
+        <link rel="stylesheet" href="../css/jquery-ui.css">
+        <link href="../css/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="../css/build.css">
+        <link href="../css/fonts.css" rel="stylesheet">
+        <link href="../css/style.css" rel="stylesheet">
+        <link href="css/style.css" rel="stylesheet">
+        <link rel="icon" href="../img/OMarket.ico">
+        <script src="../js/jquery.min.js"></script>
+        <script src="../js/jquery-ui.js"></script>
+    </head>
 
-<body>
-	<div class="container" id="container">
-		<header id="header" params="cartAmount: cartAmount">
-			<div class="header-leftside">
-				<h1 class="header-title"><a class="header-title-link"><span class="header-title-O">O</span><span class="header-title-Market">Market</span></a></h1>
-			</div>
-			<div class="header-rightside">
-				<div class="header-links">
-					<a class="header-username"><span data-bind="text: getUserModel().name()"></span></a>
-					<a data-bind="click: logOut" class="header-logout"><span>Logout</span></a>
-				</div>
-			</div>
-		</header>
-		<div data-bind="if: checkUserRole() == USER_ADMIN">
-			<categories></categories>
-		</div>
-		<div data-bind="if: checkUserRole() == USER_ADMIN">
-			<employees params="employeeTypeName: 'Accountants', employeeType : USER_ACCOUNTANT, employeeSingleName: 'Accountant'"></employees>
-			<employees params="employeeTypeName: 'Delivery Staff', employeeType : USER_DELIVERYMAN, employeeSingleName: 'Deliveryman'"></employees>
-			<users params="type: 'Sellers'"></users>
-			<users params="type: 'Buyers'"></users>
-		</div>
-		<div data-bind="if: checkUserRole() == USER_ACCOUNTANT || checkUserRole() == USER_DELIVERYMAN">
-			<orders></orders>
-		</div>
-		<div data-bind="if: checkUserRole() == USER_SELLER ||  checkUserRole() == USER_ADMIN">
-			<admin-products></admin-products>
-		</div>
-		<profile></profile>
-
-		<footer>
-			<p class="copy">All copyrights are reserved, OMarket ® 2016</p>
-			<p class="devby">Developed by CMP-2019</p>
-		</footer>
-
-	</div>
-	<!--Templates-->
-	<template id="profile-page-content">
-        <div class="category-items-short cart-items-short">
-            <a class="category-items-short--title">Account</a>
-            <div class="account-details">
-               
-                 <div class="account-div">
-                    <div class="account-currentpass"><p class="account-passtext">Name: </p><input type="text" data-bind="textInput: userModel.name" placeholder="Name" class="account-currentpassinput account-input"></div>
+    <body>
+        <div class="container" id="container">
+            <header id="header" params="cartAmount: cartAmount">
+                <div class="header-leftside">
+                    <h1 class="header-title"><a class="header-title-link"><span class="header-title-O">O</span><span class="header-title-Market">Market</span></a></h1>
                 </div>
-                
-                 <div class="account-div">
-                    <div class="account-currentpass"><p class="account-passtext">Telephone: </p><input type="text" data-bind="textInput: userModel.tel" placeholder="Telephone..." class="account-currentpassinput account-input"></div>
-                </div>
-                <div class="account-div" data-bind="if: checkUserRole() == USER_SELLER">		
-                    <p class="account-addresstext">Address: </p><textarea class="account-addresstextarea" data-bind="textInput: userModel.address" placeholder="Address..."></textarea>
-                    <p class="account-addresstext">Bank Account: </p><textarea class="account-addresstextarea" data-bind="textInput: userModel.bankAccount" placeholder="Bank Account..."></textarea>
-                </div>
-                <div class="account-div">
-
-                    <div class="account-editpass"><p class="account-editpasstext" data-bind="visible: !userModel.changePass(), click: function(){userModel.changePass(!userModel.changePass());}">edit password</p>
-                    </div>
-                    <div class="account-div" data-bind="visible: userModel.changePass()">
-                        <p class="account-passtext">New Pass: </p>
-                        <input type="password" data-bind="textInput: userModel.newPass" placeholder="•••••••••••" class="account-newpassinput account-input">
+                <div class="header-rightside">
+                    <div class="header-links">
+                        <a class="header-username"><span data-bind="text: getUserModel().name()"></span></a>
+                        <a data-bind="click: logOut" class="header-logout"><span>Logout</span></a>
                     </div>
                 </div>
-                <div class="account-div">
-                    <div class="account-currentpass"><p class="account-passtext">Current Pass: </p><input type="password" data-bind="textInput: userModel.currentPass" placeholder="•••••••••••" class="account-currentpassinput account-input"></div>
-                </div>
-                <div class="account-save"><button class="cart-checkout account-save" data-bind="click: saveProfile">Save</button></div>
+            </header>
+            <div data-bind="if: checkUserRole() == USER_ADMIN">
+                <categories></categories>
             </div>
+            <div data-bind="if: checkUserRole() == USER_ADMIN">
+                <employees params="employeeTypeName: 'Accountants', employeeType : USER_ACCOUNTANT, employeeSingleName: 'Accountant'"></employees>
+                <employees params="employeeTypeName: 'Delivery Staff', employeeType : USER_DELIVERYMAN, employeeSingleName: 'Deliveryman'"></employees>
+                <users params="type: 'Sellers'"></users>
+                <users params="type: 'Buyers'"></users>
+            </div>
+            <div data-bind="if: checkUserRole() == USER_ACCOUNTANT || checkUserRole() == USER_DELIVERYMAN">
+                <orders></orders>
+            </div>
+            <div data-bind="if: checkUserRole() == USER_SELLER ||  checkUserRole() == USER_ADMIN">
+                <admin-products></admin-products>
+            </div>
+            <profile></profile>
+
+            <footer>
+                <p class="copy">All copyrights are reserved, OMarket ® 2016</p>
+                <p class="devby">Developed by CMP-2019</p>
+            </footer>
+
         </div>
-    </template>
-	<template id="orders-template">
+        <!--Templates-->
+        <template id="profile-page-content">
+            <div class="category-items-short cart-items-short">
+                <a class="category-items-short--title">Account</a>
+                <div class="account-details">
+
+                    <div class="account-div">
+                        <div class="account-currentpass"><p class="account-passtext">Name: </p><input type="text" data-bind="textInput: userModel.name" placeholder="Name" class="account-currentpassinput account-input"></div>
+                    </div>
+
+                    <div class="account-div">
+                        <div class="account-currentpass"><p class="account-passtext">Telephone: </p><input type="text" data-bind="textInput: userModel.tel" placeholder="Telephone..." class="account-currentpassinput account-input"></div>
+                    </div>
+                    <div class="account-div" data-bind="if: checkUserRole() == USER_SELLER">		
+                        <p class="account-addresstext">Address: </p><textarea class="account-addresstextarea" data-bind="textInput: userModel.address" placeholder="Address..."></textarea>
+                        <p class="account-addresstext">Bank Account: </p><textarea class="account-addresstextarea" data-bind="textInput: userModel.bankAccount" placeholder="Bank Account..."></textarea>
+                    </div>
+                    <div class="account-div">
+
+                        <div class="account-editpass"><p class="account-editpasstext" data-bind="visible: !userModel.changePass(), click: function(){userModel.changePass(!userModel.changePass());}">edit password</p>
+                        </div>
+                        <div class="account-div" data-bind="visible: userModel.changePass()">
+                            <p class="account-passtext">New Pass: </p>
+                            <input type="password" data-bind="textInput: userModel.newPass" placeholder="•••••••••••" class="account-newpassinput account-input">
+                        </div>
+                    </div>
+                    <div class="account-div">
+                        <div class="account-currentpass"><p class="account-passtext">Current Pass: </p><input type="password" data-bind="textInput: userModel.currentPass" placeholder="•••••••••••" class="account-currentpassinput account-input"></div>
+                    </div>
+                    <div class="account-save"><button class="cart-checkout account-save" data-bind="click: saveProfile">Save</button></div>
+                </div>
+            </div>
+        </template>
+        <template id="orders-template">
             <div class="category-items-short cart-items-short">
                 <a class="category-items-short--title">Orders</a>
                 <div class="orders-filters" data-bind="if: checkUserRole() == USER_ACCOUNTANT">
@@ -134,9 +134,9 @@
                             </label>
                         </div>
                         <input type="text" placeholder="From..." id="startdate" class="orders-filters--datepicker" readonly
-                        data-bind="textInput: minDate">
+                               data-bind="textInput: minDate">
                         <input type="text" placeholder="...To" id="enddate" class="orders-filters--datepicker" readonly
-                        data-bind="textInput: maxDate"></div>
+                               data-bind="textInput: maxDate"></div>
                     <div class="orders-filters--div orders-filters--div-small">
                         <button class="orders-filters--filter-button" data-bind="click: loadOrders">Filter</button>
                     </div>
@@ -153,7 +153,7 @@
                 </div>
             </div>
         </template>
-	<template id="single-order-template">
+        <template id="single-order-template">
             <div class="order-details">
                 <p><strong>Order</strong>: #<span data-bind="text: params[ORDERS_ID]"></span></p>
                 <p><strong>Date</strong>: <span data-bind="text: params[ORDERS_DATE]"></span></p>
@@ -161,31 +161,31 @@
             </div>
             <div class="order-actions">
                 <p><strong>Status</strong>: <span data-bind="text: params.textStatus()"></span></p>
-			</div>
+            </div>
 
         </template>
-	<template id="single-delivery-request-template">
+        <template id="single-delivery-request-template">
             <div class="order-details">
                 <p><strong>Order</strong>: #<span data-bind="text: params[DELIVERYREQUESTS_ID]"></span></p>
                 <p><strong>Buyer</strong>: </p>
-				<p style="padding-left:20px;"><span>Name: </span><span data-bind="text: params[USERS_FLD_NAME]"></span></p>
-				<p style="padding-left:20px;"><span>Tel: </span><span data-bind="text: params[USERS_FLD_TEL]"></span></p>
-				<p style="padding-left:20px;"><span>Address: </span><span data-bind="text: params[BUYERS_FLD_ADDRESS]"></span></p>
-               
+                <p style="padding-left:20px;"><span>Name: </span><span data-bind="text: params[USERS_FLD_NAME]"></span></p>
+                <p style="padding-left:20px;"><span>Tel: </span><span data-bind="text: params[USERS_FLD_TEL]"></span></p>
+                <p style="padding-left:20px;"><span>Address: </span><span data-bind="text: params[BUYERS_FLD_ADDRESS]"></span></p>
+
             </div>
             <div class="order-actions">
-                 <p><strong>Due Date</strong>: <span data-bind="text: params[DELIVERYREQUESTS_DUEDATE]"></span></p>
-                 <p><strong>Total</strong>: <span data-bind="text: params[ORDERS_COST]"></span>$</p>
+                <p><strong>Due Date</strong>: <span data-bind="text: params[DELIVERYREQUESTS_DUEDATE]"></span></p>
+                <p><strong>Total</strong>: <span data-bind="text: params[ORDERS_COST]"></span>$</p>
                 <p><strong>Status</strong>: <span data-bind="text: params.textStatus()"></span></p>
-				<span data-bind="if: checkUserRole() == USER_DELIVERYMAN">
-					<span class="order-cancel" data-bind="if: params[ORDERS_STATUS_ID]() == ORDER_STATUS_PENDING, click:function(){changeOrderStatus(ORDER_STATUS_PICKED)}">mark picked</span>
-					<span class="order-cancel" data-bind="if: params[ORDERS_STATUS_ID]() == ORDER_STATUS_PICKED, click:function(){changeOrderStatus(ORDER_STATUS_SHIPPED)}">mark shipped</span>
-					<span class="order-cancel" data-bind="if: params[ORDERS_STATUS_ID]() == ORDER_STATUS_SHIPPED, click:function(){changeOrderStatus(ORDER_STATUS_DELIVERED)}">mark delivered</span>
+                <span data-bind="if: checkUserRole() == USER_DELIVERYMAN">
+                    <span class="order-cancel" data-bind="if: params[ORDERS_STATUS_ID]() == ORDER_STATUS_PENDING, click:function(){changeOrderStatus(ORDER_STATUS_PICKED)}">mark picked</span>
+                    <span class="order-cancel" data-bind="if: params[ORDERS_STATUS_ID]() == ORDER_STATUS_PICKED, click:function(){changeOrderStatus(ORDER_STATUS_SHIPPED)}">mark shipped</span>
+                    <span class="order-cancel" data-bind="if: params[ORDERS_STATUS_ID]() == ORDER_STATUS_SHIPPED, click:function(){changeOrderStatus(ORDER_STATUS_DELIVERED)}">mark delivered</span>
                 </span>
             </div>
 
         </template>
-	<template id="users-template">
+        <template id="users-template">
             <div class="category-items-short cart-items-short">
                 <a class="category-items-short--title" data-bind="text: type"></a>
                 <p class="no-items" data-bind="if: !usersArray().length">No Users</p>
@@ -196,14 +196,14 @@
                 </div>
             </div>
         </template>
-	<template id="single-user-template">
+        <template id="single-user-template">
             <p data-bind="text: params.email" class="single-category-item--category-name"></p>
             <div class="single-category-item--category-actions">
                 <a data-bind="visible: params[USERS_FLD_STATUS]() == USER_ACTIVE, click: $parents[1].blockUser" class="single-category-item--category-edit">block</a>
                 <a data-bind="visible: params[USERS_FLD_STATUS]() == USER_BANNED, click: $parents[1].unblockUser" class="single-category-item--category-edit">unblock</a>
             </div>
         </template>
-	<template id="employees-template">
+        <template id="employees-template">
             <div class="category-items-short cart-items-short">
                 <a class="category-items-short--title" data-bind="text: employeeTypeName"></a>
                 <p class="no-items" data-bind="if: !employeesArray().length">No <span data-bind="text: employeeTypeName"></span></p>
@@ -221,7 +221,7 @@
                 </div>
             </div>
         </template>
-	<template id="single-employee-template">
+        <template id="single-employee-template">
             <p data-bind="text: params.email,  visible: !params.editMode()" class="single-category-item--category-name"></p>
             <input type="text" data-bind="textInput: params.tmpEmail, visible: params.editMode" class="single-category-item--category-name-editinput employee">
             <input type="password" data-bind="textInput: params.pass, visible: params.editMode" class="single-category-item--category-name-editinput employee" placeholder="Leave empty to keep password as is">
@@ -232,7 +232,7 @@
             </div>
 
         </template>
-	<template id="categories-template">
+        <template id="categories-template">
             <div class="category-items-short cart-items-short">
                 <a class="category-items-short--title">Categories</a>
                 <p class="no-items" data-bind="if: !categoriesArray().length">No Categories</p>
@@ -249,17 +249,41 @@
                 </div>
             </div>
         </template>
-	<template id="single-category-template">
-            <p data-bind="text: params.name,  visible: !params.editMode()" class="single-category-item--category-name"></p>
+        <template id="single-category-template">
+            <p data-bind="text: params.name,  visible: !params.editMode(), click: function(){params.expanded(!params.expanded());}" class="single-category-item--category-name"></p>
             <input type="text" data-bind="textInput: params.tmpName, visible: params.editMode" class="single-category-item--category-name-editinput">
             <div class="single-category-item--category-actions">
                 <a data-bind="visible: !params.editMode(), click: function(){params.editMode(true);}" class="single-category-item--category-edit">edit</a>
                 <a data-bind="visible: !params.editMode(), click: $parents[1].removeCategory" class="single-category-item--category-delete">delete</a>
                 <a data-bind="visible: params.editMode(), click: save" class="single-category-item--category-save">save</a>
             </div>
+            <div data-bind="visible: params.expanded()">
+                <div class="clearfloat"></div>
+                <p class="no-items" data-bind="if: !params[CATEGORIES_SPEC]().length, visible:!params[CATEGORIES_SPEC]().length">No Category Specification</p>
+                <div class="single-category-specs" data-bind="foreach: params[CATEGORIES_SPEC]()">
+                    <div class="mytextdiv" data-bind="visible: !$data.editMode()">
+                        <div class="mytexttitle single-category-item--category-spec-name" data-bind="text: '•  ' + $data[CATEGORIES_SPEC_FLD_NAME]()"></div>
+                        <div class="divider"></div>
+                    </div>
+                    <input type="text" data-bind="textInput: $data.tmpName, visible: $data.editMode" class="single-category-item--category-name-editinput">
+                    <div class="single-category-item--category-actions">
+                        <a data-bind="visible: !$data.editMode(), click: function(){$data.editMode(true);}" class="single-category-item--category-edit">edit</a>
+                        <a data-bind="visible: !$data.editMode(), click: function(){$parents[0].removeCategorySpec($data);}" class="single-category-item--category-delete">delete</a>
+                        <a data-bind="visible: $data.editMode(), click: function(){$parents[0].saveCategorySpec($data);}" class="single-category-item--category-save">save</a>
+                    </div>
+                </div>
+                <div class="clearfloat"></div>
+                <div class="category-items-short--add-category">
+                    <input type="text" data-bind="textInput: newCategorySpecName" placeholder="New Category Specification Name..." class="single-category-item--category-name-editinput" maxlength="50">
+                    <div class="single-category-item--category-actions">
+                        <a data-bind="click: addNewCategorySpec" class="single-category-item--category-save">add</a>
+                    </div>
+                </div>
+
+            </div>
         </template>
 
-	<template id="admin-products-template">
+        <template id="admin-products-template">
             <products id="search-products">
                 <div class="category-items-short cart-items-short">
                     <a class="category-items-short--title">Products</a>
@@ -277,19 +301,19 @@
                         <input type="text" data-bind="" placeholder="Origin..." class="product-edit--input-title editinput">
                         <input type="text" data-bind="" placeholder="Provider..." class="product-edit--input-title editinput">
                         <input type="text" data-bind="" placeholder="Product Image (URL)..." class="product-edit--input-title editinput">
-						<select data-bind="optionsCaption: 'Choose Category...', options: allCategories
+                        <select data-bind="optionsCaption: 'Choose Category...', options: allCategories
                        	,optionsText: 'name', value: newProduct.category" class="admin-products--category-menu" >
-						</select>
-                   		<div data-bind="foreach: categorySpecs">
-							<input type="text" class="product-edit--input-title editinput" data-bind="attr: {placeholder: name }, textInput: value">
-						</div>
-						<button data-bind="click: addNewProduct" class="orders-filters--filter-button addproduct">Add product</button>
+                        </select>
+                        <div data-bind="foreach: categorySpecs">
+                            <input type="text" class="product-edit--input-title editinput" data-bind="attr: {placeholder: name }, textInput: value">
+                        </div>
+                        <button data-bind="click: addNewProduct" class="orders-filters--filter-button addproduct">Add product</button>
 
                     </div>
                 </div>
             </products>
         </template>
-	<template id="single-product-view">
+        <template id="single-product-view">
             <div data-bind="visible: !params.editMode()">
                 <h2 class="categories-single-item--title" data-bind="text: params.name"></h2>
                 <img class="categories-single-item--img" data-bind="attr:{src: params.image}">
@@ -337,12 +361,12 @@
                 <p data-bind="click: save" class="cart-cancel-product">save</p>
             </div>
         </template>
-	<!--Scripts-->
-	<script type="text/javascript" src="../js/jwt-decode.min.js"></script>
-	<script type="text/javascript" src="../js/knockout-3.3.0.js"></script>
-	<script type="text/javascript" src="../js/sammy-latest.min.js"></script>
-	<script src="../js/jsconstants.js"></script>
-	<script src="js/admin.js"></script>
-</body>
+        <!--Scripts-->
+        <script type="text/javascript" src="../js/jwt-decode.min.js"></script>
+        <script type="text/javascript" src="../js/knockout-3.3.0.js"></script>
+        <script type="text/javascript" src="../js/sammy-latest.min.js"></script>
+        <script src="../js/jsconstants.js"></script>
+        <script src="js/admin.js"></script>
+    </body>
 
 </html>

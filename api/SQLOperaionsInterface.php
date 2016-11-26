@@ -70,8 +70,6 @@ interface SQLOperationsInterface {
 
     public function getAllProducts();
 
-    public function getAllCategories();
-
     public function updateProductSpec($id, $productId, $catId, $spec);
 
     public function addProductSpec($productId, $specs);

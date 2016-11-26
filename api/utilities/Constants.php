@@ -137,19 +137,20 @@ class Constants {
     const PRODUCT_SPEC_ADD_FAILED = 9003;
 
     /**
-     * Category Spec operation functions (0x) constants
+     * Category Spec operation functions (10x) constants
      */
-    const CATEGORY_SPECS_INSERT_FAILED = 00;
-    const CATEGORY_SPECS_NAME_REPEATED = 01;
-    const CATEGORY_SPECS_ADD_SUCCESS = 02;
-    const CATEGORY_SPECS_INVALID_CAT_ID = 03;
-    const CATEGORY_SPECS_EMPTY_DATA = 04;
-    const CATEGORY_SPECS_UPDATE_FAILED = 05;
-    const CATEGORY_SPECS_PRIMARY_KEY = 06;
-    const CATEGORY_SPEC_UPDATE_SUCCESS = 07;
-    const CATEGORY_SPECS_INVALID_SPEC_ID = 08;
-    const CATEGORY_SPEC_DELETE_FAILED = 09;
-    const CATEGORY_SPEC_DELETE_SUCCESS = 000;
+    const CATEGORY_SPECS_INSERT_FAILED = 100;
+    const CATEGORY_SPECS_NAME_REPEATED = 101;
+    const CATEGORY_SPECS_ADD_SUCCESS = 102;
+    const CATEGORY_SPECS_INVALID_CAT_ID = 103;
+    const CATEGORY_SPECS_EMPTY_DATA = 104;
+    const CATEGORY_SPECS_UPDATE_FAILED = 105;
+    const CATEGORY_SPECS_PRIMARY_KEY = 106;
+    const CATEGORY_SPEC_UPDATE_SUCCESS = 107;
+    const CATEGORY_SPECS_INVALID_SPEC_ID = 108;
+    const CATEGORY_SPEC_DELETE_FAILED = 109;
+    const CATEGORY_SPEC_DELETE_SUCCESS = 110;
+    const CATEGORY_SPEC_SELECT_SUCCESS = 111;
 
     /**
      * User operations constants
@@ -286,6 +287,7 @@ class Constants {
     const TBL_CATEGORIES = 'categories';
     const CATEGORIES_FLD_NAME = 'name';
     const CATEGORIES_FLD_ID = '_id';
+    const CATEGORIES_SPEC = 'spec';
     //==================================
     //THE RATE TABLE CONSTANTS
     const TBL_RATE = 'rates';

@@ -2,6 +2,37 @@
     Created on : Oct 21, 2016, 6:07:50 PM
     Author     : ibrahimradwan
 */
+
+
+/*	GENERAL  */
+
+.clearfloat {
+	clear: both;
+	float: none;
+}
+
+.mytextdiv {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	width: 90%;
+}
+
+.mytexttitle {
+	flex-grow: 0;
+}
+
+.divider {
+	border: 0.5px dashed rgba(147, 143, 143, 0.51);
+	flex-grow: 1;
+	margin-left: 25px;
+	height: 1px;
+	/*	background-color: #9f9f9f;*/
+}
+
+
+/*	Header: ;*/
+
 .header-title-Market::after {
 	font-family: 'Raleway', helvetica;
 	content: 'Control Panel';
@@ -45,7 +76,12 @@
 	text-align: left;
 	padding: 0;
 	margin: 0;
+	cursor: pointer;
 	margin-top: 10px;
+}
+
+.single-category-item--category-name:hover {
+	text-decoration: underline;
 }
 
 .single-category-item--category-name-editinput {
@@ -96,6 +132,25 @@
 .category-items-short--add-category {
 	overflow: auto;
 	padding: 10px 20px;
+}
+
+.single-category-specs {
+	display: flex;
+	flex-wrap: wrap;
+	padding-left: 20px;
+	margin-top: 5px;
+	padding-top: 5px;
+}
+
+.single-category-item--category-spec-name {
+	font-family: 'Raleway', helvetica;
+	/*	font-size: 18px;*/
+	/*	float: left;*/
+	/*	width: 90%;*/
+	/*	text-align: left;*/
+	padding: 0;
+	margin: 0;
+	/*	margin-top: 10px;*/
 }
 
 
@@ -241,7 +296,8 @@
 	width: 100%;
 }
 
-.cart-cancel-product:hover,.cart-cancel-product-expanded:hover {
+.cart-cancel-product:hover,
+.cart-cancel-product-expanded:hover {
 	text-decoration: underline;
 	color: #4a4a9d;
 	transition: 0.5s;

@@ -209,8 +209,40 @@ $app->put('/category', function (Request $request, Response $response) {
     }
 });
 $app->get('/category', function (Request $request, Response $response) {
+    $sqlOperations = new SQLOperations();
+    return $response->withStatus(200)->write($sqlOperations->getAllCategories());
+});
+
+$app->post('/categoryspec', function (Request $request, Response $response) {
+    if (authUsers([Constants::USER_ADMIN], $request, $response)) {
         $sqlOperations = new SQLOperations();
-        return $response->withStatus(200)->write($sqlOperations->getAllCategories());
+        $postVars = $request->getParsedBody();
+        $cateSpecName = $postVars[Constants::CATEGORIES_SPEC_FLD_NAME];
+        $cateSpecCateID = $postVars[Constants::CATEGORIES_SPEC_FLD_CATID];
+        return $response->withStatus(200)->write($sqlOperations->addCategorySpec($cateSpecCateID, $cateSpecName));
+    } else {
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+    }
+});
+$app->put('/categoryspec', function (Request $request, Response $response) {
+    if (authUsers([Constants::USER_ADMIN], $request, $response)) {
+        $sqlOperations = new SQLOperations();
+        $postVars = $request->getParsedBody();
+        $cateSpecNewName = $postVars[Constants::CATEGORIES_SPEC_FLD_NAME];
+        $cateSpecID = $postVars[Constants::CATEGORIES_SPEC_FLD_ID];
+        $cateSpecCatID = $postVars[Constants::CATEGORIES_SPEC_FLD_CATID];
+        return $response->withStatus(200)->write($sqlOperations->updateCategorySpec($cateSpecID, $cateSpecCatID, $cateSpecNewName));
+    } else {
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+    }
+});
+$app->delete('/categoryspec/{specID}', function (Request $request, Response $response) {
+    if (authUsers([Constants::USER_ADMIN], $request, $response)) {
+        $sqlOperations = new SQLOperations();
+        return $response->withStatus(200)->write($sqlOperations->deleteCategorySpec($request->getAttribute('specID')));
+    } else {
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+    }
 });
 //Get All ORDERS (May be needed for accountant)
 // reponds to both `/orders/` and `/orders/123`

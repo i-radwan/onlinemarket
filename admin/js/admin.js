@@ -42,15 +42,27 @@ function categoryModel(category) {
 	var self = this;
 	self[CATEGORIES_FLD_ID] = category[CATEGORIES_FLD_ID];
 	self[CATEGORIES_FLD_NAME] = ko.observable(category[CATEGORIES_FLD_NAME]);
-	self.tmpName = ko.observable(category.name);
+	self[CATEGORIES_SPEC] = ko.observableArray();
+	self.tmpName = ko.observable(category[CATEGORIES_FLD_NAME]);
+	self.editMode = ko.observable(false);
+	self.expanded = ko.observable(false);
+}
+
+function categorySpecModel(categorySpec) {
+	var self = this;
+	self[CATEGORIES_SPEC_FLD_ID] = categorySpec[CATEGORIES_SPEC_FLD_ID];
+	self[CATEGORIES_SPEC_FLD_NAME] = ko.observable(categorySpec[CATEGORIES_SPEC_FLD_NAME]);
+	self[CATEGORIES_SPEC_FLD_CATID] = categorySpec[CATEGORIES_SPEC_FLD_CATID];
+	self.tmpName = ko.observable(categorySpec[CATEGORIES_SPEC_FLD_NAME]);
 	self.editMode = ko.observable(false);
 }
 
-function categorySpecModel(categoySpec) {
-	this.id = ko.observable(categoySpec.id);
-	this.name = ko.observable(categoySpec.name);
-	this.value = ko.observable("");
-}
+
+//function categorySpecModel(categoySpec) {
+//	this.id = ko.observable(categoySpec.id);
+//	this.name = ko.observable(categoySpec.name);
+//	this.value = ko.observable("");
+//}
 
 function employeeModel(employee) {
 	this[USERS_FLD_ID] = ko.observable(employee[USERS_FLD_ID]);
@@ -228,7 +240,11 @@ function categoriesViewModel(params) {
 	self.init = function () {
 		// Get all categories from API and add them to the array
 		getCategoriesArray().forEach(function (category) {
-			self.categoriesArray.push(new categoryModel(category));
+			var newCategoryModel = new categoryModel(category);
+			category[CATEGORIES_SPEC].forEach(function (categorySpec) {
+				newCategoryModel[CATEGORIES_SPEC].push(new categorySpecModel(categorySpec));
+			});
+			self.categoriesArray.push(newCategoryModel);
 		});
 	}();
 
@@ -245,7 +261,7 @@ function categoriesViewModel(params) {
 		}
 		var isUnique = true;
 		ko.utils.arrayForEach(self.categoriesArray(), function (category, index) {
-			if (category.name().trim() == self.newCategoryName().trim()) {
+			if (category[CATEGORIES_FLD_NAME]().trim() == self.newCategoryName().trim()) {
 				isUnique = false;
 			}
 		});
@@ -269,6 +285,7 @@ function singleCategoryViewModel(params) {
 	var self = this;
 	self.params = params.value;
 	self.parent = params.parent;
+	self.newCategorySpecName = ko.observable("");
 	self.init = function () {}();
 	self.save = function (item, event) {
 		if (item.params.tmpName().trim().length > 0) {
@@ -282,6 +299,57 @@ function singleCategoryViewModel(params) {
 				if (editCategory(item.params[CATEGORIES_FLD_ID], item.params.tmpName())) {
 					item.params[CATEGORIES_FLD_NAME](item.params.tmpName().trim());
 					item.params.editMode(false);
+				}
+			} else {
+				alert("Please choose different unique name!");
+			}
+		} else {
+			alert("Please enter name!");
+		}
+	}
+	self.removeCategorySpec = function (item) {
+		if (confirm("Are you sure?")) {
+			if (deleteCategorySpec(item[CATEGORIES_SPEC_FLD_ID]))
+				self.params[CATEGORIES_SPEC].remove(item);
+		}
+	}
+	self.addNewCategorySpec = function () {
+		if (!self.newCategorySpecName() || self.newCategorySpecName().trim().length == 0) {
+			alert("Please enter non-empty category specification name!");
+			return;
+		}
+		var isUnique = true;
+		ko.utils.arrayForEach(self.params[CATEGORIES_SPEC](), function (categorySpec, index) {
+			if (categorySpec[CATEGORIES_SPEC_FLD_NAME]().trim() == self.newCategorySpecName().trim()) {
+				isUnique = false;
+			}
+		});
+		if (isUnique) {
+			var newID = addCategorySpec(self.newCategorySpecName().trim(), self.params[CATEGORIES_FLD_ID]);
+			if (newID > 0) {
+				var categorySpecmodel = {};
+				categorySpecmodel[CATEGORIES_SPEC_FLD_ID] = newID;
+				categorySpecmodel[CATEGORIES_SPEC_FLD_NAME] = self.newCategorySpecName().trim();
+				categorySpecmodel[CATEGORIES_SPEC_FLD_CATID] = self.params[CATEGORIES_FLD_ID];
+				self.params[CATEGORIES_SPEC].push(new categorySpecModel(categorySpecmodel));
+				self.newCategorySpecName("");
+			}
+		} else {
+			alert("Please choose different unique name!");
+		}
+	}
+	self.saveCategorySpec = function (item) {
+		if (item.tmpName().trim().length > 0) {
+			var isUnique = true;
+			ko.utils.arrayForEach(self.params[CATEGORIES_SPEC](), function (categorySpec, index) {
+				if (categorySpec[CATEGORIES_SPEC_FLD_NAME]().trim() == item.tmpName().trim() && (categorySpec != item)) {
+					isUnique = false;
+				}
+			});
+			if (isUnique) {
+				if (editCategorySpec(item[CATEGORIES_SPEC_FLD_ID], item[CATEGORIES_SPEC_FLD_CATID], item.tmpName())) {
+					item[CATEGORIES_SPEC_FLD_NAME](item.tmpName().trim());
+					item.editMode(false);
 				}
 			} else {
 				alert("Please choose different unique name!");
@@ -870,7 +938,6 @@ function changeOrderStatus(orderID, newStatus) {
 			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
 		},
 		success: function (result) {
-			console.log(result);
 			var returnedData = JSON.parse(result);
 			if (returnedData.statusCode == ORDERS_UPDATE_SUCCESS) {
 				statusChanged = true;
@@ -897,7 +964,6 @@ function getDeliverymanOrders() {
 			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
 		},
 		success: function (result) {
-			console.log(result);
 			var returnedData = JSON.parse(result);
 			if (returnedData.statusCode == DELIVERYREQUESTS_GET_SUCCESSFUL) {
 				ret = returnedData.result;
@@ -1175,6 +1241,99 @@ function deleteCategory(cateID) {
 	return deleted;
 }
 
+/**
+ * This function adds category spec to db
+ * @param   {string}  name new category spec name
+ * @param   {int}  cateID new category spec category id
+ * @returns {int} new category spec ID, -1 if operation failed
+ */
+function addCategorySpec(name, cateID) {
+	var newID = -1;
+	var data = {};
+	data[CATEGORIES_SPEC_FLD_NAME] = name;
+	data[CATEGORIES_SPEC_FLD_CATID] = cateID;
+	$.ajax({
+		url: API_LINK + CATEGORY_SPEC_ENDPOINT,
+		type: 'POST',
+		async: false,
+		data: data,
+		headers: {
+			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
+		},
+		success: function (result) {
+			console.log(result);
+			var returnedData = JSON.parse(result);
+			if (returnedData.statusCode == CATEGORY_SPECS_ADD_SUCCESS) {
+				newID = returnedData.result;
+			} else {
+				alert(returnedData.errorMsg);
+			}
+		}
+	});
+	return newID;
+}
+
+/**
+ * This function updates category spec name
+ * @param   {int}  id  category spec id
+ * @param   {int}  catID  category id
+ * @param   {string}  name new category spec name
+ * @returns {boolean} true if updated
+ */
+function editCategorySpec(id, cateID, name) {
+	var updated = false;
+	var data = {};
+	data[CATEGORIES_SPEC_FLD_NAME] = name;
+	data[CATEGORIES_SPEC_FLD_ID] = id;
+	data[CATEGORIES_SPEC_FLD_CATID] = cateID;
+	$.ajax({
+		url: API_LINK + CATEGORY_SPEC_ENDPOINT,
+		type: 'PUT',
+		async: false,
+		data: data,
+		headers: {
+			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
+		},
+		success: function (result) {
+			console.log(result);
+			var returnedData = JSON.parse(result);
+			if (returnedData.statusCode == CATEGORY_SPEC_UPDATE_SUCCESS) {
+				updated = true;
+			} else {
+				alert(returnedData.errorMsg);
+			}
+		}
+	});
+	return updated;
+}
+/**
+ * This function deletes category with its ID
+ * @param   {number}  specID Specification ID
+ * @param   {number}  cateID Category ID
+ * @returns {boolean} True if deleted successfully
+ */
+function deleteCategorySpec(specID) {
+	var deleted = false;
+	$.ajax({
+		url: API_LINK + CATEGORY_SPEC_ENDPOINT + "/" + specID,
+		type: 'DELETE',
+		async: false,
+		headers: {
+			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
+		},
+		success: function (result) {
+			console.log(result);
+			var returnedData = JSON.parse(result);
+			if (returnedData.statusCode == CATEGORY_SPEC_DELETE_SUCCESS) {
+				deleted = true;
+			} else {
+				alert(returnedData.errorMsg);
+			}
+		}
+	});
+	return deleted;
+}
+
 function getCategorySpecs(cateID) {
 	return [{
 		_id: 1,
@@ -1207,7 +1366,6 @@ function getCategoriesArray() {
 			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
 		},
 		success: function (result) {
-			console.log(result);
 			var returnedData = JSON.parse(result);
 			if (returnedData.statusCode == CATEGORY_GET_ALL_CATEGORIES_SUCCESS) {
 				ret = returnedData.result;
