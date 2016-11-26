@@ -1033,6 +1033,7 @@ class SQLOperations implements SQLOperationsInterface {
     /**
      * This function gets all categories
      * @return response with array 
+     * @checkedByIAR
      */
     public function getAllCategories() {
         if (!$result = $this->db_link->query('SELECT * FROM `' . Constants::TBL_CATEGORIES . '`')) {

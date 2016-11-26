@@ -100,6 +100,11 @@ const DELIVERYREQUESTS_ORDER_ID = '_id';
 
 const CATEGORIES_FLD_ID = '_id';
 const CATEGORIES_FLD_NAME = 'name';
+
+
+const CATEGORIES_SPEC_FLD_NAME = 'name';
+const CATEGORIES_SPEC_FLD_CATID = 'category_id';
+const CATEGORIES_SPEC_FLD_ID = '_id';
 //THE PRODUCT TABLE CONSTANTS (check with abdo)
 const PRODUCT_FLD_ID = '_id';
 /**
