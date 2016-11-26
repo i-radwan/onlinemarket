@@ -61,4 +61,39 @@ interface SQLOperationsInterface {
     public function getProductRate($productId, $buyerId);
     
     public function addCategorySpec($categoryId, $name);
+    
+    public function updateCategorySpec($id, $categoryId, $name);
+
+    public function deleteCategorySpec($id);
+
+    public function getCategorySpec($id);
+
+    public function getAllProducts();
+
+    public function getAllCategories();
+
+    public function updateProductSpec($id, $productId, $catId, $spec);
+
+    public function addProductSpec($productId, $specs);
+
+    public function deleteProductSpec($productId);
+
+    public function getProductSpec($productId);
+
+    public function addProduct($name, $price, $rate, $size, $weight, $availability_id, $available_quantity, $origin, $provider, $image, $seller_id, $category_id, $solditems);
+
+    public function updateProduct($id, $name, $price, $rate, $size, $weight, $availability_id, $available_quantity, $origin, $provider, $image, $seller_id, $category_id, $solditems);
+
+    public function deleteProduct($productId, $seller_id);
+
+    public function getTotalEarnings($productId, $sellerId);
+
+    public function getProductBySeller($sellerId);
+
+    public function getProductByCategory($catId);
+
+    public function getProductByKey($key);
+
+    public function getTop3In4Cat();
+
 }

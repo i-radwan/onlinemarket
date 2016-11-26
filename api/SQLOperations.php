@@ -1214,5 +1214,605 @@ class SQLOperations implements SQLOperationsInterface {
             return $this->returnError(Constants::CATEGORY_SPECS_EMPTY_DATA, "All fields are required!");
         }
     }
+    
+    /////////////////////////////////////////////////////////
+    /**
+     * This function updates category specs
+     * @param integer $id 
+     * @param int ,$categoryId
+     * @param string $name 
+     * @return response if succeeded
+     */
+    public function updateCategorySpec($id, $categoryId, $name) {
+        if ((strlen(trim($id)) != 0) && (strlen(trim($categoryId)) != 0) && (strlen(trim($name)) != 0)) {
+            $id = Utilities::makeInputSafe($id);
+            $name = Utilities::makeInputSafe($name);
+            $categoryId = Utilities::makeInputSafe($categoryId);
+            //check if id exists
+            if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_CATEGORIES_SPEC . "` WHERE `" . Constants::CATEGORIES_SPEC_FLD_ID . "` = '$id' LIMIT 1")) {
+                return returnError(Constants::CATEGORY_SPECS_INSERT_FAILED, "Please try again later!");
+            }
+            if ($result->num_rows == 1) {
+                //check if cat id (foreign key) exists
+                if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_CATEGORIES . "` WHERE `" . Constants::CATEGORIES_FLD_USER_ID . "` = '$categoryId' LIMIT 1")) {
+                    return returnError(Constants::CATEGORY_SPECS_INSERT_FAILED, "Please try again later!");
+                }
+                if ($result->num_rows == 1) {
+                    echo 'x'; // not allowing same cat name + cat id in more than one row
+                    //if same name and catid repeated error else update
+                    if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_CATEGORIES_SPEC . "` WHERE `" . Constants::CATEGORIES_SPEC_FLD_CATID . "` = '$categoryId' AND " . Constants::CATEGORIES_SPEC_FLD_NAME . " = '$name' LIMIT 1")) {
+                        return returnError(Constants::CATEGORY_SPECS_UPDATE_FAILED, "Please try again later!");
+                    }
+
+                    if ($result->num_rows == 1) {
+                        echo'er';
+                        return returnError(Constants::CATEGORY_SPECS_PRIMARY_KEY, "category id and name are repeated ");
+                    } else { //else update all
+                        $this->db_link->query("UPDATE `" . Constants::TBL_CATEGORIES_SPEC . "` SET `" . Constants::CATEGORIES_SPEC_FLD_CATID . "` = '$categoryId' , `" . Constants::CATEGORIES_SPEC_FLD_NAME . "`= '$name'  WHERE " . Constants::CATEGORIES_SPEC_FLD_ID . "= '$id' ");
+                        $theResponse = new Responsex(Constants::CATEGORY_SPEC_UPDATE_SUCCESS, array(), "");
+                        return(json_encode($theResponse));
+                    }
+                } else {
+                    return returnError(Constants::CATEGORY_SPECS_INVALID_CAT_ID, "Invalid category id");
+                }
+            } else {
+                return returnError(Constants::CATEGORY_SPECS_INVALID_SPEC_ID, "Invalid category spec's id");
+            }
+        } else {
+            return returnError(Constants::CATEGORY_SPECS_EMPTY_DATA, "All fields are required!");
+        }
+    }
+
+    /**
+     * This function deletes category specs
+     * @param integer $id
+     * @return response 
+     */
+    public function deleteCategorySpec($id) {
+        if (strlen(trim($id)) != 0) {
+            $id = Utilities::makeInputSafe($id);
+
+            if (!$result = $this->db_link->query("DELETE FROM `" . Constants::TBL_CATEGORIES_SPEC . "` WHERE `" . Constants::CATEGORIES_SPEC_FLD_ID . "` = '$id' LIMIT 1")) {
+                return returnError(Constants::CATEGORY_SPEC_DELETE_FAILED, "Please try again later!");
+            } else {
+                // successul response
+                $theResponse = new Response(Constants::CATEGORY_SPEC_DELETE_SUCCESS, array(), "");
+                return(json_encode($theResponse));
+            }
+        } else {
+            return returnError(Constants::CATEGORY_SPECS_EMPTY_DATA, "All fields are required!");
+        }
+    }
+
+    /**
+     * This function gets category specs
+     * @param integer $id category spec's id
+     * @return response 
+     */
+    public function getCategorySpec($id) {
+        if (strlen(trim($id)) != 0) {
+            $id = Utilities::makeInputSafe($id);
+            if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_CATEGORIES_SPEC . "` WHERE `" . Constants::CATEGORIES_FLD_USER_ID . "` = '$id' LIMIT 1")) {
+                return returnError(Constants::CATEGORY_SELECT_FAILED, "Please try again later!");
+            }
+            if ($result->num_rows == 1) {
+                $row = $result->fetch_assoc();
+                $theResponse = new Response(Constants::CATEGORY_SPEC_SELECT_SUCCESS, $row, "");
+                return(json_encode($theResponse));
+            } else {
+
+                return returnError(Constants::CATEGORY_SPEC_INVALID_ID, "Please,Enter a valid category id.");
+            }
+        } else {
+            return returnError(Constants::CATEGORY_SPECS_EMPTY_DATA, "All fields are required!");
+        }
+    }
+
+    /**
+     * This function gets all products with specifications ,1 spec of a product per row
+     * @return response with array 
+     */
+    public function getAllProducts() {
+        // query: SELECT* from products INNER JOIN (select product_spec.product_id ,categories_spec._id,categories_spec.name,product_spec.value FROM categories_spec,product_spec where categories_spec._id=product_spec.categories_spec_id)
+        // As x ON products._id=product_id order by product_id
+
+        if (!$result = $this->db_link->query('SELECT * FROM `' . Constants::TBL_PRODUCTS . '`  INNER JOIN ( ' . "select " . Constants::TBL_PRODUCT_SPEC . "." . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . ',' . Constants::TBL_CATEGORIES_SPEC . '.' . Constants::CATEGORIES_SPEC_FLD_NAME . ',' . Constants::TBL_CATEGORIES_SPEC . '.' . Constants::CATEGORIES_SPEC_FLD_ID . ',' . Constants::TBL_PRODUCT_SPEC . '.' . Constants::PRODUCT_SPEC_FLD_VALUE . " from " . Constants::TBL_PRODUCT_SPEC . ',' . Constants::TBL_CATEGORIES_SPEC . " where " . Constants::TBL_CATEGORIES_SPEC . '.' . Constants::CATEGORIES_SPEC_FLD_ID . ' = ' . Constants::TBL_PRODUCT_SPEC . '.' . Constants::PRODUCT_SPEC_FLD_CAT_ID . ') AS X ON ' . Constants::TBL_PRODUCTS . '.' . Constants::PRODUCTS_FLD_USER_ID . ' = ' . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . ' order by ' . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID)) {
+            return returnError(Constants::PRODUCTS_GET_ALL_PRODUCTS_FAILED, "Please try again later!");
+        } else {
+            $ret = array();
+            while ($row = $result->fetch_assoc()) {
+                array_push($ret, $row);
+            }
+            $theResponse = new Response(Constants::PRODUCTS_GET_ALL_PRODUCTS_SUCCESS, $ret, ""); //to do const
+            return(json_encode($theResponse));
+        }
+    }
+
+    /**
+     * This function gets all categories
+     * @return response with array 
+     */
+    public function getAllCategories() {
+        if (!$result = $this->db_link->query('SELECT * FROM `' . Constants::TBL_CATEGORIES . '`  WHERE 1')) {
+            return returnError(Constants::CATEGORY_GET_ALL_CATEGORIES_FAILED, "Please try again later!");
+        } else {
+            $ret = array();
+            while ($row = $result->fetch_assoc()) {
+                array_push($ret, $row);
+            }
+            $theResponse = new Response(Constants::CATEGORY_GET_ALL_CATEGORIES_SUCCESS, $ret, ""); //tp do constants
+            echo (json_encode($theResponse));
+            return(json_encode($theResponse));
+        }
+    }
+
+    /**
+     * This function gets all categories
+     * @param int $productId 
+     * @param array $specs contains array of index AKA specName ,value
+     * @return response 
+     */
+    public function addProductSpec($productId, $specs) {
+        $productId = Utilities::makeInputSafe($productId);
+
+        if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_PRODUCTS . "` WHERE `" . Constants::PRODUCTS_FLD_USER_ID . "` = '$productId' LIMIT 1")) {
+            return returnError(Constants::CATEGORY_SPECS_INSERT_FAILED, "Please try again later!");
+        }
+        if ($result->num_rows == 1) {
+            $i = 0;
+            $specKeys = array_keys($specs);
+            foreach ($specs as $value) {
+                $specName = $specKeys[$i];
+                $specName = Utilities::makeInputSafe($specName);
+                $theQuery = $this->db_link->query("SELECT " . Constants::CATEGORIES_SPEC_FLD_ID . " FROM `" . Constants::TBL_CATEGORIES_SPEC . "` WHERE " . Constants::CATEGORIES_SPEC_FLD_NAME . " = '$specName' ");
+                $row = $theQuery->fetch_assoc();
+                $catId = $row[Constants::CATEGORIES_FLD_USER_ID];
+                // if product and cat exists then insertion failed due to repetition else success
+                if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_PRODUCT_SPEC . "` WHERE `" . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . "` = '$productId' AND " . Constants::PRODUCT_SPEC_FLD_CAT_ID . " = '$catId' LIMIT 1")) {
+                    echo' i see';
+                    return returnError(Constants::PRODUCT_SPEC_ADD_FAILED, "Please try again later!");
+                }
+                if ($result->num_rows == 1) {
+                    return returnError(Constants::PRODUCT_SPEC_ADD_FAILED, "Please try again later!"); //primary key violation
+                } else {
+                    //inserting the spec
+                    if (!$result = $this->db_link->query("INSERT INTO `" . Constants::TBL_PRODUCT_SPEC . "` ( `" . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . "`,`" . Constants::PRODUCT_SPEC_FLD_CAT_ID . "`,`" . Constants::PRODUCT_SPEC_FLD_VALUE . "`) VALUES ('$productId' , '$catId' ,'$specName' )")) {
+
+                        return returnError(Constants::PRODUCT_SPEC_ADD_FAILED, "Please try again later!");
+                    }
+                }
+                $i = $i + 1;
+            }
+            $theResponse = new Responsex(Constants::PRODUCT_SPEC_ADD_SUCCESS, array(), "");
+            return(json_encode($theResponse));
+        } else {
+            return returnError(Constants::PRODUCT_SPEC_INVALID_PRODUCTID, "Please,enter a valid product id");
+        }
+    }
+
+    /**
+     * This function updates product spec. No product id with cat id repeated .
+     * @param integer $id
+     * @param integer $productId
+     * @param integer $catId 
+     * @param string $spec ,Aka value
+     * @return response 
+     */
+    public function updateProductSpec($id, $productId, $catId, $spec) { //products id and cat id should be unique
+        if ((strlen(trim($id)) != 0) && (strlen(trim($productId)) != 0) && (strlen(trim($spec)) != 0) && (strlen(trim($catId)) != 0)) {
+            $id = Utilities::makeInputSafe($id);
+            $productId = Utilities::makeInputSafe($productId);
+            $catId = Utilities::makeInputSafe($catId);
+            $spec = Utilities::makeInputSafe($spec);
+            //check if id exists 
+            if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_PRODUCT_SPEC . "` WHERE `" . Constants::PRODUCT_SPEC_FLD_ID . "` = '$id' LIMIT 1")) {
+                return returnError(Constants::PRODUCT_SPECS_UPDATE_FAILED, "Please try again later!");
+            }
+            if ($result->num_rows == 1) {
+                //check if category's spec id (foreign key) exists
+                if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_CATEGORIES_SPEC . "` WHERE `" . Constants::CATEGORIES_SPEC_FLD_ID . "` = '$catId' LIMIT 1")) {
+                    return returnError(Constants::PRODUCT_SPECS_UPDATE_FAILED, "Please try again later!");
+                }
+                if ($result->num_rows == 1) {
+                    //check if product id (foreign key) exists
+                    if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_PRODUCTS . "` WHERE `" . Constants::PRODUCTS_FLD_USER_ID . "` = '$productId' LIMIT 1")) {
+                        return returnError(Constants::PRODUCT_SPECS_UPDATE_FAILED, "Please try again later!");
+                    }
+                    if ($result->num_rows == 1) {
+
+                        if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_PRODUCT_SPEC . "` WHERE " . Constants::PRODUCT_SPEC_FLD_CAT_ID . " = '$catId' AND " . Constants::PRODUCT_SPEC_FLD_ID . " = '$id' AND " . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . " = '$productId' LIMIT 1 ")) {
+                            return returnError(Constants::PRODUCT_SPECS_UPDATE_FAILED, "Please try again later!");
+                        }
+                        if ($result->num_rows == 0) { //updating all if primary isnt repeated
+                            if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_PRODUCT_SPEC . "` WHERE " . Constants::PRODUCT_SPEC_FLD_CAT_ID . " = '$catId' AND " . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . " = '$productId' LIMIT 1 ")) {
+                                return returnError(Constants::PRODUCT_SPECS_UPDATE_FAILED, "Please try again later!");
+                            }
+                            if ($result->num_rows == 1) {
+                                return returnError(Constants::PRODUCT_SPEC_PRIMARY_KEY_REPEATED, "Product and category shouldnt be repeated");
+                            } else {
+                                $this->db_link->query("UPDATE `" . Constants::TBL_PRODUCT_SPEC . "` SET `" . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . "` = '$productId' , `" . Constants::PRODUCT_SPEC_FLD_CAT_ID . "` = '$catId' , `" . Constants::PRODUCT_SPEC_FLD_VALUE . "` = '$spec' WHERE `" . Constants::PRODUCT_SPEC_FLD_ID . "` = '$id' ");
+                                $theResponse = new Responsex(Constants::PRODUCT_SPEC_UPDATE_SUCCESS, array(), "");
+                                return(json_encode($theResponse));
+                            }
+                        } else {
+                            //update spec only
+
+                            $this->db_link->query("UPDATE `" . Constants::TBL_PRODUCT_SPEC . "` SET `" . Constants::PRODUCT_SPEC_FLD_VALUE . "` = '$spec'  WHERE `" . Constants::PRODUCT_SPEC_FLD_ID . "` = '$id' ");
+                            $theResponse = new Responsex(Constants::PRODUCT_SPEC_UPDATE_SUCCESS, array(), "");
+                            return(json_encode($theResponse));
+                        }
+                    } else {
+                        //error invalid product
+                        return returnError(Constants::PRODUCT_SPEC_INVALID_PRODUCTID, "Please,enter a valid product id");
+                    }
+                } else {
+                    //error invalid cat
+                    return returnError(Constants::PRODUCT_SPEC_INVALID_CAT_SPECID, "Please,enter a valid Category spec's id");
+                }
+            } else {//error invalid id
+                return returnError(Constants::PRODUCT_SPEC_INVALID_ID, "Please,enter a valid id");
+            }
+        } else {
+            return returnError(Constants::PRODUCT_SPEC_EMPTY_DATA, "All fields are required!");
+        }
+    }
+
+    /**
+     * This function deletes all product's specs
+     * @param integer $productId
+     * @return response
+     */
+    public function deleteProductSpec($productId) {
+        if (strlen(trim($productId)) != 0) {
+            $productId = Utilities::makeInputSafe($productId);
+            if (!$result = $this->db_link->query("DELETE FROM `" . Constants::TBL_PRODUCT_SPEC . "` WHERE `" . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . "` = '$productId' ")) {
+                return returnError(Constants::PRODUCT_SPEC_DELETE_FAILED, "Please try again later!");
+            } else {
+                // successul response
+                $theResponse = new Response(Constants::PRODUCT_SPEC_DELETE_SUCCESS, array(), "");
+                return(json_encode($theResponse));
+            }
+        } else {
+            return returnError(Constants::PRODUCT_SPEC_EMPTY_DATA, "All fields are required!");
+        }
+    }
+
+    /**
+     * This function gets all product's specs
+     * @param integer $productId
+     * @return response with array
+     */
+    public function getProductSpec($productId) {
+        if (strlen(trim($productId)) != 0) {
+            $productId = Utilities::makeInputSafe($productId);
+            if (!$result = $this->db_link->query('SELECT * FROM `' . Constants::TBL_PRODUCT_SPEC . "` WHERE `" . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . "` = '$productId' ")) {
+                return returnError(Constants::PRODUCT_SPEC_GET_PRODUCTS_FAILED, "Please try again later!");
+            } else {
+                $ret = array();
+                while ($row = $result->fetch_assoc()) {
+                    array_push($ret, $row);
+                }
+                $theResponse = new Response(Constants::PRODUCT_SPEC_GET_PRODUCTS_SUCCESS, $ret, "");
+                return(json_encode($theResponse));
+            }
+        } else {
+            return returnError(Constants::PRODUCT_SPEC_EMPTY_DATA, "All fields are required!");
+        }
+    }
+
+    /**
+     * This function adds product 
+     * @param string $name
+     * @param int $price
+     * @param float $rate
+     * @param string $size
+     * @param decimal $weight
+     * @param integer $availability_id
+     * @param integer $available_quantity
+     * @param string $origin
+     * @param string $provider
+     * @param string $image
+     * @param integer $seller_id
+     * @param integer $category_id
+     * @param integer $solditems
+     * @return response 
+     */
+    public function addProduct($name, $price, $rate, $size, $weight, $availability_id, $available_quantity, $origin, $provider, $image, $seller_id, $category_id, $solditems) {
+
+        //make input safe 
+        $name = Utilities::makeInputSafe($name);
+        $price = Utilities::makeInputSafe($price);
+        $rate = Utilities::makeInputSafe($rate);
+        $size = Utilities::makeInputSafe($size);
+        $weight = Utilities::makeInputSafe($weight);
+        $availability_id = Utilities::makeInputSafe($availability_id);
+        $available_quantity = Utilities::makeInputSafe($available_quantity);
+        $origin = Utilities::makeInputSafe($origin);
+        $provider = Utilities::makeInputSafe($provider);
+        $image = Utilities::makeInputSafe($image);
+        $seller_id = Utilities::makeInputSafe($seller_id);
+        $category_id = Utilities::makeInputSafe($category_id);
+        $solditems = Utilities::makeInputSafe($solditems);
+
+        //check if availability ,seller ,cat id exists 
+        if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_AVAILABILITY_STATUS . "` WHERE `" . Constants::AVAILABILITY_FLD_ID . "` = '$availability_id' LIMIT 1")) {
+            return returnError(Constants::PRODUCT_ADD_FAILED, "Please try again later!");
+        }
+        if ($result->num_rows == 1) {
+            //check if seller's  id (foreign key) exists
+            if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_SELLERS . "` WHERE `" . Constants::SELLERS_FLD_USER_ID . "` = '$seller_id' LIMIT 1")) {
+                return returnError(Constants::PRODUCT_ADD_FAILED, "Please try again later!");
+            }
+            if ($result->num_rows == 1) {
+                //check if cat id (foreign key) exists
+                if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_CATEGORIES . "` WHERE `" . Constants::CATEGORIES_FLD_USER_ID . "` = '$category_id' LIMIT 1")) {
+                    return returnError(Constants::PRODUCT_ADD_FAILED, "Please try again later!");
+                }
+                if ($result->num_rows == 1) {
+                    //inserting               
+                    if (!$result = $this->db_link->query("INSERT INTO `" . Constants::TBL_PRODUCTS . "` ( `" . Constants::PRODUCTS_FLD_NAME . "`,`" . Constants::PRODUCTS_FLD_PRICE . "`,`" . Constants::PRODUCTS_FLD_RATE . "`,`" . Constants::PRODUCTS_FLD_SIZE . "`,`" . Constants::PRODUCTS_FLD_WEIGHT . "`,`" . Constants::PRODUCTS_FLD_AVAILABILITY_ID . "`,`" . Constants::PRODUCTS_FLD_AVAILABILITY_QUANTITY . "`,`" . Constants::PRODUCTS_FLD_ORIGIN . "`,`" . Constants::PRODUCTS_FLD_PROVIDER . "`,`" . Constants::PRODUCTS_FLD_IMAGE . "`,`" . Constants::PRODUCTS_FLD_SELLER_ID . "`,`" . Constants::PRODUCTS_FLD_CATEGORY_ID . "`,`" . Constants::PRODUCTS_FLD_SOLDITEMS . "`) VALUES ('$name' , '$price' ,'$rate' , '$size' , '$weight' , '$availability_id' , '$available_quantity' , '$origin' , '$provider' , '$image' , '$seller_id' , '$category_id', '$solditems' )")) {
+
+                        return returnError(Constants::PRODUCT_ADD_FAILED, "Please try again later!");
+                    } else {
+                        $theResponse = new Responsex(Constants::PRODUCT_ADD_SUCCESS, array(), "");
+                        return(json_encode($theResponse));
+                    }
+                } else {//cat's id invalid} 
+                    return returnError(Constants::PRODUCT_INVALID_CATEGORY, "Please try again later!");
+                }
+            } else {//seller's invalid
+                return returnError(Constants::PRODUCT_INVALID_SELLER, "Please try again later!");
+            }
+        } else {//availbility invalid
+            return returnError(Constants::PRODUCT_INVALID_AVAILABILITY, "Please try again later!");
+        }
+    }
+
+    /**
+     * This function deletes product
+     * @param integer $productId
+     * @param integer $seller_id
+     * @return response 
+     */
+    public function deleteProduct($productId, $seller_id) {
+        //input safe
+        if ((strlen(trim($productId)) != 0) && (strlen(trim($seller_id)) != 0)) {
+
+            $productId = Utilities::makeInputSafe($productId);
+            $seller_id = Utilities::makeInputSafe($seller_id);
+            if (!$result = $this->db_link->query("DELETE FROM `" . Constants::TBL_PRODUCTS . "` WHERE `" . Constants::PRODUCTS_FLD_USER_ID . "` = '$productId' AND " . Constants::PRODUCTS_FLD_SELLER_ID . " = '$seller_id'")) {
+                return returnError(Constants::PRODUCT_DELETE_FAILED, "Please try again later!");
+            } else {
+                // successul response
+                $theResponse = new Response(Constants::PRODUCT_DELETE_SUCCESS, array(), "");
+                return(json_encode($theResponse));
+            }
+        } else {
+            return returnError(Constants::PRODUCT_DELETE_EMPTY_DATA, "All fields are required!");
+        }
+    }
+
+    /**
+     * This function updates product based on seller id and product's id
+     * @param integer $id
+     * @param string $name
+     * @param int $price
+     * @param float $rate
+     * @param string $size
+     * @param decimal $weight
+     * @param integer $availability_id
+     * @param integer $available_quantity
+     * @param string $origin
+     * @param string $provider
+     * @param string $image
+     * @param integer $seller_id
+     * @param integer $category_id
+     * @param integer $solditems
+     * @return response 
+     */
+    public function updateProduct($id, $name, $price, $rate, $size, $weight, $availability_id, $available_quantity, $origin, $provider, $image, $seller_id, $category_id, $solditems) {
+        //make input safe
+        $id = Utilities::makeInputSafe($id);
+        $name = Utilities::makeInputSafe($name);
+        $price = Utilities::makeInputSafe($price);
+        $rate = Utilities::makeInputSafe($rate);
+        $size = Utilities::makeInputSafe($size);
+        $weight = Utilities::makeInputSafe($weight);
+        $availability_id = Utilities::makeInputSafe($availability_id);
+        $available_quantity = Utilities::makeInputSafe($available_quantity);
+        $origin = Utilities::makeInputSafe($origin);
+        $provider = Utilities::makeInputSafe($provider);
+        $image = Utilities::makeInputSafe($image);
+        $seller_id = Utilities::makeInputSafe($seller_id);
+        $category_id = Utilities::makeInputSafe($category_id);
+        $solditems = Utilities::makeInputSafe($solditems);
+        //check if availability ,seller ,cat id exists 
+        if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_AVAILABILITY_STATUS . "` WHERE `" . Constants::AVAILABILITY_FLD_ID . "` = '$availability_id' LIMIT 1")) {
+            return returnError(Constants::PRODUCT_UPDATE_FAILED, "Please try again later!");
+        }
+        if ($result->num_rows == 1) {
+            //check if seller's  id (foreign key) exists
+            if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_SELLERS . "` WHERE `" . Constants::SELLERS_FLD_USER_ID . "` = '$seller_id' LIMIT 1")) {
+                return returnError(Constants::PRODUCT_UPDATE_FAILED, "Please try again later!");
+            }
+            if ($result->num_rows == 1) {
+                //check if cat id (foreign key) exists
+                if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_CATEGORIES . "` WHERE `" . Constants::CATEGORIES_FLD_USER_ID . "` = '$category_id' LIMIT 1")) {
+                    return returnError(Constants::PRODUCT_UPDATE_FAILED, "Please try again later!");
+                }
+                if ($result->num_rows == 1) { //upate depending on seller id and product id
+                    if (!$result = $this->db_link->query("UPDATE " . Constants::TBL_PRODUCTS . " SET " . Constants::PRODUCTS_FLD_NAME . " = '$name' ," . Constants::PRODUCTS_FLD_PRICE . " = '$price' ," . Constants::PRODUCTS_FLD_SIZE . " = '$size' ," . Constants::PRODUCTS_FLD_WEIGHT . " = '$weight' ," . Constants::PRODUCTS_FLD_AVAILABILITY_ID . " = '$availability_id' ," . Constants::PRODUCTS_FLD_AVAILABILITY_QUANTITY . " = '$available_quantity' ," . Constants::PRODUCTS_FLD_ORIGIN . " = '$origin' ," . Constants::PRODUCTS_FLD_PROVIDER . " = '$provider' ," . Constants::PRODUCTS_FLD_IMAGE . " = '$image' ," . Constants::PRODUCTS_FLD_SELLER_ID . " = '$seller_id' ," . Constants::PRODUCTS_FLD_CATEGORY_ID . " = '$category_id' ," . Constants::PRODUCTS_FLD_SOLDITEMS . " = '$solditems'  WHERE `" . Constants::PRODUCTS_FLD_SELLER_ID . "` = '$seller_id' AND " . Constants::PRODUCTS_FLD_USER_ID . " = '$id'")) {
+                        return returnError(Constants::PRODUCT_UPDATE_FAILED, "Please try again later!");
+                    } else {
+                        $theResponse = new Responsex(Constants::PRODUCT_UPDATE_SUCCESS, array(), "");
+                        return(json_encode($theResponse));
+                    }
+                } else {//cat's id invalid} 
+                    return returnError(Constants::PRODUCT_INVALID_CATEGORY, "Please try again later!");
+                }
+            } else {//seller's invalid
+                return returnError(Constants::PRODUCT_INVALID_SELLER, "Please try again later!");
+            }
+        } else {//availbility invalid
+            return returnError(Constants::PRODUCT_INVALID_AVAILABILITY, "Please try again later!");
+        }
+    }
+
+    /**
+     * This function gets total earnings of a product
+     * @param integer $productId
+     * @param integer $sellerId
+     * @return response with total earnings if succeeded
+     */
+    public function getTotalEarnings($productId, $sellerId) {
+
+        //input safe
+        if ((strlen(trim($productId)) != 0) && (strlen(trim($sellerId)) != 0)) {
+            //
+            $price = Utilities::makeInputSafe($price);
+            $productId = Utilities::makeInputSafe($productId);
+            //if  seller exists
+            if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_SELLERS . "` WHERE `" . Constants::SELLERS_FLD_USER_ID . "` ='$sellerId' LIMIT 1")) {
+
+                return returnError(Constants::PRODUCT_GET_EARNINGS_FAILED, "Please try again later!");
+            }
+            if ($result->num_rows == 1) {
+                //check if product id (foreign key) exists
+                if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_PRODUCTS . "` WHERE `" . Constants::PRODUCTS_FLD_USER_ID . "` = '$productId' LIMIT 1")) {
+                    return returnError(Constants::PRODUCT_GET_EARNINGS_FAILED, "Please try again later!");
+                }
+                if ($result->num_rows == 1) {
+                    //sold items*price
+                    if (!$result = $this->db_link->query("SELECT " . Constants::PRODUCTS_FLD_PRICE . " , " . Constants::PRODUCTS_FLD_SOLDITEMS . " FROM `" . Constants::TBL_PRODUCTS . "` WHERE `" . Constants::PRODUCTS_FLD_USER_ID . "` = '$productId' AND `" . Constants::PRODUCTS_FLD_SELLER_ID . "` = '$sellerId' LIMIT 1")) {
+                        return returnError(Constants::PRODUCT_GET_EARNINGS_FAILED, "Please try again later!");
+                    }
+                    if ($result->num_rows == 1) {
+                        //success sending total earnings
+                        $row = $result->fetch_assoc();
+                        $totalEarnings = $row["price"] * $row["solditems"];
+                        echo $totalEarnings;
+                        $theResponse = new Response(Constants::PRODUCT_TOTAL_EARNINGS_SUCCESS, $totalEarnings, "");
+                        return(json_encode($theResponse));
+                    }
+                } else {
+                    //cat does not exist
+                    return returnError(Constants::PRODUCT_INVALID_CATEGORY, "Please, enter a valid category");
+                }
+            } else { //seller does not exist
+                return returnError(Constants::PRODUCT_INVALID_SELLER, "Please,enter a valid seller");
+            }
+        } else {
+            return returnError(Constants::PRODUCT_TOTAL_EARNINGS_EMPTY_DATA, "All fields are required!");
+        }
+    }
+
+    /**
+     * This function gets all the products by given seller
+     * @param integer $sellerId
+     * @return response with array of products
+     */
+    public function getProductBySeller($sellerId) {
+
+        if (strlen(trim($sellerId)) != 0) {
+            $sellerId = Utilities::makeInputSafe($sellerId);
+            if (!$result = $this->db_link->query('SELECT * FROM `' . Constants::TBL_PRODUCTS . "` WHERE `" . Constants::PRODUCTS_FLD_SELLER_ID . "` = '$sellerId' ")) {
+                return returnError(Constants::PRODUCT_GET_FROM_SELLER_FAILED, "Please try again later!");
+            } else {
+                $ret = array();
+                while ($row = $result->fetch_assoc()) {
+                    array_push($ret, $row);
+                }
+                $theResponse = new Response(Constants::PRODUCT_GET_FROM_SELLER_SUCCESS, $ret, "");
+                return(json_encode($theResponse));
+            }
+        } else {
+            return returnError(Constants::PRODUCT_GET_FROM_SELLER_EMPTY_DATA, "All fields are required!");
+        }
+    }
+
+    /**
+     * This function gets all the products by given category 
+     * @param integer $catId
+     * @return response with array of products
+     */
+    public function getProductByCategory($catId) {
+        if (strlen(trim($catId)) != 0) {
+            $catId = Utilities::makeInputSafe($catId);
+            if (!$result = $this->db_link->query('SELECT * FROM `' . Constants::TBL_PRODUCTS . "` WHERE `" . Constants::PRODUCTS_FLD_CATEGORY_ID . "` = '$catId' ")) {
+                return returnError(Constants::PRODUCT_GET_FROM_CAT_FAILED, "Please try again later!");
+            } else {
+                $ret = array();
+
+                while ($row = $result->fetch_assoc()) {
+                    array_push($ret, $row);
+                }
+                $theResponse = new Response(Constants::PRODUCT_GET_FROM_CAT_SUCCESS, $ret, "");
+                return(json_encode($theResponse));
+            }
+        } else {
+            return returnError(Constants::PRODUCT_GET_FROM_CAT_EMPTY_DATA, "All fields are required!");
+        }
+    }
+
+    /**
+     * This function gets all the products by part of word or a close word
+     * @param integer $key
+     * @return response with array of products
+     */
+    public function getProductByKey($key) {
+        if (strlen(trim($key)) != 0) {
+            $key = Utilities::makeInputSafe($key);
+            // SELECT * FROM products WHERE name LIKE '%xp%'  OR Description LIKE '%xp%'
+            if (!$result = $this->db_link->query('SELECT * FROM ' . Constants::TBL_PRODUCTS . " WHERE " . Constants::PRODUCTS_FLD_NAME . " LIKE '%$key%' OR " . Constants::PRODUCTS_FLD_DESCRIPTION . " LIKE '%$key%' ")) {
+                return returnError(Constants::PRODUCT_GET_FROM_KEY_FAILED, "Please try again later!");
+            } else {
+                $ret = array();
+                while ($row = $result->fetch_assoc()) {
+                    array_push($ret, $row);
+                }
+                $theResponse = new Response(Constants::PRODUCT_GET_FROM_KEY_SUCCESS, $ret, "");
+                return(json_encode($theResponse));
+            }
+        } else {
+            return returnError(Constants::PRODUCT_GET_FROM_KEY_EMPTY, "All fields are required!");
+        }
+    }
+
+    /**
+     * This function gets Top 3 products in top 4 categories
+     * @return response with array of products
+     */
+    public function getTop3In4Cat() {
+        //select category_id from products group by category_id order by sum(solditems) DESC limit 4
+        if (!$result = $this->db_link->query('SELECT ' . Constants::PRODUCTS_FLD_CATEGORY_ID . " from " . Constants::TBL_PRODUCTS . " group by " . Constants::PRODUCTS_FLD_CATEGORY_ID . " order by sum(" . Constants::PRODUCTS_FLD_SOLDITEMS . ") DESC limit 4")) {
+            return returnError(Constants::PRODUCT_GET_TOP_3_IN_4_CAT_FAILED, "Please try again later!");
+        } else {
+
+            $categoriesIdArray = array();
+            while ($row = $result->fetch_assoc()) {
+                array_push($categoriesIdArray, $row[Constants::PRODUCTS_FLD_CATEGORY_ID]);
+            }
+
+            $Cats4 = array(); //array carrys 4 arrays of top porducts in top 4 cat
+            foreach ($categoriesIdArray as $value) {
+                if (!$result = $this->db_link->query('SELECT ' . Constants::PRODUCTS_FLD_USER_ID . " from " . Constants::TBL_PRODUCTS . " where " . Constants::PRODUCTS_FLD_CATEGORY_ID . "= '$value' order by " . Constants::PRODUCTS_FLD_SOLDITEMS . " DESC limit 3")) {
+                    return returnError(Constants::PRODUCT_GET_TOP_3_IN_4_CAT_FAILED, "Please try again later!");
+                } else {
+                    $productsIdArray = array();
+                    while ($row = $result->fetch_assoc()) {
+
+                        array_push($productsIdArray, $row[Constants::PRODUCTS_FLD_USER_ID]);
+                    }
+                    $Cats4[$value] = $productsIdArray;
+                }
+            }
+
+            $theResponse = new Response(Constants::PRODUCT_GET_TOP_3_IN_4_CAT_SUCCESS, $Cats4, "");
+
+            echo (json_encode($theResponse));
+            return(json_encode($theResponse));
+        }
+    }
+
 
 }

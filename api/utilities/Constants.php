@@ -87,6 +87,69 @@ class Constants {
     const RATE_GET_SUCCESS = 79;
     const RATE_GET_FAILED = 700;
     const RATE_UPDATE_SUCCESS = 701;
+    const SELECT_PRODUCT_SUCCESS = 702;
+
+    /**
+     * Products operation functions (8x) constants
+     */
+    const PRODUCT_GET_TOP_3_IN_4_CAT_SUCCESS = 80;
+    const PRODUCT_GET_TOP_3_IN_4_CAT_FAILED = 81;
+    const PRODUCT_GET_FROM_KEY_SUCCESS = 82;
+    const PRODUCT_GET_FROM_KEY_FAILED = 83;
+    const PRODUCT_GET_FROM_KEY_EMPTY = 84;
+    const PRODUCT_GET_FROM_CAT_EMPTY_DATA = 85;
+    const PRODUCT_GET_FROM_CAT_SUCCESS = 86;
+    const PRODUCT_GET_FROM_CAT_FAILED = 87;
+    const PRODUCT_GET_FROM_SELLER_EMPTY_DATA = 88;
+    const PRODUCT_GET_FROM_SELLER_SUCCESS = 89;
+    const PRODUCT_GET_FROM_SELLER_FAILED = 8000;
+    const PRODUCT_GET_EARNINGS_FAILED = 8001;
+    const PRODUCT_TOTAL_EARNINGS_SUCCESS = 8002;
+    const PRODUCT_INVALID_CATEGORY = 8003;
+    const PRODUCT_INVALID_SELLER = 8004;
+    const PRODUCT_TOTAL_EARNINGS_EMPTY_DATA = 8005;
+    const PRODUCT_INVALID_AVAILABILITY = 8006;
+    const PRODUCT_UPDATE_SUCCESS = 8007;
+    const PRODUCT_UPDATE_FAILED = 8008;
+    const PRODUCT_DELETE_EMPTY_DATA = 8009;
+    const PRODUCT_DELETE_SUCCESS = 8010;
+    const PRODUCT_DELETE_FAILED = 8011;
+    const PRODUCT_ADD_SUCCESS = 8012;
+    const PRODUCT_ADD_FAILED = 8013;
+    const PRODUCTS_GET_ALL_PRODUCTS_SUCCESS = 8014;
+    const PRODUCTS_GET_ALL_PRODUCTS_FAILED = 8015;
+
+    /**
+     * Products Spec operation functions (9x) constants
+     */
+    const PRODUCT_SPEC_EMPTY_DATA = 90;
+    const PRODUCT_SPEC_GET_PRODUCTS_SUCCESS = 91;
+    const PRODUCT_SPEC_GET_PRODUCTS_FAILED = 92;
+    const PRODUCT_SPEC_INVALID_ID = 93;
+    const PRODUCT_SPEC_DELETE_SUCCESS = 94;
+    const PRODUCT_SPEC_DELETE_FAILED = 95;
+    const PRODUCT_SPEC_INVALID_CAT_SPECID = 96;
+    const PRODUCT_SPEC_INVALID_PRODUCTID = 97;
+    const PRODUCT_SPEC_UPDATE_SUCCESS = 98;
+    const PRODUCT_SPECS_UPDATE_FAILED = 99;
+    const PRODUCT_SPEC_PRIMARY_KEY_REPEATED = 9001;
+    const PRODUCT_SPEC_ADD_SUCCESS = 9002;
+    const PRODUCT_SPEC_ADD_FAILED = 9003;
+
+    /**
+     * Category Spec operation functions (0x) constants
+     */
+    const CATEGORY_SPECS_INSERT_FAILED = 00;
+    const CATEGORY_SPECS_NAME_REPEATED = 01;
+    const CATEGORY_SPECS_ADD_SUCCESS = 02;
+    const CATEGORY_SPECS_INVALID_CAT_ID = 03;
+    const CATEGORY_SPECS_EMPTY_DATA = 04;
+    const CATEGORY_SPECS_UPDATE_FAILED = 05;
+    const CATEGORY_SPECS_PRIMARY_KEY = 06;
+    const CATEGORY_SPEC_UPDATE_SUCCESS = 07;
+    const CATEGORY_SPECS_INVALID_SPEC_ID = 08;
+    const CATEGORY_SPEC_DELETE_FAILED = 09;
+    const CATEGORY_SPEC_DELETE_SUCCESS = 000;
 
     /**
      * User operations constants
@@ -199,13 +262,25 @@ class Constants {
     //==================================
     //THE PRODUCTS (Check with abdo)
     const TBL_PRODUCTS = "products";
-    const PRODUCTS_FLD_ID = "_id"; //const PRODUCTS_FLD_USER_ID = '_id';
     const PRODUCTS_FLD_AVA_QUANTITY = "available_quantity";
     const PRODUCTS_FLD_AVA_STATUS = "availability_id";
     const PRODUCT_AVAILABLE = "1"; // Relative to DB
     const PRODUCT_INAVAILABLE = "2"; // Relative to DB'
     const PRODUCTS_FLD_CATEGORY_ID = 'category_id';
     const PRODUCTS_FLD_RATE = 'rate';
+    const PRODUCTS_FLD_USER_ID = '_id';
+    const PRODUCTS_FLD_PRICE = 'price';
+    const PRODUCTS_FLD_NAME = 'name';
+    const PRODUCTS_FLD_SIZE = 'size';
+    const PRODUCTS_FLD_WEIGHT = 'weight';
+    const PRODUCTS_FLD_AVAILABILITY_ID = 'availability_id';
+    const PRODUCTS_FLD_AVAILABILITY_QUANTITY = 'available_quantity';
+    const PRODUCTS_FLD_ORIGIN = 'origin';
+    const PRODUCTS_FLD_PROVIDER = 'provider';
+    const PRODUCTS_FLD_IMAGE = 'image';
+    const PRODUCTS_FLD_SELLER_ID = 'seller_id';
+    const PRODUCTS_FLD_SOLDITEMS = 'solditems';
+    const PRODUCTS_FLD_DESCRIPTION = 'Description ';
     //==================================
     //THE CATEGORIES TABLE CONSTANTS
     const TBL_CATEGORIES = 'categories';
@@ -222,12 +297,18 @@ class Constants {
     const PRODUCT_SPEC_FLD_PRODUCT_ID = 'product_id';
     const PRODUCT_SPEC_FLD_CAT_ID = 'categories_spec_id';
     const PRODUCT_SPEC_FLD_VALUE = 'value';
+    const PRODUCT_SPEC_FLD_ID = '_id';
     //==================================
     //THE CATEGORIES SPEC TABLE CONSTANTS
     const TBL_CATEGORIES_SPEC = 'categories_spec';
     const CATEGORIES_SPEC_FLD_NAME = 'name';
     const CATEGORIES_SPEC_FLD_CATID = 'category_id';
     const CATEGORIES_SPEC_FLD_ID = '_id';
+    //==================================
+    //THE AVAILABILITY STATUS TABLE CONSTANTS
+    const TBL_AVAILABILITY_STATUS = 'availability_status';
+    const AVAILABILITY_FLD_ID = '_id';
+    const AVAILABILITY_FLD_STATUS = 'status';
     //Status CONSTANTS
     const PENDING = 1;
     const PICKED = 2;
@@ -258,6 +339,7 @@ class Constants {
     const ORDER_STATUSES = array("1", "2", "3", "4");
     const ORDER_PENDING = "1";
     const ORDER_PICKED = "2";
-    const ORDER_SHIPPED= "3";
+    const ORDER_SHIPPED = "3";
     const ORDER_DELIVERED = "4";
+
 }
