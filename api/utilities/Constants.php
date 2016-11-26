@@ -90,51 +90,51 @@ class Constants {
     const SELECT_PRODUCT_SUCCESS = 702;
 
     /**
-     * Products operation functions (8x) constants
+     * Products operation functions (20x) constants
      */
-    const PRODUCT_GET_TOP_3_IN_4_CAT_SUCCESS = 80;
-    const PRODUCT_GET_TOP_3_IN_4_CAT_FAILED = 81;
-    const PRODUCT_GET_FROM_KEY_SUCCESS = 82;
-    const PRODUCT_GET_FROM_KEY_FAILED = 83;
-    const PRODUCT_GET_FROM_KEY_EMPTY = 84;
-    const PRODUCT_GET_FROM_CAT_EMPTY_DATA = 85;
-    const PRODUCT_GET_FROM_CAT_SUCCESS = 86;
-    const PRODUCT_GET_FROM_CAT_FAILED = 87;
-    const PRODUCT_GET_FROM_SELLER_EMPTY_DATA = 88;
-    const PRODUCT_GET_FROM_SELLER_SUCCESS = 89;
-    const PRODUCT_GET_FROM_SELLER_FAILED = 8000;
-    const PRODUCT_GET_EARNINGS_FAILED = 8001;
-    const PRODUCT_TOTAL_EARNINGS_SUCCESS = 8002;
-    const PRODUCT_INVALID_CATEGORY = 8003;
-    const PRODUCT_INVALID_SELLER = 8004;
-    const PRODUCT_TOTAL_EARNINGS_EMPTY_DATA = 8005;
-    const PRODUCT_INVALID_AVAILABILITY = 8006;
-    const PRODUCT_UPDATE_SUCCESS = 8007;
-    const PRODUCT_UPDATE_FAILED = 8008;
-    const PRODUCT_DELETE_EMPTY_DATA = 8009;
-    const PRODUCT_DELETE_SUCCESS = 8010;
-    const PRODUCT_DELETE_FAILED = 8011;
-    const PRODUCT_ADD_SUCCESS = 8012;
-    const PRODUCT_ADD_FAILED = 8013;
-    const PRODUCTS_GET_ALL_PRODUCTS_SUCCESS = 8014;
-    const PRODUCTS_GET_ALL_PRODUCTS_FAILED = 8015;
+    const PRODUCT_GET_TOP_3_IN_4_CAT_SUCCESS = 200;
+    const PRODUCT_GET_TOP_3_IN_4_CAT_FAILED = 201;
+    const PRODUCT_GET_FROM_KEY_SUCCESS = 202;
+    const PRODUCT_GET_FROM_KEY_FAILED = 203;
+    const PRODUCT_GET_FROM_KEY_EMPTY = 204;
+    const PRODUCT_GET_FROM_CAT_EMPTY_DATA = 205;
+    const PRODUCT_GET_FROM_CAT_SUCCESS = 206;
+    const PRODUCT_GET_FROM_CAT_FAILED = 207;
+    const PRODUCT_GET_FROM_SELLER_EMPTY_DATA = 208;
+    const PRODUCT_GET_FROM_SELLER_SUCCESS = 209;
+    const PRODUCT_GET_FROM_SELLER_FAILED = 20000;
+    const PRODUCT_GET_EARNINGS_FAILED = 20001;
+    const PRODUCT_TOTAL_EARNINGS_SUCCESS = 20002;
+    const PRODUCT_INVALID_CATEGORY = 20003;
+    const PRODUCT_INVALID_SELLER = 20004;
+    const PRODUCT_TOTAL_EARNINGS_EMPTY_DATA = 20005;
+    const PRODUCT_INVALID_AVAILABILITY = 20006;
+    const PRODUCT_UPDATE_SUCCESS = 20007;
+    const PRODUCT_UPDATE_FAILED = 20008;
+    const PRODUCT_DELETE_EMPTY_DATA = 20009;
+    const PRODUCT_DELETE_SUCCESS = 20010;
+    const PRODUCT_DELETE_FAILED = 20011;
+    const PRODUCT_ADD_SUCCESS = 20012;
+    const PRODUCT_ADD_FAILED = 20013;
+    const PRODUCTS_GET_ALL_PRODUCTS_SUCCESS = 20014;
+    const PRODUCTS_GET_ALL_PRODUCTS_FAILED = 20015;
 
     /**
-     * Products Spec operation functions (9x) constants
+     * Products Spec operation functions (60x) constants
      */
-    const PRODUCT_SPEC_EMPTY_DATA = 90;
-    const PRODUCT_SPEC_GET_PRODUCTS_SUCCESS = 91;
-    const PRODUCT_SPEC_GET_PRODUCTS_FAILED = 92;
-    const PRODUCT_SPEC_INVALID_ID = 93;
-    const PRODUCT_SPEC_DELETE_SUCCESS = 94;
-    const PRODUCT_SPEC_DELETE_FAILED = 95;
-    const PRODUCT_SPEC_INVALID_CAT_SPECID = 96;
-    const PRODUCT_SPEC_INVALID_PRODUCTID = 97;
-    const PRODUCT_SPEC_UPDATE_SUCCESS = 98;
-    const PRODUCT_SPECS_UPDATE_FAILED = 99;
-    const PRODUCT_SPEC_PRIMARY_KEY_REPEATED = 9001;
-    const PRODUCT_SPEC_ADD_SUCCESS = 9002;
-    const PRODUCT_SPEC_ADD_FAILED = 9003;
+    const PRODUCT_SPEC_EMPTY_DATA = 600;
+    const PRODUCT_SPEC_GET_PRODUCTS_SUCCESS = 601;
+    const PRODUCT_SPEC_GET_PRODUCTS_FAILED = 602;
+    const PRODUCT_SPEC_INVALID_ID = 603;
+    const PRODUCT_SPEC_DELETE_SUCCESS = 604;
+    const PRODUCT_SPEC_DELETE_FAILED = 605;
+    const PRODUCT_SPEC_INVALID_CAT_SPECID = 606;
+    const PRODUCT_SPEC_INVALID_PRODUCTID = 607;
+    const PRODUCT_SPEC_UPDATE_SUCCESS = 608;
+    const PRODUCT_SPECS_UPDATE_FAILED = 6060;
+    const PRODUCT_SPEC_PRIMARY_KEY_REPEATED = 60001;
+    const PRODUCT_SPEC_ADD_SUCCESS = 60002;
+    const PRODUCT_SPEC_ADD_FAILED = 60003;
 
     /**
      * Category Spec operation functions (10x) constants
@@ -153,7 +153,7 @@ class Constants {
     const CATEGORY_SPEC_SELECT_SUCCESS = 111;
 
     /**
-     * User operations constants
+     * User operations (8x) constants
      */
     const USER_EDIT_ACCOUNT_SUCCESSFUL = 800;
     const USER_EDIT_ACCOUNT_EMPTY_DATA = 801;
@@ -177,7 +177,7 @@ class Constants {
     const USER_INSERT_EMAIL_EXISTS = 845;
 
     /**
-     * Cart operations constants
+     * Cart operations (9x) constants
      */
     const CART_ADD_ITEM_SUCCESSFUL = 901;
     const CART_ADD_ITEM_FAILED = 902;
@@ -248,7 +248,7 @@ class Constants {
     const ORDERS_STATUS_ID = 'status_id';
     //==================================
     //THE ORDER_ITEMS TABLE CONSTANTS
-    const TBL_ORDERITEMS = 'orders';
+    const TBL_ORDERITEMS = 'order_items';
     const ORDERITEMS_ORDERID = 'order_id';
     const ORDERITEMS_PRODUCTID = 'product_id';
     const ORDERITEMS_SELLERID = 'seller_id';
@@ -269,7 +269,7 @@ class Constants {
     const PRODUCT_INAVAILABLE = "2"; // Relative to DB'
     const PRODUCTS_FLD_CATEGORY_ID = 'category_id';
     const PRODUCTS_FLD_RATE = 'rate';
-    const PRODUCTS_FLD_USER_ID = '_id';
+    const PRODUCTS_FLD_ID = '_id';
     const PRODUCTS_FLD_PRICE = 'price';
     const PRODUCTS_FLD_NAME = 'name';
     const PRODUCTS_FLD_SIZE = 'size';
@@ -281,7 +281,9 @@ class Constants {
     const PRODUCTS_FLD_IMAGE = 'image';
     const PRODUCTS_FLD_SELLER_ID = 'seller_id';
     const PRODUCTS_FLD_SOLDITEMS = 'solditems';
-    const PRODUCTS_FLD_DESCRIPTION = 'Description ';
+    const PRODUCTS_FLD_DESCRIPTION = 'Description';
+    const PRODUCTS_FLD_EARNINGS = 'earnings';
+
     //==================================
     //THE CATEGORIES TABLE CONSTANTS
     const TBL_CATEGORIES = 'categories';

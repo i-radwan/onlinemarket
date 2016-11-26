@@ -12,15 +12,15 @@ function productSpecModel(productSpec) {
 
 function productModel(product) {
 	var self = this;
-	self.id = product.id;
-	self.name = ko.observable(product.name);
-	self.price = ko.observable(product.price);
-	self.rate = product.rate;
-	self.image = ko.observable(product.image);
-	self.quantity = ko.observable(product.quantity);
-	self.earnings = ko.observable(product.earnings);
-	self.solditems = ko.observable(product.solditems);
-	self.more = ko.observableArray();
+	self[PRODUCTS_FLD_ID] = product[PRODUCTS_FLD_ID];
+	self[PRODUCTS_FLD_NAME] = ko.observable(product[PRODUCTS_FLD_NAME]);
+	self[PRODUCTS_FLD_PRICE] = ko.observable(product[PRODUCTS_FLD_PRICE]);
+	self[PRODUCTS_FLD_RATE] = product[PRODUCTS_FLD_RATE];
+	self[PRODUCTS_FLD_IMAGE] = ko.observable(product[PRODUCTS_FLD_IMAGE]);
+	self[PRODUCTS_FLD_AVA_QUANTITY] = ko.observable(product[PRODUCTS_FLD_AVA_QUANTITY]);
+	self[PRODUCTS_FLD_EARNINGS] = ko.observable(product[PRODUCTS_FLD_EARNINGS]);
+	self[PRODUCTS_FLD_SOLDITEMS] = ko.observable(product[PRODUCTS_FLD_SOLDITEMS]);
+	self.more = ko.observableArray(); // To contain extra details
 	product.more.forEach(function (more) {
 		self.more.push(new productSpecModel(more));
 	});
@@ -140,7 +140,7 @@ function productsViewModel(params) {
 	self.newProduct.category.subscribe(function (category) {
 		self.categorySpecs.removeAll();
 		getCategorySpecs(category.id).forEach(function (categorySpec) {
-			self.categorySpecs.push(new categorySpecModel(categorySpec));
+			self.categorySpecs.push(new categorySpecModel(categorySpec)); // ToDO Check with new categorySpecModel
 		});
 	})
 
@@ -153,7 +153,9 @@ function productsViewModel(params) {
 	// ToDO: seller removes product only, admin removes product and order items that contain this product
 	self.deleteProduct = function (item, event) {
 		if (confirm("Are you sure?")) {
-			self.productsArray.remove(item.params);
+			if (deleteProduct(item.params[PRODUCTS_FLD_ID])) {
+				self.productsArray.remove(item.params);
+			}
 		}
 	}
 
@@ -789,8 +791,8 @@ function logOut() {
 function getAllProducts() {
 	return [
 		{
-			id: 0,
-			name: "IPhone 6S",
+			_id: 1,
+			name: "IPhone 6S1",
 			price: 500,
 			rate: 4.5,
 			image: "../img/img.png",
@@ -805,8 +807,8 @@ function getAllProducts() {
             ]
         },
 		{
-			id: 0,
-			name: "IPhone 6S",
+			_id: 2,
+			name: "IPhone 6S2",
 			price: 200,
 			rate: 4.6,
 			image: "../img/img.png",
@@ -1375,4 +1377,32 @@ function getCategoriesArray() {
 		}
 	});
 	return ret;
+}
+
+
+/**
+ * This function deletes product with its ID
+ * @param   {number}  productID product ID
+ * @returns {boolean} True if deleted successfully
+ */
+function deleteProduct(productID) {
+	var deleted = false;
+	$.ajax({
+		url: API_LINK + PRODUCT_ENDPOINT + "/" + productID,
+		type: 'DELETE',
+		async: false,
+		headers: {
+			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
+		},
+		success: function (result) {
+			console.log(result);
+			var returnedData = JSON.parse(result);
+			if (returnedData.statusCode == PRODUCT_DELETE_SUCCESS) {
+				deleted = true;
+			} else {
+				alert(returnedData.errorMsg);
+			}
+		}
+	});
+	return deleted;
 }

@@ -1212,7 +1212,7 @@ function getCartProducts() {
 function addProductToCart(productID) {
 	var newCartID = -1;
 	var data = {};
-	data[PRODUCT_FLD_ID] = productID;
+	data[PRODUCTS_FLD_ID] = productID;
 	$.ajax({
 		url: API_LINK + USER_CART_ENDPOINT,
 		type: 'POST',

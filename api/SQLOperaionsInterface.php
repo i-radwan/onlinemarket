@@ -82,7 +82,7 @@ interface SQLOperationsInterface {
 
     public function updateProduct($id, $name, $price, $rate, $size, $weight, $availability_id, $available_quantity, $origin, $provider, $image, $seller_id, $category_id, $solditems);
 
-    public function deleteProduct($productId, $seller_id);
+    public function deleteProduct($productId, $isAdmin = false);
 
     public function getTotalEarnings($productId, $sellerId);
 

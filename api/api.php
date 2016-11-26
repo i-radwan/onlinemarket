@@ -13,7 +13,9 @@ $app = new \Slim\App();
  * @param string $token  user token
  * @return array user data array extracted from token
  */
-function getTokenData($jwt) {
+function getTokenData($request) {
+    $authHeader = $request->getHeader('Authorization');
+    list($jwt) = sscanf($authHeader[0], 'Bearer %s');
     $secretKey = base64_decode(jwt_key);
     $token = JWT::decode($jwt, $secretKey, jwt_algorithm);
     return ((array) $token->data);
@@ -31,7 +33,7 @@ function authUsers($userType, Request $request, Response $response) {
     list($jwt) = sscanf($authHeader[0], 'Bearer %s');
     if ($jwt) {
         try {
-            $data = getTokenData($jwt);
+            $data = getTokenData($request);
             if (in_array($data[Constants::USERS_FLD_USER_TYPE], $userType)) {
                 return true;
             } else {
@@ -53,7 +55,9 @@ $app->get('/hello/{name}', function (Request $request, Response $response) {
     return $response->write('Hello ' . $request->getAttribute("name"));
 });
 
-// Add route callbacks
+/**
+ * Users requests
+ */
 $app->post('/login', function (Request $request, Response $response) {
     $sqlOperations = new SQLOperations();
     $allPostPutVars = $request->getParsedBody();
@@ -92,9 +96,7 @@ $app->post('/signup', function (Request $request, Response $response) {
 $app->put('/user', function (Request $request, Response $response) {
     if (authUsers(Constants::USER_TYPES, $request, $response)) {
         $sqlOperations = new SQLOperations();
-        $authHeader = $request->getHeader('Authorization');
-        list($jwt) = sscanf($authHeader[0], 'Bearer %s');
-        $data = getTokenData($jwt);
+        $data = getTokenData($request);
         $userID = $data[Constants::USERS_FLD_ID];
         $userType = $data[Constants::USERS_FLD_USER_TYPE];
         return $response->withStatus(200)->write($sqlOperations->editAccount($userID, $userType, $request->getParsedBody()));
@@ -143,13 +145,13 @@ $app->get('/user/{userType}', function (Request $request, Response $response) {
         return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
     }
 });
-
+/**
+ * Cart requests
+ */
 $app->post('/cart', function (Request $request, Response $response) {
     if (authUsers([Constants::USER_BUYER], $request, $response)) {
         $sqlOperations = new SQLOperations();
-        $authHeader = $request->getHeader('Authorization');
-        list($jwt) = sscanf($authHeader[0], 'Bearer %s');
-        $data = getTokenData($jwt);
+        $data = getTokenData($request);
         return $response->withStatus(200)->write($sqlOperations->addProductToCart($request->getParsedBody()[Constants::PRODUCTS_FLD_ID], $data[Constants::USERS_FLD_ID]));
     } else {
         return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
@@ -158,9 +160,7 @@ $app->post('/cart', function (Request $request, Response $response) {
 $app->put('/cart', function (Request $request, Response $response) {
     if (authUsers([Constants::USER_BUYER], $request, $response)) {
         $sqlOperations = new SQLOperations();
-        $authHeader = $request->getHeader('Authorization');
-        list($jwt) = sscanf($authHeader[0], 'Bearer %s');
-        $data = getTokenData($jwt);
+        $data = getTokenData($request);
         return $response->withStatus(200)->write($sqlOperations->decreaseProductFromCart($request->getParsedBody()[Constants::PRODUCTS_FLD_ID], $data[Constants::USERS_FLD_ID]));
     } else {
         return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
@@ -169,15 +169,15 @@ $app->put('/cart', function (Request $request, Response $response) {
 $app->delete('/cart/{productID}', function (Request $request, Response $response) {
     if (authUsers([Constants::USER_BUYER], $request, $response)) {
         $sqlOperations = new SQLOperations();
-        $authHeader = $request->getHeader('Authorization');
-        list($jwt) = sscanf($authHeader[0], 'Bearer %s');
-        $data = getTokenData($jwt);
+        $data = getTokenData($request);
         return $response->withStatus(200)->write($sqlOperations->removeProductFromCart($request->getAttribute('productID'), $data[Constants::USERS_FLD_ID]));
     } else {
         return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
     }
 });
-
+/**
+ * Category requests
+ */
 $app->delete('/category/{categoryID}', function (Request $request, Response $response) {
     if (authUsers([Constants::USER_ADMIN], $request, $response)) {
         $sqlOperations = new SQLOperations();
@@ -212,7 +212,9 @@ $app->get('/category', function (Request $request, Response $response) {
     $sqlOperations = new SQLOperations();
     return $response->withStatus(200)->write($sqlOperations->getAllCategories());
 });
-
+/**
+ * Category specification requests
+ */
 $app->post('/categoryspec', function (Request $request, Response $response) {
     if (authUsers([Constants::USER_ADMIN], $request, $response)) {
         $sqlOperations = new SQLOperations();
@@ -244,7 +246,22 @@ $app->delete('/categoryspec/{specID}', function (Request $request, Response $res
         return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
     }
 });
-//Get All ORDERS (May be needed for accountant)
+/**
+ * Products requests
+ */
+$app->delete('/product/{productID}', function (Request $request, Response $response) {
+    if (authUsers([Constants::USER_ADMIN, Constants::USER_SELLER], $request, $response)) {
+        $sqlOperations = new SQLOperations();
+        $data = getTokenData($request);
+        $isAdmin = ($data[Constants::USERS_FLD_USER_TYPE] == Constants::USER_ADMIN);
+        return $response->withStatus(200)->write($sqlOperations->deleteProduct($request->getAttribute('productID'), $isAdmin));
+    } else {
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+    }
+});
+/**
+ * Orders requests
+ */
 // reponds to both `/orders/` and `/orders/123`
 // but not to `/orders`
 $app->get('/orders/[{id}]', function (Request $request, Response $response, $args = []) {
@@ -299,9 +316,7 @@ $app->put('/order/{id}', function (Request $request, Response $response, $args) 
     if (authUsers([Constants::USER_DELIVERMAN, Constants::USER_BUYER], $request, $response)) {
         $sqlOperations = new SQLOperations();
         $userID = -1;
-        $authHeader = $request->getHeader('Authorization');
-        list($jwt) = sscanf($authHeader[0], 'Bearer %s');
-        $data = getTokenData($jwt);
+        $data = getTokenData($request);
         if ($data[Constants::USERS_FLD_USER_TYPE] == Constants::USER_BUYER) {
             $userID = $data[Constants::USERS_FLD_ID];
         }
@@ -313,7 +328,9 @@ $app->put('/order/{id}', function (Request $request, Response $response, $args) 
         return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
     }
 });
-//Get Order Items
+/**
+ * Order items requests
+ */
 // @ToDo check if working, get user id from jwt
 $app->get('/orderitems/{orderid}/{buyerid}', function (Request $request, Response $response, $args) {
     $sqlOperations = new SQLOperations();
@@ -321,13 +338,14 @@ $app->get('/orderitems/{orderid}/{buyerid}', function (Request $request, Respons
     $buyerID = $request->getAttribute('buyerid');
     return $response->withStatus(200)->write($sqlOperations->getOrderItems($orderID, $buyerID));
 });
+/**
+ * Delivery Requests requests
+ */
 //Get Delivery Requests Items
 $app->get('/deliveryrequests', function (Request $request, Response $response) {
     if (authUsers([Constants::USER_DELIVERMAN], $request, $response)) {
         $sqlOperations = new SQLOperations();
-        $authHeader = $request->getHeader('Authorization');
-        list($jwt) = sscanf($authHeader[0], 'Bearer %s');
-        $data = getTokenData($jwt);
+        $data = getTokenData($request);
         return $response->withStatus(200)->write($sqlOperations->getDeliveryRequests($data[Constants::USERS_FLD_ID]));
     } else {
         return $response->withHeader('Content-Type', 'application/json')->withStatus(401);

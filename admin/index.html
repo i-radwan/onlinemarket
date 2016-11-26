@@ -250,7 +250,7 @@
             </div>
         </template>
         <template id="single-category-template">
-            <p data-bind="text: params.name,  visible: !params.editMode(), click: function(){params.expanded(!params.expanded());}" class="single-category-item--category-name"></p>
+            <p data-bind="text: params.name,  visible: !params.editMode(), click: function(){params.expanded(!params.expanded());}" class="single-category-item--category-name single-category-item--category-name-underlined"></p>
             <input type="text" data-bind="textInput: params.tmpName, visible: params.editMode" class="single-category-item--category-name-editinput">
             <div class="single-category-item--category-actions">
                 <a data-bind="visible: !params.editMode(), click: function(){params.editMode(true);}" class="single-category-item--category-edit">edit</a>
