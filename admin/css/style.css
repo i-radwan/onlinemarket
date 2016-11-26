@@ -341,6 +341,14 @@
 	font-family: 'Raleway', helvetica;
 }
 
+.desc-textarea {
+	display: inline-block;
+	width: 100%;
+	height: 140px;
+	transition: 0.5s;
+	resize: none;
+}
+
 .admin-products--category-menu {
 	width: 100%;
 	background: #fff;
@@ -367,3 +375,4 @@
 	padding: 10px;
 	font-size: 18px;
 }
+

@@ -135,6 +135,7 @@ class Constants {
     const PRODUCT_SPEC_PRIMARY_KEY_REPEATED = 60001;
     const PRODUCT_SPEC_ADD_SUCCESS = 60002;
     const PRODUCT_SPEC_ADD_FAILED = 60003;
+    const PRODUCT_SPEC_ADD_EXISTS = 60004;
 
     /**
      * Category Spec operation functions (10x) constants
@@ -278,7 +279,7 @@ class Constants {
     const PRODUCTS_FLD_IMAGE = 'image';
     const PRODUCTS_FLD_SELLER_ID = 'seller_id';
     const PRODUCTS_FLD_SOLDITEMS = 'solditems';
-    const PRODUCTS_FLD_DESCRIPTION = 'Description';
+    const PRODUCTS_FLD_DESCRIPTION = 'description';
     const PRODUCTS_FLD_EARNINGS = 'earnings';
     //Product specs response column names
     const PRODUCT_SPEC_PSID = 'PSID';

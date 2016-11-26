@@ -78,7 +78,7 @@ interface SQLOperationsInterface {
 
     public function getProductSpec($productId);
 
-    public function addProduct($name, $price, $rate, $size, $weight, $availability_id, $available_quantity, $origin, $provider, $image, $seller_id, $category_id, $solditems);
+    public function addProduct($name, $price, $size, $weight, $available_quantity, $origin, $provider, $image, $seller_id, $category_id, $specs, $description);
 
     public function updateProduct($id, $name, $price, $rate, $size, $weight, $availability_id, $available_quantity, $origin, $provider, $image, $seller_id, $category_id, $solditems);
 

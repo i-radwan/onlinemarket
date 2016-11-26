@@ -269,6 +269,28 @@ $app->get('/product', function (Request $request, Response $response) {
         return $response->withStatus(200)->write($sqlOperations->getAllProducts());
     }
 });
+$app->post('/product', function (Request $request, Response $response) {
+    if (authUsers([Constants::USER_SELLER], $request, $response)) {
+        $sqlOperations = new SQLOperations();
+        $postVars = $request->getParsedBody();
+        return $response->withStatus(200)->write($sqlOperations->addProduct(
+                $postVars[Constants::PRODUCTS_FLD_NAME], 
+                $postVars[Constants::PRODUCTS_FLD_PRICE], 
+                $postVars[Constants::PRODUCTS_FLD_SIZE], 
+                $postVars[Constants::PRODUCTS_FLD_WEIGHT], 
+                $postVars[Constants::PRODUCTS_FLD_AVA_QUANTITY], 
+                $postVars[Constants::PRODUCTS_FLD_ORIGIN], 
+                $postVars[Constants::PRODUCTS_FLD_PROVIDER], 
+                $postVars[Constants::PRODUCTS_FLD_IMAGE], 
+                getTokenData($request)[Constants::USERS_FLD_ID], 
+                $postVars[Constants::PRODUCTS_FLD_CATEGORY_ID], 
+                $postVars[Constants::CATEGORIES_SPEC], 
+                $postVars[Constants::PRODUCTS_FLD_DESCRIPTION]));
+    } else {
+        $sqlOperations = new SQLOperations();
+        return $response->withStatus(200)->write($sqlOperations->getAllProducts());
+    }
+});
 /**
  * Orders requests
  */

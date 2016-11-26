@@ -293,18 +293,19 @@
                     </div>
                     <div class="admin-products--add-product" data-bind="if: checkUserRole() == USER_SELLER">
                         <p class="add-product-title">New Product</p>
-                        <input type="text" data-bind="" placeholder="Product Name..." class="product-edit--input-title editinput">
-                        <input type="number" data-bind="" placeholder="Product Price ($$)..." class="product-edit--input-title editinput">
-                        <input type="text" data-bind="" placeholder="Product Size (X × Y × Z)..." class="product-edit--input-title editinput">
-                        <input type="number" data-bind="" placeholder="Product Weight (gram)..." class="product-edit--input-title editinput">
-                        <input type="number" data-bind="" placeholder="Product Quantity..." class="product-edit--input-title editinput">
-                        <input type="text" data-bind="" placeholder="Origin..." class="product-edit--input-title editinput">
-                        <input type="text" data-bind="" placeholder="Provider..." class="product-edit--input-title editinput">
-                        <input type="text" data-bind="" placeholder="Product Image (URL)..." class="product-edit--input-title editinput">
+                        <input type="text" data-bind="textInput: newProduct[PRODUCTS_FLD_NAME]" placeholder="Product Name..." class="product-edit--input-title editinput">
+                        <input type="number" data-bind="textInput: newProduct[PRODUCTS_FLD_PRICE]" placeholder="Product Price ($$)..." class="product-edit--input-title editinput">
+                        <input type="text" data-bind="textInput: newProduct[PRODUCTS_FLD_SIZE]" placeholder="Product Size (X × Y × Z)..." class="product-edit--input-title editinput">
+                        <input type="number" data-bind="textInput: newProduct[PRODUCTS_FLD_WEIGHT]" placeholder="Product Weight (gram)..." class="product-edit--input-title editinput">
+                        <input type="number" data-bind="textInput: newProduct[PRODUCTS_FLD_AVA_QUANTITY]" placeholder="Product Quantity..." class="product-edit--input-title editinput">
+                        <input type="text" data-bind="textInput: newProduct[PRODUCTS_FLD_ORIGIN]" placeholder="Origin..." class="product-edit--input-title editinput">
+                        <input type="text" data-bind="textInput: newProduct[PRODUCTS_FLD_PROVIDER]" placeholder="Provider..." class="product-edit--input-title editinput">
+                        <input type="text" data-bind="textInput: newProduct[PRODUCTS_FLD_IMAGE]" placeholder="Product Image (URL)..." class="product-edit--input-title editinput">
+						<textarea class="desc-textarea" data-bind="textInput: newProduct[PRODUCTS_FLD_DESCRIPTION]" placeholder="Description..."></textarea>
                         <select data-bind="optionsCaption: 'Choose Category...', options: allCategories
                        	,optionsText: 'name', value: newProduct.category" class="admin-products--category-menu" >
                         </select>
-                        <div data-bind="foreach: categorySpecs">
+                        <div data-bind="foreach: newProduct.category[CATEGORIES_SPEC]">
                             <input type="text" class="product-edit--input-title editinput" data-bind="attr: {placeholder: name }, textInput: value">
                         </div>
                         <button data-bind="click: addNewProduct" class="orders-filters--filter-button addproduct">Add product</button>
@@ -324,7 +325,7 @@
                     </p>
                     <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Rate:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params[PRODUCTS_FLD_RATE]"></span>/5</span>
                     </p>
-                     <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Seller:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params[PRODUCT_SELLER_NAME]"></span></span>
+                     <p class="categories-single-item--visible-details--spec" date-bind="if: checkUserRole() != USER_SELLER, visible: checkUserRole() != USER_SELLER"><strong class="categories-single-item--visible-details--spec--key">Seller:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params[PRODUCT_SELLER_NAME]"></span></span>
                     </p>
                      <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Category:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params[PRODUCT_CATEGORY_NAME]"></span></span>
                     </p>
