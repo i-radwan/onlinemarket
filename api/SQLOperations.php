@@ -1315,15 +1315,43 @@ class SQLOperations implements SQLOperationsInterface {
      * @return response with array 
      */
     public function getAllProducts() {
-        // query: SELECT* from products INNER JOIN (select product_spec.product_id ,categories_spec._id,categories_spec.name,product_spec.value FROM categories_spec,product_spec where categories_spec._id=product_spec.categories_spec_id)
-        // As x ON products._id=product_id order by product_id
-
-        if (!$result = $this->db_link->query('SELECT * FROM `' . Constants::TBL_PRODUCTS . '`  INNER JOIN ( ' . "select " . Constants::TBL_PRODUCT_SPEC . "." . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . ',' . Constants::TBL_CATEGORIES_SPEC . '.' . Constants::CATEGORIES_SPEC_FLD_NAME . ',' . Constants::TBL_CATEGORIES_SPEC . '.' . Constants::CATEGORIES_SPEC_FLD_ID . ',' . Constants::TBL_PRODUCT_SPEC . '.' . Constants::PRODUCT_SPEC_FLD_VALUE . " from " . Constants::TBL_PRODUCT_SPEC . ',' . Constants::TBL_CATEGORIES_SPEC . " where " . Constants::TBL_CATEGORIES_SPEC . '.' . Constants::CATEGORIES_SPEC_FLD_ID . ' = ' . Constants::TBL_PRODUCT_SPEC . '.' . Constants::PRODUCT_SPEC_FLD_CAT_ID . ') AS X ON ' . Constants::TBL_PRODUCTS . '.' . Constants::PRODUCTS_FLD_ID . ' = ' . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . ' order by ' . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID)) {
+        /**
+         * Query:
+         *  SELECT p.*, ps._id as 'PSID',  cs.name as 'CSNAME', ps.value as 'PSVALUE', u.name as 'seller_name', c.name as 'category_name', a.status as 'availability_status' FROM products p
+         *  LEFT OUTER JOIN product_spec ps ON ps.product_id = p._id
+         *  LEFT OUTER JOIN categories_spec cs ON cs.category_id = p.category_id AND ps.categories_spec_id = cs._id
+         *  JOIN users u ON u._id = p.seller_id
+         *  JOIN categories c ON c._id = p.category_id
+         *  JOIN availability_status a ON a._id = p.availability_id
+         *  ORDER BY p._id DESC
+         */
+        if (!$result = $this->db_link->query("SELECT p.*, ps." . Constants::PRODUCT_SPEC_FLD_ID . " as '".Constants::PRODUCT_SPEC_PSID."',  cs." . Constants::CATEGORIES_SPEC_FLD_NAME . " as '".Constants::PRODUCT_SPEC_CSNAME."', ps." . Constants::PRODUCT_SPEC_FLD_VALUE . " as '".Constants::PRODUCT_SPEC_PSVALUE."' , u.".Constants::USERS_FLD_NAME." as '".Constants::PRODUCT_SELLER_NAME."' , c.".Constants::CATEGORIES_FLD_NAME." as '".Constants::PRODUCT_CATEGORY_NAME."' , a.".Constants::AVAILABILITY_FLD_STATUS." as '".Constants::PRODUCT_AVAILABILITY_STATUS."' FROM " . Constants::TBL_PRODUCTS . " p LEFT OUTER JOIN " . Constants::TBL_PRODUCT_SPEC . " ps ON ps." . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . " = p." . Constants::PRODUCTS_FLD_ID . " LEFT OUTER JOIN " . Constants::TBL_CATEGORIES_SPEC . " cs ON cs." . Constants::CATEGORIES_SPEC_FLD_CATID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " AND ps." . Constants::PRODUCT_SPEC_FLD_CAT_ID . " = cs." . Constants::CATEGORIES_SPEC_FLD_ID . " JOIN ".Constants::TBL_USERS." u ON u.".Constants::USERS_FLD_ID." = p.".Constants::PRODUCTS_FLD_SELLER_ID." JOIN ".Constants::TBL_CATEGORIES." c ON c.".Constants::CATEGORIES_FLD_ID." = p.".Constants::PRODUCTS_FLD_CATEGORY_ID." JOIN ".Constants::TBL_AVAILABILITY_STATUS." a ON a.".Constants::AVAILABILITY_FLD_ID." = p.".Constants::PRODUCTS_FLD_AVA_STATUS." ORDER BY p." . Constants::PRODUCTS_FLD_ID . " DESC")) {
             return $this->returnError(Constants::PRODUCTS_GET_ALL_PRODUCTS_FAILED, "Please try again later!");
         } else {
             $ret = array();
+            $lastRow;
             while ($row = $result->fetch_assoc()) {
-                array_push($ret, $row);
+                // If this product id is already added to list (products are ordered) then add new element to more details array, else add the new product
+                if ($row[Constants::PRODUCTS_FLD_ID] == $lastRow[Constants::PRODUCTS_FLD_ID]) {
+                    $newMore = array();
+                    $newMore[Constants::PRODUCT_SPEC_PSID] = $row[Constants::PRODUCT_SPEC_PSID];
+                    $newMore[Constants::PRODUCT_SPEC_CSNAME] = $row[Constants::PRODUCT_SPEC_CSNAME];
+                    $newMore[Constants::PRODUCT_SPEC_PSVALUE] = $row[Constants::PRODUCT_SPEC_PSVALUE];
+                    array_push($ret[sizeof($ret) - 1]['more'], $newMore);
+                } else {
+                    $more = array();
+                    $more[Constants::PRODUCT_SPEC_PSID] = $row[Constants::PRODUCT_SPEC_PSID];
+                    $more[Constants::PRODUCT_SPEC_CSNAME] = $row[Constants::PRODUCT_SPEC_CSNAME];
+                    $more[Constants::PRODUCT_SPEC_PSVALUE] = $row[Constants::PRODUCT_SPEC_PSVALUE];
+                    unset($row[Constants::PRODUCT_SPEC_PSID]);
+                    unset($row[Constants::PRODUCT_SPEC_CSNAME]);
+                    unset($row[Constants::PRODUCT_SPEC_PSVALUE]);
+                    $row['more'] = array();
+                    if ($more['PSID'] != 'null' && is_numeric($more['PSID']))
+                        array_push($row['more'], $more);
+                    array_push($ret, $row);
+                }
+                $lastRow = $row;
             }
             $theResponse = new Response(Constants::PRODUCTS_GET_ALL_PRODUCTS_SUCCESS, $ret, ""); //to do const
             return(json_encode($theResponse));
@@ -1534,7 +1562,7 @@ class SQLOperations implements SQLOperationsInterface {
                 }
                 if ($result->num_rows == 1) {
                     //inserting               
-                    if (!$result = $this->db_link->query("INSERT INTO `" . Constants::TBL_PRODUCTS . "` ( `" . Constants::PRODUCTS_FLD_NAME . "`,`" . Constants::PRODUCTS_FLD_PRICE . "`,`" . Constants::PRODUCTS_FLD_RATE . "`,`" . Constants::PRODUCTS_FLD_SIZE . "`,`" . Constants::PRODUCTS_FLD_WEIGHT . "`,`" . Constants::PRODUCTS_FLD_AVAILABILITY_ID . "`,`" . Constants::PRODUCTS_FLD_AVAILABILITY_QUANTITY . "`,`" . Constants::PRODUCTS_FLD_ORIGIN . "`,`" . Constants::PRODUCTS_FLD_PROVIDER . "`,`" . Constants::PRODUCTS_FLD_IMAGE . "`,`" . Constants::PRODUCTS_FLD_SELLER_ID . "`,`" . Constants::PRODUCTS_FLD_CATEGORY_ID . "`,`" . Constants::PRODUCTS_FLD_SOLDITEMS . "`) VALUES ('$name' , '$price' ,'$rate' , '$size' , '$weight' , '$availability_id' , '$available_quantity' , '$origin' , '$provider' , '$image' , '$seller_id' , '$category_id', '$solditems' )")) {
+                    if (!$result = $this->db_link->query("INSERT INTO `" . Constants::TBL_PRODUCTS . "` ( `" . Constants::PRODUCTS_FLD_NAME . "`,`" . Constants::PRODUCTS_FLD_PRICE . "`,`" . Constants::PRODUCTS_FLD_RATE . "`,`" . Constants::PRODUCTS_FLD_SIZE . "`,`" . Constants::PRODUCTS_FLD_WEIGHT . "`,`" . Constants::PRODUCTS_FLD_AVAILABILITY_ID . "`,`" . Constants::PRODUCTS_FLD_AVA_QUANTITY . "`,`" . Constants::PRODUCTS_FLD_ORIGIN . "`,`" . Constants::PRODUCTS_FLD_PROVIDER . "`,`" . Constants::PRODUCTS_FLD_IMAGE . "`,`" . Constants::PRODUCTS_FLD_SELLER_ID . "`,`" . Constants::PRODUCTS_FLD_CATEGORY_ID . "`,`" . Constants::PRODUCTS_FLD_SOLDITEMS . "`) VALUES ('$name' , '$price' ,'$rate' , '$size' , '$weight' , '$availability_id' , '$available_quantity' , '$origin' , '$provider' , '$image' , '$seller_id' , '$category_id', '$solditems' )")) {
 
                         return $this->returnError(Constants::PRODUCT_ADD_FAILED, "Please try again later!");
                     } else {
@@ -1637,7 +1665,7 @@ class SQLOperations implements SQLOperationsInterface {
                     return $this->returnError(Constants::PRODUCT_UPDATE_FAILED, "Please try again later!");
                 }
                 if ($result->num_rows == 1) { //upate depending on seller id and product id
-                    if (!$result = $this->db_link->query("UPDATE " . Constants::TBL_PRODUCTS . " SET " . Constants::PRODUCTS_FLD_NAME . " = '$name' ," . Constants::PRODUCTS_FLD_PRICE . " = '$price' ," . Constants::PRODUCTS_FLD_SIZE . " = '$size' ," . Constants::PRODUCTS_FLD_WEIGHT . " = '$weight' ," . Constants::PRODUCTS_FLD_AVAILABILITY_ID . " = '$availability_id' ," . Constants::PRODUCTS_FLD_AVAILABILITY_QUANTITY . " = '$available_quantity' ," . Constants::PRODUCTS_FLD_ORIGIN . " = '$origin' ," . Constants::PRODUCTS_FLD_PROVIDER . " = '$provider' ," . Constants::PRODUCTS_FLD_IMAGE . " = '$image' ," . Constants::PRODUCTS_FLD_SELLER_ID . " = '$seller_id' ," . Constants::PRODUCTS_FLD_CATEGORY_ID . " = '$category_id' ," . Constants::PRODUCTS_FLD_SOLDITEMS . " = '$solditems'  WHERE `" . Constants::PRODUCTS_FLD_SELLER_ID . "` = '$seller_id' AND " . Constants::PRODUCTS_FLD_ID . " = '$id'")) {
+                    if (!$result = $this->db_link->query("UPDATE " . Constants::TBL_PRODUCTS . " SET " . Constants::PRODUCTS_FLD_NAME . " = '$name' ," . Constants::PRODUCTS_FLD_PRICE . " = '$price' ," . Constants::PRODUCTS_FLD_SIZE . " = '$size' ," . Constants::PRODUCTS_FLD_WEIGHT . " = '$weight' ," . Constants::PRODUCTS_FLD_AVAILABILITY_ID . " = '$availability_id' ," . Constants::PRODUCTS_FLD_AVA_QUANTITY . " = '$available_quantity' ," . Constants::PRODUCTS_FLD_ORIGIN . " = '$origin' ," . Constants::PRODUCTS_FLD_PROVIDER . " = '$provider' ," . Constants::PRODUCTS_FLD_IMAGE . " = '$image' ," . Constants::PRODUCTS_FLD_SELLER_ID . " = '$seller_id' ," . Constants::PRODUCTS_FLD_CATEGORY_ID . " = '$category_id' ," . Constants::PRODUCTS_FLD_SOLDITEMS . " = '$solditems'  WHERE `" . Constants::PRODUCTS_FLD_SELLER_ID . "` = '$seller_id' AND " . Constants::PRODUCTS_FLD_ID . " = '$id'")) {
                         return $this->returnError(Constants::PRODUCT_UPDATE_FAILED, "Please try again later!");
                     } else {
                         $theResponse = new Response(Constants::PRODUCT_UPDATE_SUCCESS, array(), "");

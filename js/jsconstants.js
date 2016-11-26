@@ -118,25 +118,30 @@ const PRODUCTS_FLD_NAME = 'name';
 const PRODUCTS_FLD_SIZE = 'size';
 const PRODUCTS_FLD_WEIGHT = 'weight';
 const PRODUCTS_FLD_AVAILABILITY_ID = 'availability_id';
-const PRODUCTS_FLD_AVAILABILITY_QUANTITY = 'available_quantity';
 const PRODUCTS_FLD_ORIGIN = 'origin';
 const PRODUCTS_FLD_EARNINGS = 'earnings';
 const PRODUCTS_FLD_PROVIDER = 'provider';
 const PRODUCTS_FLD_IMAGE = 'image';
 const PRODUCTS_FLD_SELLER_ID = 'seller_id';
 const PRODUCTS_FLD_SOLDITEMS = 'solditems';
-const PRODUCTS_FLD_DESCRIPTION = 'Description';
+const PRODUCTS_FLD_DESCRIPTION = 'description';
 
 
 const PRODUCT_AVAILABLE = "1"; // Relative to DB
 const PRODUCT_INAVAILABLE = "2"; // Relative to DB'
 
-
-
 const PRODUCT_SPEC_FLD_PRODUCT_ID = 'product_id';
 const PRODUCT_SPEC_FLD_CAT_ID = 'categories_spec_id';
 const PRODUCT_SPEC_FLD_VALUE = 'value';
 const PRODUCT_SPEC_FLD_ID = '_id';
+
+//Product specs response column names
+const PRODUCT_SPEC_PSID = 'PSID';
+const PRODUCT_SPEC_CSNAME = 'CSNAME';
+const PRODUCT_SPEC_PSVALUE = 'PSVALUE';
+const PRODUCT_SELLER_NAME = 'seller_name';
+const PRODUCT_CATEGORY_NAME = 'category_name';
+const PRODUCT_AVAILABILITY_STATUS = 'availability_status';
 /**
  * Sign up operation (1x) constants
  */

@@ -259,6 +259,10 @@ $app->delete('/product/{productID}', function (Request $request, Response $respo
         return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
     }
 });
+$app->get('/product', function (Request $request, Response $response) {
+        $sqlOperations = new SQLOperations();
+        return $response->withStatus(200)->write($sqlOperations->getAllProducts());
+});
 /**
  * Orders requests
  */

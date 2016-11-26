@@ -197,7 +197,7 @@
             </div>
         </template>
         <template id="single-user-template">
-            <p data-bind="text: params.email" class="single-category-item--category-name"></p>
+            <p data-bind="text: params[USERS_FLD_EMAIL]" class="single-category-item--category-name"></p>
             <div class="single-category-item--category-actions">
                 <a data-bind="visible: params[USERS_FLD_STATUS]() == USER_ACTIVE, click: $parents[1].blockUser" class="single-category-item--category-edit">block</a>
                 <a data-bind="visible: params[USERS_FLD_STATUS]() == USER_BANNED, click: $parents[1].unblockUser" class="single-category-item--category-edit">unblock</a>
@@ -222,9 +222,9 @@
             </div>
         </template>
         <template id="single-employee-template">
-            <p data-bind="text: params.email,  visible: !params.editMode()" class="single-category-item--category-name"></p>
+            <p data-bind="text: params[USERS_FLD_EMAIL],  visible: !params.editMode()" class="single-category-item--category-name"></p>
             <input type="text" data-bind="textInput: params.tmpEmail, visible: params.editMode" class="single-category-item--category-name-editinput employee">
-            <input type="password" data-bind="textInput: params.pass, visible: params.editMode" class="single-category-item--category-name-editinput employee" placeholder="Leave empty to keep password as is">
+            <input type="password" data-bind="textInput: params[USERS_FLD_PASS], visible: params.editMode" class="single-category-item--category-name-editinput employee" placeholder="Leave empty to keep password as is">
             <div class="single-category-item--category-actions">
                 <a data-bind="visible: !params.editMode(), click: function(){params.editMode(true);}" class="single-category-item--category-edit">edit</a>
                 <a data-bind="visible: !params.editMode(), click: $parents[1].removeEmployee" class="single-category-item--category-delete">delete</a>
@@ -250,7 +250,7 @@
             </div>
         </template>
         <template id="single-category-template">
-            <p data-bind="text: params.name,  visible: !params.editMode(), click: function(){params.expanded(!params.expanded());}" class="single-category-item--category-name single-category-item--category-name-underlined"></p>
+            <p data-bind="text: params[CATEGORIES_FLD_NAME],  visible: !params.editMode(), click: function(){params.expanded(!params.expanded());}" class="single-category-item--category-name single-category-item--category-name-underlined"></p>
             <input type="text" data-bind="textInput: params.tmpName, visible: params.editMode" class="single-category-item--category-name-editinput">
             <div class="single-category-item--category-actions">
                 <a data-bind="visible: !params.editMode(), click: function(){params.editMode(true);}" class="single-category-item--category-edit">edit</a>
@@ -315,23 +315,23 @@
         </template>
         <template id="single-product-view">
             <div data-bind="visible: !params.editMode()">
-                <h2 class="categories-single-item--title" data-bind="text: params.name"></h2>
-                <img class="categories-single-item--img" data-bind="attr:{src: params.image}">
+                <h2 class="categories-single-item--title" data-bind="text: params[PRODUCTS_FLD_NAME]"></h2>
+                <img class="categories-single-item--img" data-bind="attr:{src: params[PRODUCTS_FLD_IMAGE]}">
                 <div class="categories-single-item--visible-details">
-                    <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Price:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params.price"></span>$</span>
+                    <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Price:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params[PRODUCTS_FLD_PRICE]"></span>$</span>
                     </p>
-                    <p class="categories-single-item--visible-details--spec" data-bind="if: params.order"><strong class="categories-single-item--visible-details--spec--key">Quantity:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params.quantity()"></span></span>
+                    <p class="categories-single-item--visible-details--spec" data-bind="if: params.order"><strong class="categories-single-item--visible-details--spec--key">Quantity:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: 'ToDo ToBEFIXRD'+params.quantity()"></span></span>
                     </p>
-                    <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Rate:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params.rate"></span>/5</span>
+                    <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Rate:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params[PRODUCTS_FLD_RATE]"></span>/5</span>
                     </p>
-                    <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Quantity:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params.quantity"></span></span>
+                     <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Seller:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params[PRODUCT_SELLER_NAME]"></span></span>
                     </p>
-                    <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Earnings:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params.earnings"></span></span>
+                     <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Category:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params[PRODUCT_CATEGORY_NAME]"></span></span>
                     </p>
-                    <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Sold Items:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params.solditems"></span></span>
-                    </p>
+                    <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Availability:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params[PRODUCT_AVAILABILITY_STATUS]"></span></span>
+                    </p>                   
                 </div>
-                <div class="categories-single-item--load-more" data-bind="click: loadMoreClick, visible: !params.isMoreDivVisible()">
+                <div class="categories-single-item--load-more" data-bind="click: loadMoreClick, visible: !params.isMoreDivVisible(), if: params.more().length">
                     <i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i> <span class="categories-single-item--load-more--text">more</span>
                     <i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i>
                 </div>

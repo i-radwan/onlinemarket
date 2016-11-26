@@ -275,7 +275,6 @@ class Constants {
     const PRODUCTS_FLD_SIZE = 'size';
     const PRODUCTS_FLD_WEIGHT = 'weight';
     const PRODUCTS_FLD_AVAILABILITY_ID = 'availability_id';
-    const PRODUCTS_FLD_AVAILABILITY_QUANTITY = 'available_quantity';
     const PRODUCTS_FLD_ORIGIN = 'origin';
     const PRODUCTS_FLD_PROVIDER = 'provider';
     const PRODUCTS_FLD_IMAGE = 'image';
@@ -283,7 +282,13 @@ class Constants {
     const PRODUCTS_FLD_SOLDITEMS = 'solditems';
     const PRODUCTS_FLD_DESCRIPTION = 'Description';
     const PRODUCTS_FLD_EARNINGS = 'earnings';
-
+    //Product specs response column names
+    const PRODUCT_SPEC_PSID = 'PSID';
+    const PRODUCT_SPEC_CSNAME = 'CSNAME';
+    const PRODUCT_SPEC_PSVALUE = 'PSVALUE';
+    const PRODUCT_SELLER_NAME = 'seller_name';
+    const PRODUCT_CATEGORY_NAME = 'category_name';
+    const PRODUCT_AVAILABILITY_STATUS = 'availability_status';
     //==================================
     //THE CATEGORIES TABLE CONSTANTS
     const TBL_CATEGORIES = 'categories';

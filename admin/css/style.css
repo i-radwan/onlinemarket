@@ -319,7 +319,8 @@
 }
 
 .categories-single-item--visible-details--spec--key {
-	width: 30%;
+/*	width: 30%;*/
+	text-transform: capitalize;
 }
 
 .admin-products--add-product {
