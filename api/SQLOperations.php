@@ -987,16 +987,15 @@ class SQLOperations implements SQLOperationsInterface {
      * This function gets name ,id of category
      * @parm integer $id
      * @return response
+     * @checkedByIAR
      */
     public function selectCategory($id) {
         if (strlen(trim($id)) != 0) {
             $id = Utilities::makeInputSafe($id);
-
             if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_CATEGORIES . "` WHERE `" . Constants::CATEGORIES_FLD_ID . "` = '$id' LIMIT 1")) {
                 return $this->returnError(Constants::CATEGORY_SELECT_FAILED, "Please try again later!");
             }
             if ($result->num_rows == 1) {
-
                 $row = $result->fetch_assoc();
                 $theResponse = new Response(Constants::CATEGORY_SELECT_SUCCESS, $row, "");
                 return(json_encode($theResponse));
@@ -1353,7 +1352,7 @@ class SQLOperations implements SQLOperationsInterface {
             $query = "SELECT p.*, ps." . Constants::PRODUCT_SPEC_FLD_ID . " as '" . Constants::PRODUCT_SPEC_PSID . "',  cs." . Constants::CATEGORIES_SPEC_FLD_NAME . " as '" . Constants::PRODUCT_SPEC_CSNAME . "', ps." . Constants::PRODUCT_SPEC_FLD_VALUE . " as '" . Constants::PRODUCT_SPEC_PSVALUE . "' , u." . Constants::USERS_FLD_NAME . " as '" . Constants::PRODUCT_SELLER_NAME . "' , c." . Constants::CATEGORIES_FLD_NAME . " as '" . Constants::PRODUCT_CATEGORY_NAME . "' , a." . Constants::AVAILABILITY_FLD_STATUS . " as '" . Constants::PRODUCT_AVAILABILITY_STATUS . "' FROM " . Constants::TBL_PRODUCTS . " p LEFT OUTER JOIN " . Constants::TBL_PRODUCT_SPEC . " ps ON ps." . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . " = p." . Constants::PRODUCTS_FLD_ID . " LEFT OUTER JOIN " . Constants::TBL_CATEGORIES_SPEC . " cs ON cs." . Constants::CATEGORIES_SPEC_FLD_CATID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " AND ps." . Constants::PRODUCT_SPEC_FLD_CAT_ID . " = cs." . Constants::CATEGORIES_SPEC_FLD_ID . " JOIN " . Constants::TBL_USERS . " u ON u." . Constants::USERS_FLD_ID . " = p." . Constants::PRODUCTS_FLD_SELLER_ID . " JOIN " . Constants::TBL_CATEGORIES . " c ON c." . Constants::CATEGORIES_FLD_ID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " JOIN " . Constants::TBL_AVAILABILITY_STATUS . " a ON a." . Constants::AVAILABILITY_FLD_ID . " = p." . Constants::PRODUCTS_FLD_AVA_STATUS . " WHERE p." . Constants::PRODUCTS_FLD_SELLER_ID . " = '$sellerID' AND p." . Constants::PRODUCTS_FLD_AVAILABILITY_ID . " != " . Constants::PRODUCT_DELETED . " ORDER BY p." . Constants::PRODUCTS_FLD_ID . " DESC";
         }
         if ($cateID > 0) {
-            $query = "SELECT p.*, ps." . Constants::PRODUCT_SPEC_FLD_ID . " as '" . Constants::PRODUCT_SPEC_PSID . "',  cs." . Constants::CATEGORIES_SPEC_FLD_NAME . " as '" . Constants::PRODUCT_SPEC_CSNAME . "', ps." . Constants::PRODUCT_SPEC_FLD_VALUE . " as '" . Constants::PRODUCT_SPEC_PSVALUE . "' , u." . Constants::USERS_FLD_NAME . " as '" . Constants::PRODUCT_SELLER_NAME . "' , c." . Constants::CATEGORIES_FLD_NAME . " as '" . Constants::PRODUCT_CATEGORY_NAME . "' , a." . Constants::AVAILABILITY_FLD_STATUS . " as '" . Constants::PRODUCT_AVAILABILITY_STATUS . "' FROM " . Constants::TBL_PRODUCTS . " p LEFT OUTER JOIN " . Constants::TBL_PRODUCT_SPEC . " ps ON ps." . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . " = p." . Constants::PRODUCTS_FLD_ID . " LEFT OUTER JOIN " . Constants::TBL_CATEGORIES_SPEC . " cs ON cs." . Constants::CATEGORIES_SPEC_FLD_CATID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " AND ps." . Constants::PRODUCT_SPEC_FLD_CAT_ID . " = cs." . Constants::CATEGORIES_SPEC_FLD_ID . " JOIN " . Constants::TBL_USERS . " u ON u." . Constants::USERS_FLD_ID . " = p." . Constants::PRODUCTS_FLD_SELLER_ID . " JOIN " . Constants::TBL_CATEGORIES . " c ON c." . Constants::CATEGORIES_FLD_ID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " JOIN " . Constants::TBL_AVAILABILITY_STATUS . " a ON a." . Constants::AVAILABILITY_FLD_ID . " = p." . Constants::PRODUCTS_FLD_AVA_STATUS . " WHERE p." . Constants::PRODUCTS_FLD_AVAILABILITY_ID . " != " . Constants::PRODUCT_DELETED . " AND p.".Constants::PRODUCTS_FLD_CATEGORY_ID." = '$cateID' ORDER BY p." . Constants::PRODUCTS_FLD_ID . " DESC";
+            $query = "SELECT p.*, ps." . Constants::PRODUCT_SPEC_FLD_ID . " as '" . Constants::PRODUCT_SPEC_PSID . "',  cs." . Constants::CATEGORIES_SPEC_FLD_NAME . " as '" . Constants::PRODUCT_SPEC_CSNAME . "', ps." . Constants::PRODUCT_SPEC_FLD_VALUE . " as '" . Constants::PRODUCT_SPEC_PSVALUE . "' , u." . Constants::USERS_FLD_NAME . " as '" . Constants::PRODUCT_SELLER_NAME . "' , c." . Constants::CATEGORIES_FLD_NAME . " as '" . Constants::PRODUCT_CATEGORY_NAME . "' , a." . Constants::AVAILABILITY_FLD_STATUS . " as '" . Constants::PRODUCT_AVAILABILITY_STATUS . "' FROM " . Constants::TBL_PRODUCTS . " p LEFT OUTER JOIN " . Constants::TBL_PRODUCT_SPEC . " ps ON ps." . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . " = p." . Constants::PRODUCTS_FLD_ID . " LEFT OUTER JOIN " . Constants::TBL_CATEGORIES_SPEC . " cs ON cs." . Constants::CATEGORIES_SPEC_FLD_CATID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " AND ps." . Constants::PRODUCT_SPEC_FLD_CAT_ID . " = cs." . Constants::CATEGORIES_SPEC_FLD_ID . " JOIN " . Constants::TBL_USERS . " u ON u." . Constants::USERS_FLD_ID . " = p." . Constants::PRODUCTS_FLD_SELLER_ID . " JOIN " . Constants::TBL_CATEGORIES . " c ON c." . Constants::CATEGORIES_FLD_ID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " JOIN " . Constants::TBL_AVAILABILITY_STATUS . " a ON a." . Constants::AVAILABILITY_FLD_ID . " = p." . Constants::PRODUCTS_FLD_AVA_STATUS . " WHERE p." . Constants::PRODUCTS_FLD_AVAILABILITY_ID . " != " . Constants::PRODUCT_DELETED . " AND p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " = '$cateID' ORDER BY p." . Constants::PRODUCTS_FLD_ID . " DESC";
         }
         if (!$result = $this->db_link->query($query)) {
             return $this->returnError(Constants::PRODUCTS_GET_ALL_PRODUCTS_FAILED, "Please try again later!");
@@ -1768,19 +1767,42 @@ class SQLOperations implements SQLOperationsInterface {
 
     /**
      * This function gets all the products by part of word or a close word
-     * @param integer $key
+     * @param integer $keyword
      * @return response with array of products
      */
-    public function getProductByKey($key) {
-        if (strlen(trim($key)) != 0) {
-            $key = Utilities::makeInputSafe($key);
+    public function getProductByKey($keyword) {
+        if (strlen(trim($keyword)) != 0) {
+            $keyword = Utilities::makeInputSafe($keyword);
             // SELECT * FROM products WHERE name LIKE '%xp%'  OR Description LIKE '%xp%'
-            if (!$result = $this->db_link->query('SELECT * FROM ' . Constants::TBL_PRODUCTS . " WHERE " . Constants::PRODUCTS_FLD_NAME . " LIKE '%$key%' OR " . Constants::PRODUCTS_FLD_DESCRIPTION . " LIKE '%$key%' ")) {
-                return $this->returnError(Constants::PRODUCT_GET_FROM_KEY_FAILED, "Please try again later!");
+            $query = "SELECT p.*, ps." . Constants::PRODUCT_SPEC_FLD_ID . " as '" . Constants::PRODUCT_SPEC_PSID . "',  cs." . Constants::CATEGORIES_SPEC_FLD_NAME . " as '" . Constants::PRODUCT_SPEC_CSNAME . "', ps." . Constants::PRODUCT_SPEC_FLD_VALUE . " as '" . Constants::PRODUCT_SPEC_PSVALUE . "' , u." . Constants::USERS_FLD_NAME . " as '" . Constants::PRODUCT_SELLER_NAME . "' , c." . Constants::CATEGORIES_FLD_NAME . " as '" . Constants::PRODUCT_CATEGORY_NAME . "' , a." . Constants::AVAILABILITY_FLD_STATUS . " as '" . Constants::PRODUCT_AVAILABILITY_STATUS . "' FROM " . Constants::TBL_PRODUCTS . " p LEFT OUTER JOIN " . Constants::TBL_PRODUCT_SPEC . " ps ON ps." . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . " = p." . Constants::PRODUCTS_FLD_ID . " LEFT OUTER JOIN " . Constants::TBL_CATEGORIES_SPEC . " cs ON cs." . Constants::CATEGORIES_SPEC_FLD_CATID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " AND ps." . Constants::PRODUCT_SPEC_FLD_CAT_ID . " = cs." . Constants::CATEGORIES_SPEC_FLD_ID . " JOIN " . Constants::TBL_USERS . " u ON u." . Constants::USERS_FLD_ID . " = p." . Constants::PRODUCTS_FLD_SELLER_ID . " JOIN " . Constants::TBL_CATEGORIES . " c ON c." . Constants::CATEGORIES_FLD_ID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " JOIN " . Constants::TBL_AVAILABILITY_STATUS . " a ON a." . Constants::AVAILABILITY_FLD_ID . " = p." . Constants::PRODUCTS_FLD_AVA_STATUS . "  WHERE p." . Constants::PRODUCTS_FLD_NAME . " LIKE '%$keyword%' OR p." . Constants::PRODUCTS_FLD_DESCRIPTION . " LIKE '%$keyword%' order by " . Constants::PRODUCTS_FLD_SOLDITEMS . " DESC";
+
+            if (!$result = $this->db_link->query($query)) {
+                return $this->returnError(Constants::PRODUCT_GET_FROM_KEY_FAILED, "Please try again later!".$this->db_link->error);
             } else {
                 $ret = array();
+                $lastRow;
                 while ($row = $result->fetch_assoc()) {
-                    array_push($ret, $row);
+                    // If this product id is already added to list (products are ordered) then add new element to more details array, else add the new product
+                    if ($row[Constants::PRODUCTS_FLD_ID] == $lastRow[Constants::PRODUCTS_FLD_ID]) {
+                        $newMore = array();
+                        $newMore[Constants::PRODUCT_SPEC_PSID] = $row[Constants::PRODUCT_SPEC_PSID];
+                        $newMore[Constants::PRODUCT_SPEC_CSNAME] = $row[Constants::PRODUCT_SPEC_CSNAME];
+                        $newMore[Constants::PRODUCT_SPEC_PSVALUE] = $row[Constants::PRODUCT_SPEC_PSVALUE];
+                        array_push($ret[sizeof($ret) - 1]['more'], $newMore);
+                    } else {
+                        $more = array();
+                        $more[Constants::PRODUCT_SPEC_PSID] = $row[Constants::PRODUCT_SPEC_PSID];
+                        $more[Constants::PRODUCT_SPEC_CSNAME] = $row[Constants::PRODUCT_SPEC_CSNAME];
+                        $more[Constants::PRODUCT_SPEC_PSVALUE] = $row[Constants::PRODUCT_SPEC_PSVALUE];
+                        unset($row[Constants::PRODUCT_SPEC_PSID]);
+                        unset($row[Constants::PRODUCT_SPEC_CSNAME]);
+                        unset($row[Constants::PRODUCT_SPEC_PSVALUE]);
+                        $row['more'] = array();
+                        if ($more['PSID'] != 'null' && is_numeric($more['PSID']))
+                            array_push($row['more'], $more);
+                        array_push($ret, $row);
+                    }
+                    $lastRow = $row;
                 }
                 $theResponse = new Response(Constants::PRODUCT_GET_FROM_KEY_SUCCESS, $ret, "");
                 return(json_encode($theResponse));
@@ -1793,34 +1815,62 @@ class SQLOperations implements SQLOperationsInterface {
     /**
      * This function gets Top 3 products in top 4 categories
      * @return response with array of products
+     * @checkedByIAR
      */
     public function getTop3In4Cat() {
         //select category_id from products group by category_id order by sum(solditems) DESC limit 4
         if (!$result = $this->db_link->query('SELECT ' . Constants::PRODUCTS_FLD_CATEGORY_ID . " from " . Constants::TBL_PRODUCTS . " group by " . Constants::PRODUCTS_FLD_CATEGORY_ID . " order by sum(" . Constants::PRODUCTS_FLD_SOLDITEMS . ") DESC limit 4")) {
             return $this->returnError(Constants::PRODUCT_GET_TOP_3_IN_4_CAT_FAILED, "Please try again later!");
         } else {
-
             $categoriesIdArray = array();
             while ($row = $result->fetch_assoc()) {
                 array_push($categoriesIdArray, $row[Constants::PRODUCTS_FLD_CATEGORY_ID]);
             }
 
             $Cats4 = array(); //array carrys 4 arrays of top porducts in top 4 cat
-            foreach ($categoriesIdArray as $value) {
-                if (!$result = $this->db_link->query('SELECT ' . Constants::PRODUCTS_FLD_ID . " from " . Constants::TBL_PRODUCTS . " where " . Constants::PRODUCTS_FLD_CATEGORY_ID . "= '$value' order by " . Constants::PRODUCTS_FLD_SOLDITEMS . " DESC limit 3")) {
+            foreach ($categoriesIdArray as $cateID) {
+                $query = "SELECT p.*, ps." . Constants::PRODUCT_SPEC_FLD_ID . " as '" . Constants::PRODUCT_SPEC_PSID . "',  cs." . Constants::CATEGORIES_SPEC_FLD_NAME . " as '" . Constants::PRODUCT_SPEC_CSNAME . "', ps." . Constants::PRODUCT_SPEC_FLD_VALUE . " as '" . Constants::PRODUCT_SPEC_PSVALUE . "' , u." . Constants::USERS_FLD_NAME . " as '" . Constants::PRODUCT_SELLER_NAME . "' , c." . Constants::CATEGORIES_FLD_NAME . " as '" . Constants::PRODUCT_CATEGORY_NAME . "' , a." . Constants::AVAILABILITY_FLD_STATUS . " as '" . Constants::PRODUCT_AVAILABILITY_STATUS . "' FROM " . Constants::TBL_PRODUCTS . " p LEFT OUTER JOIN " . Constants::TBL_PRODUCT_SPEC . " ps ON ps." . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . " = p." . Constants::PRODUCTS_FLD_ID . " LEFT OUTER JOIN " . Constants::TBL_CATEGORIES_SPEC . " cs ON cs." . Constants::CATEGORIES_SPEC_FLD_CATID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " AND ps." . Constants::PRODUCT_SPEC_FLD_CAT_ID . " = cs." . Constants::CATEGORIES_SPEC_FLD_ID . " JOIN " . Constants::TBL_USERS . " u ON u." . Constants::USERS_FLD_ID . " = p." . Constants::PRODUCTS_FLD_SELLER_ID . " JOIN " . Constants::TBL_CATEGORIES . " c ON c." . Constants::CATEGORIES_FLD_ID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " JOIN " . Constants::TBL_AVAILABILITY_STATUS . " a ON a." . Constants::AVAILABILITY_FLD_ID . " = p." . Constants::PRODUCTS_FLD_AVA_STATUS . " WHERE p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " = '$cateID' order by " . Constants::PRODUCTS_FLD_SOLDITEMS . " DESC";
+                if (!$result = $this->db_link->query($query)) {
                     return $this->returnError(Constants::PRODUCT_GET_TOP_3_IN_4_CAT_FAILED, "Please try again later!");
                 } else {
-                    $productsIdArray = array();
+                    $ret = array();
+                    $lastRow;
+                    $actualProductCount = 0;
                     while ($row = $result->fetch_assoc()) {
-
-                        array_push($productsIdArray, $row[Constants::PRODUCTS_FLD_ID]);
+                        if ($actualProductCount >= 3)
+                            break;
+                        // If this product id is already added to list (products are ordered) then add new element to more details array, else add the new product
+                        if ($row[Constants::PRODUCTS_FLD_ID] == $lastRow[Constants::PRODUCTS_FLD_ID]) {
+                            $newMore = array();
+                            $newMore[Constants::PRODUCT_SPEC_PSID] = $row[Constants::PRODUCT_SPEC_PSID];
+                            $newMore[Constants::PRODUCT_SPEC_CSNAME] = $row[Constants::PRODUCT_SPEC_CSNAME];
+                            $newMore[Constants::PRODUCT_SPEC_PSVALUE] = $row[Constants::PRODUCT_SPEC_PSVALUE];
+                            array_push($ret[sizeof($ret) - 1]['more'], $newMore);
+                        } else {
+                            $more = array();
+                            $more[Constants::PRODUCT_SPEC_PSID] = $row[Constants::PRODUCT_SPEC_PSID];
+                            $more[Constants::PRODUCT_SPEC_CSNAME] = $row[Constants::PRODUCT_SPEC_CSNAME];
+                            $more[Constants::PRODUCT_SPEC_PSVALUE] = $row[Constants::PRODUCT_SPEC_PSVALUE];
+                            unset($row[Constants::PRODUCT_SPEC_PSID]);
+                            unset($row[Constants::PRODUCT_SPEC_CSNAME]);
+                            unset($row[Constants::PRODUCT_SPEC_PSVALUE]);
+                            $row['more'] = array();
+                            if ($more['PSID'] != 'null' && is_numeric($more['PSID']))
+                                array_push($row['more'], $more);
+                            array_push($ret, $row);
+                            $actualProductCount++;
+                        }
+                        $lastRow = $row;
                     }
-                    $Cats4[$value] = $productsIdArray;
+                    $cate = array();
+                    $cate[Constants::CATEGORIES_FLD_ID] = $cateID;
+                    $cate[Constants::CATEGORIES_FLD_NAME] = json_decode($this->selectCategory($cateID), true)['result'][Constants::CATEGORIES_FLD_NAME];
+                    $cate['products'] = $ret;
+
+                    array_push($Cats4, $cate);
                 }
             }
-
             $theResponse = new Response(Constants::PRODUCT_GET_TOP_3_IN_4_CAT_SUCCESS, $Cats4, "");
-
             return(json_encode($theResponse));
         }
     }

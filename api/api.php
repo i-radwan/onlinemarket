@@ -312,10 +312,19 @@ $app->put('/product', function (Request $request, Response $response) {
     }
 });
 
+$app->get('/products/top', function (Request $request, Response $response) {
+    $sqlOperations = new SQLOperations();
+    return $response->withStatus(200)->write($sqlOperations->getTop3In4Cat());
+});
+$app->get('/products/search/{q}', function (Request $request, Response $response) {
+    $sqlOperations = new SQLOperations();
+    return $response->withStatus(200)->write($sqlOperations->getProductByKey($request->getAttribute('q')));
+});
 $app->get('/products/{cateID}', function (Request $request, Response $response) {
     $sqlOperations = new SQLOperations();
     return $response->withStatus(200)->write($sqlOperations->getAllProducts($request->getAttribute('cateID')));
 });
+
 
 /**
  * Orders requests

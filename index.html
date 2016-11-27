@@ -31,7 +31,7 @@
 					<a data-bind="click: logOut" class="header-logout"><span>Logout</span></a>
 				</div>
 				<div class="header-search"><input data-bind="textInput: $parent.tmpSearchWord" placeholder="Search..." type="text" class="header-search-input">
-					<a class="search-img" title="Search" data-bind="click: function(){ if($parent.tmpSearchWord()){ $parent.searchWord($parent.tmpSearchWord());sammyApp.setLocation('#/search');}}"><img src="img/search-icon-nocolor.png"></a>
+					<a class="search-img" title="Search" data-bind="click: function(){ if($parent.tmpSearchWord()){ $parent.searchWord($parent.tmpSearchWord());sammyApp.setLocation('#/search');console.log($data)}}"><img src="img/search-icon-nocolor.png"></a>
 				</div>
 			</div>
 		</header>
@@ -122,7 +122,7 @@
         <products id="products" params="categoryID: $parent.categoryID">
             <section class="main-content" data-bind="foreach: topCategoriesArray">
                 <div class="category-items-short">
-                    <a class="category-items-short--title" data-bind="text: name, click: $parent.expandCategory"></a>
+                    <a class="category-items-short--title" data-bind="text: $data[CATEGORIES_FLD_NAME], click: $parent.expandCategory"></a>
                     <p class="no-items" data-bind="if: !$data.products.length">No Products</p>
                     <div class="categories-items-container" data-bind="foreach: products">
                         <product-container  class="categories-single-item" params="value: $data, cart:false"></product-container>
@@ -158,46 +158,30 @@
     </template>
 	<template id="single-product-view">
         <div>
-            <h2 class="categories-single-item--title" data-bind="text: params.name"></h2>
-            <img class="categories-single-item--img" data-bind="attr:{src: params.image}">
-            <div class="categories-single-item--visible-details">
-                <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Price:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params.price"></span>$</span>
-                </p>
-                <p class="categories-single-item--visible-details--spec" data-bind="if: params.order"><strong class="categories-single-item--visible-details--spec--key">Quantity:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params.quantity()"></span></span>
-                </p>
-                <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Rate:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params.rate"></span>/5</span>
-                </p>
-            </div>
-            <div class="categories-single-item--load-more" data-bind="click: loadMoreClick, visible: !params.isMoreDivVisible()">
-                <i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i> <span class="categories-single-item--load-more--text">more</span>
-                <i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i>
-            </div>
-            <div data-bind="foreach: params.more, visible:params.isMoreDivVisible">
-                <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key"><span data-bind="text:name"></span>:</strong><span class="categories-single-item--visible-details--spec--val" data-bind="text:value"></span>
-                </p>
-            </div>
-            <div class="categories-single-item--invisible-details"></div>
-            <div data-bind="if: !params.cart && !params.order && checkIfSignedIn() && checkIfActiveUser() && checkUserRole() == USER_BUYER">
-                <button class="categories-single-item--buy" data-bind="click:addToCart">Add to Cart</button>
-            </div>
-            <div data-bind="if: params.cart">
-                <div data-bind="css:{'cart-single-item--buy': params.cart}" class="categories-single-item--buy" >
-                    <i class="fa fa-minus cart-button-icon" data-bind="click: function(){if(decreaseQuantity())$parents[2].increaseCartAmount(-params.price);}"></i>
-                    <span class="cart-button-text">Quantity: <span data-bind="text: params.quantity"></span></span>
-                    <i class="fa fa-plus cart-button-icon"  data-bind="click: function(){if(increaseQuantity())$parents[2].increaseCartAmount(params.price);}"></i>
-
+            <h2 class="categories-single-item--title" data-bind="text: params[PRODUCTS_FLD_NAME]"></h2>
+                <img class="categories-single-item--img" data-bind="attr:{src: params[PRODUCTS_FLD_IMAGE]}">
+                <div class="categories-single-item--visible-details">
+                    <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Price:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params[PRODUCTS_FLD_PRICE]"></span>$</span>
+                    </p>
+                    <p class="categories-single-item--visible-details--spec" data-bind="if: params.order"><strong class="categories-single-item--visible-details--spec--key">Quantity:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: 'ToDo ToBEFIXRD'+params[PRODUCTS_FLD_AVA_QUANTITY]"></span></span>
+                    </p>
+                    <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Rate:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params[PRODUCTS_FLD_RATE]"></span>/5</span>
+                    </p>
+                     <p class="categories-single-item--visible-details--spec" date-bind="if: checkUserRole() != USER_SELLER, visible: checkUserRole() != USER_SELLER"><strong class="categories-single-item--visible-details--spec--key">Seller:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params[PRODUCT_SELLER_NAME]"></span></span>
+                    </p>
+                     <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Category:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params[PRODUCT_CATEGORY_NAME]"></span></span>
+                    </p>
+                    <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Availability:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params[PRODUCT_AVAILABILITY_STATUS]"></span></span>
+                    </p>                   
                 </div>
-                <p data-bind="click: function(){if($parents[1].cancelProduct($data))$parents[2].increaseCartAmount(-params.price * params.quantity());}" class="cart-cancel-product">cancel</p>
-            </div>
-
-            <div data-bind="if: params.order && ($parents[2].status == 'Delivered')">
-                <div data-bind="css:{'cart-single-item--buy': params.order}" class="categories-single-item--buy" >
-                    <i class="fa fa-minus cart-button-icon" data-bind="click: decreaseRate"></i>
-                    <span class="cart-button-text">Rate: <span data-bind="text: params.formattedRate"></span></span>
-                    <i class="fa fa-plus cart-button-icon" data-bind="click: increaseRate"></i>
-
+                <div class="categories-single-item--load-more" data-bind="click: loadMoreClick, visible: !params.isMoreDivVisible(), if: params.more().length">
+                    <i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i> <span class="categories-single-item--load-more--text">more</span>
+                    <i class="fa fa-arrow-down categories-single-item--load-more--arrow" aria-hidden="true"></i>
                 </div>
-            </div>
+                <div data-bind="foreach: params.more, visible:params.isMoreDivVisible">
+                    <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key"><span data-bind="text:name"></span>:</strong><span class="categories-single-item--visible-details--spec--val" data-bind="text:value"></span>
+                    </p>
+                </div>
         </div>
     </template>
 	<!--Scripts-->

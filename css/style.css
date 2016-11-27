@@ -298,6 +298,7 @@ header {
 	font-family: 'Raleway', helvetica;
 	word-wrap: break-word;
 	float: left;
+	text-transform: capitalize;
 }
 
 .categories-single-item--visible-details--spec--val {
