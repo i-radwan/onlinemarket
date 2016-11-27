@@ -329,6 +329,12 @@
 	margin-top: 90px;
 	width: 400px;
 }
+.admin-products--add-product.editmode{
+	width: 300px !important;	
+	border: 0;
+	padding-right: 5px;
+	margin-top: 20px;
+}
 
 .admin-products--add-product input {
 	padding: 10px !important;
@@ -353,6 +359,7 @@
 	width: 100%;
 	background: #fff;
 	height: 40px;
+	margin-bottom: 10px;
 	padding: 10px;
 	font-size: 18px;
 	font-family: 'Raleway', helvetica;

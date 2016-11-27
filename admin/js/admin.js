@@ -11,7 +11,7 @@ function productSpecModel(productSpec) {
 	this[PRODUCT_SPEC_FLD_VALUE] = ko.observable(productSpec[PRODUCT_SPEC_PSVALUE]);
 }
 
-function productModel(product) {
+function productModel(product, allCategoires) {
 	var self = this;
 	self[PRODUCTS_FLD_ID] = product[PRODUCTS_FLD_ID];
 	self[PRODUCTS_FLD_NAME] = ko.observable(product[PRODUCTS_FLD_NAME]);
@@ -56,13 +56,24 @@ function productModel(product) {
 	}
 
 	// Temp values for product editing
-	self.tmpName = ko.observable(product.name);
-	self.tmpPrice = ko.observable(product.price);
-	self.tmpImage = ko.observable(product.image);
-	self.tmpQuantity = ko.observable(product.quantity);
-	self.tmpMore = ko.observableArray();
+	self[PRODUCTS_FLD_NAME + 'Tmp'] = ko.observable(product[PRODUCTS_FLD_NAME]);
+	self[PRODUCTS_FLD_PRICE + 'Tmp'] = ko.observable(product[PRODUCTS_FLD_PRICE]);
+	self[PRODUCTS_FLD_RATE + 'Tmp'] = product[PRODUCTS_FLD_RATE];
+	self[PRODUCTS_FLD_IMAGE + 'Tmp'] = ko.observable(product[PRODUCTS_FLD_IMAGE]);
+	self[PRODUCTS_FLD_AVA_QUANTITY + 'Tmp'] = ko.observable(product[PRODUCTS_FLD_AVA_QUANTITY]);
+	self[PRODUCTS_FLD_SIZE + 'Tmp'] = ko.observable(product[PRODUCTS_FLD_SIZE]);
+	self[PRODUCTS_FLD_WEIGHT + 'Tmp'] = ko.observable(product[PRODUCTS_FLD_WEIGHT]);
+	self[PRODUCTS_FLD_AVAILABILITY_ID + 'Tmp'] = ko.observable(product[PRODUCTS_FLD_AVAILABILITY_ID]);
+	self[PRODUCTS_FLD_ORIGIN + 'Tmp'] = ko.observable(product[PRODUCTS_FLD_ORIGIN]);
+	self[PRODUCTS_FLD_PROVIDER + 'Tmp'] = ko.observable(product[PRODUCTS_FLD_PROVIDER]);
+	self[PRODUCTS_FLD_CATEGORY_ID + 'Tmp'] = ko.observable(product[PRODUCTS_FLD_CATEGORY_ID]);
+	self[PRODUCTS_FLD_DESCRIPTION + 'Tmp'] = ko.observable(product[PRODUCTS_FLD_DESCRIPTION]);
+
+	self[CATEGORIES_SPEC + 'Tmp'] = ko.observableArray();
 	product.more.forEach(function (more) {
-		self.tmpMore.push(new productSpecModel(more));
+		var newPSM = new productSpecModel(more);
+		newPSM.tmpValue = ko.observable(more[PRODUCT_SPEC_PSVALUE]);
+		self[CATEGORIES_SPEC + 'Tmp'].push(newPSM);
 	});
 
 	self.isMoreDivVisible = ko.observable(false);
@@ -188,7 +199,7 @@ function productsViewModel(params) {
 	self.init = function () {
 		var products = getAllProducts();
 		products.forEach(function (product) {
-			self.productsArray.push(new productModel(product));
+			self.productsArray.push(new productModel(product, self.allCategories));
 		});
 	}();
 	self.deleteProduct = function (item, event) {
@@ -225,7 +236,7 @@ function productsViewModel(params) {
 			if (newProductID > 0) {
 				window.location = ADMIN_LINK;
 			}
-		}else{
+		} else {
 			alert('Please select category!');
 		}
 
@@ -247,16 +258,31 @@ function singleProductViewModel(params) {
 
 	self.save = function () {
 		if (confirm("Are you sure?")) {
-			// Call api first and if true edit these values
-			self.params.name(self.params.tmpName());
-			self.params.price(self.params.tmpPrice());
-			self.params.image(self.params.tmpImage());
-			self.params.quantity(self.params.tmpQuantity());
-
-			ko.utils.arrayForEach(self.params.more(), function (spec, index) {
-				self.params.more()[index].value(self.params.tmpMore()[index].value());
+			var data = {};
+			data[PRODUCTS_FLD_ID] = self.params[PRODUCTS_FLD_ID];
+			data[PRODUCTS_FLD_NAME] = self.params[PRODUCTS_FLD_NAME + 'Tmp']();
+			data[PRODUCTS_FLD_PRICE] = self.params[PRODUCTS_FLD_PRICE + 'Tmp']();
+			data[PRODUCTS_FLD_IMAGE] = self.params[PRODUCTS_FLD_IMAGE + 'Tmp']();
+			data[PRODUCTS_FLD_AVA_QUANTITY] = self.params[PRODUCTS_FLD_AVA_QUANTITY + 'Tmp']();
+			data[PRODUCTS_FLD_SIZE] = self.params[PRODUCTS_FLD_SIZE + 'Tmp']();
+			data[PRODUCTS_FLD_WEIGHT] = self.params[PRODUCTS_FLD_WEIGHT + 'Tmp']();
+			data[PRODUCTS_FLD_AVAILABILITY_ID] = self.params[PRODUCTS_FLD_AVAILABILITY_ID + 'Tmp']();
+			data[PRODUCTS_FLD_ORIGIN] = self.params[PRODUCTS_FLD_ORIGIN + 'Tmp']();
+			data[PRODUCTS_FLD_PROVIDER] = self.params[PRODUCTS_FLD_PROVIDER + 'Tmp']();
+			data[PRODUCTS_FLD_DESCRIPTION] = self.params[PRODUCTS_FLD_DESCRIPTION + 'Tmp']();
+			data[PRODUCTS_FLD_AVAILABILITY_ID] = self.params[PRODUCTS_FLD_AVAILABILITY_ID + 'Tmp']();
+			data['more'] = [];
+			ko.utils.arrayForEach(self.params[CATEGORIES_SPEC + 'Tmp'](), function (spec, index) {
+				var newPSM = {};
+				newPSM[PRODUCT_SPEC_FLD_ID] = spec[PRODUCT_SPEC_FLD_ID]();
+				newPSM[CATEGORIES_SPEC_FLD_NAME] = spec[CATEGORIES_SPEC_FLD_NAME]();
+				newPSM[PRODUCT_SPEC_FLD_VALUE] = spec.tmpValue();
+				data['more'].push(newPSM);
 			});
-			self.params.editMode(false);
+
+			if (editProduct(data)) {
+				window.location = ADMIN_LINK;
+			}
 		}
 	};
 }
@@ -657,7 +683,7 @@ function singleOrderViewModel(params) {
 }
 
 function controlPanelViewModel() {
-	if (checkIfSignedIn() && checkIfActiveUser() && (checkUserRole() == USER_ADMIN || checkUserRole() == USER_ACCOUNTANT || checkUserRole() == USER_DELIVERYMAN || checkUserRole() == USER_SELLER)) {
+	if (checkIfSignedIn() && (checkUserRole() == USER_ADMIN || checkUserRole() == USER_ACCOUNTANT || checkUserRole() == USER_DELIVERYMAN || checkUserRole() == USER_SELLER)) {
 		var self = this;
 
 		// Register categories components
@@ -1335,11 +1361,9 @@ function getCategoriesArray() {
 }
 
 /**
- * This function adds employee to db
- * @param   {email}   email new employee email
- * @param   {string}  pass  new employee password
- * @param   {int}  pass  new employee type
- * @returns {int} new emp ID, -1 if operation failed
+ * This function adds product to db
+ * @param   {object}   data all product data
+ * @returns {int} new product ID, -1 if operation failed
  */
 function addProduct(data) {
 	var newID = -1;
@@ -1364,6 +1388,36 @@ function addProduct(data) {
 	return newID;
 }
 
+
+
+/**
+ * This function saves edited product to db
+ * @param   {object}   data all product data
+ * @returns {boolean} true if operation is done
+ */
+function editProduct(data) {
+	var edited = false;
+	$.ajax({
+		url: API_LINK + PRODUCT_ENDPOINT,
+		type: 'PUT',
+		async: false,
+		data: data,
+		headers: {
+			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
+		},
+		success: function (result) {
+			console.log(result);
+			var returnedData = JSON.parse(result);
+			if (returnedData.statusCode == PRODUCT_UPDATE_SUCCESS) {
+				edited = true;
+			} else {
+				alert(returnedData.errorMsg);
+			}
+		}
+	});
+	return edited;
+}
+
 /**
  * This function deletes product with its ID
  * @param   {number}  productID product ID
@@ -1385,6 +1439,15 @@ function deleteProduct(productID) {
 				deleted = true;
 			} else {
 				alert(returnedData.errorMsg);
+			}
+		},
+		fail: function (result) {
+			alert("Please try again later!");
+		},
+		statusCode: {
+			401: function () {
+				alert("Auth required!");
+				logOut();
 			}
 		}
 	});

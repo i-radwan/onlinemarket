@@ -353,6 +353,7 @@ class Constants {
     /**
      * Product availability statuses
      */
+    const AVAILABILITY_STATUSES = array("1", "2", "3");
     const PRODUCT_AVAILABLE = "1"; // Relative to DB
     const PRODUCT_INAVAILABLE = "2"; // Relative to DB'
     const PRODUCT_DELETED = "3"; // Relative to DB'

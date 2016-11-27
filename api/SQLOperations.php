@@ -373,6 +373,26 @@ class SQLOperations implements SQLOperationsInterface {
     }
 
     /**
+     * This function checks if a certain user is not banned by admins
+     * @param type $userID
+     * @return boolean
+     * @checkedByIAR
+     */
+    function checkIfActiveUser($userID) {
+        $userID = Utilities::makeInputSafe($userID);
+        if (!$result = $this->db_link->query("SELECT `" . Constants::USERS_FLD_STATUS . "` FROM `" . Constants::TBL_USERS . "` WHERE `" . Constants::USERS_FLD_ID . "` = '$userID' LIMIT 1")) {
+            return $this->returnError(Constants::USER_EDIT_ACCOUNT_FAILED, "Please try again later!", 0, 0, 0);
+        }
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            if ($row[Constants::USERS_FLD_STATUS] == Constants::USER_ACTIVE) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * This function edits the specified user data
      * @param type $data new user's data object
      * @return type response object
@@ -907,10 +927,6 @@ class SQLOperations implements SQLOperationsInterface {
         return(json_encode($theResponse));
     }
 
-    function __destruct() {
-        $this->db_link->close();
-    }
-
     /**
      * This function Adds category
      * @parm string $name
@@ -1182,6 +1198,10 @@ class SQLOperations implements SQLOperationsInterface {
         }
     }
 
+    function __destruct() {
+        $this->db_link->close();
+    }
+
     //=======================================   NEED CHECK ==============================================================================
     /**
      * This function adds non existed rate or updates existed rate
@@ -1332,6 +1352,9 @@ class SQLOperations implements SQLOperationsInterface {
         if ($sellerID > 0) {
             $query = "SELECT p.*, ps." . Constants::PRODUCT_SPEC_FLD_ID . " as '" . Constants::PRODUCT_SPEC_PSID . "',  cs." . Constants::CATEGORIES_SPEC_FLD_NAME . " as '" . Constants::PRODUCT_SPEC_CSNAME . "', ps." . Constants::PRODUCT_SPEC_FLD_VALUE . " as '" . Constants::PRODUCT_SPEC_PSVALUE . "' , u." . Constants::USERS_FLD_NAME . " as '" . Constants::PRODUCT_SELLER_NAME . "' , c." . Constants::CATEGORIES_FLD_NAME . " as '" . Constants::PRODUCT_CATEGORY_NAME . "' , a." . Constants::AVAILABILITY_FLD_STATUS . " as '" . Constants::PRODUCT_AVAILABILITY_STATUS . "' FROM " . Constants::TBL_PRODUCTS . " p LEFT OUTER JOIN " . Constants::TBL_PRODUCT_SPEC . " ps ON ps." . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . " = p." . Constants::PRODUCTS_FLD_ID . " LEFT OUTER JOIN " . Constants::TBL_CATEGORIES_SPEC . " cs ON cs." . Constants::CATEGORIES_SPEC_FLD_CATID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " AND ps." . Constants::PRODUCT_SPEC_FLD_CAT_ID . " = cs." . Constants::CATEGORIES_SPEC_FLD_ID . " JOIN " . Constants::TBL_USERS . " u ON u." . Constants::USERS_FLD_ID . " = p." . Constants::PRODUCTS_FLD_SELLER_ID . " JOIN " . Constants::TBL_CATEGORIES . " c ON c." . Constants::CATEGORIES_FLD_ID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " JOIN " . Constants::TBL_AVAILABILITY_STATUS . " a ON a." . Constants::AVAILABILITY_FLD_ID . " = p." . Constants::PRODUCTS_FLD_AVA_STATUS . " WHERE p." . Constants::PRODUCTS_FLD_SELLER_ID . " = '$sellerID' AND p." . Constants::PRODUCTS_FLD_AVAILABILITY_ID . " != " . Constants::PRODUCT_DELETED . " ORDER BY p." . Constants::PRODUCTS_FLD_ID . " DESC";
         }
+        if ($cateID > 0) {
+            $query = "SELECT p.*, ps." . Constants::PRODUCT_SPEC_FLD_ID . " as '" . Constants::PRODUCT_SPEC_PSID . "',  cs." . Constants::CATEGORIES_SPEC_FLD_NAME . " as '" . Constants::PRODUCT_SPEC_CSNAME . "', ps." . Constants::PRODUCT_SPEC_FLD_VALUE . " as '" . Constants::PRODUCT_SPEC_PSVALUE . "' , u." . Constants::USERS_FLD_NAME . " as '" . Constants::PRODUCT_SELLER_NAME . "' , c." . Constants::CATEGORIES_FLD_NAME . " as '" . Constants::PRODUCT_CATEGORY_NAME . "' , a." . Constants::AVAILABILITY_FLD_STATUS . " as '" . Constants::PRODUCT_AVAILABILITY_STATUS . "' FROM " . Constants::TBL_PRODUCTS . " p LEFT OUTER JOIN " . Constants::TBL_PRODUCT_SPEC . " ps ON ps." . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . " = p." . Constants::PRODUCTS_FLD_ID . " LEFT OUTER JOIN " . Constants::TBL_CATEGORIES_SPEC . " cs ON cs." . Constants::CATEGORIES_SPEC_FLD_CATID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " AND ps." . Constants::PRODUCT_SPEC_FLD_CAT_ID . " = cs." . Constants::CATEGORIES_SPEC_FLD_ID . " JOIN " . Constants::TBL_USERS . " u ON u." . Constants::USERS_FLD_ID . " = p." . Constants::PRODUCTS_FLD_SELLER_ID . " JOIN " . Constants::TBL_CATEGORIES . " c ON c." . Constants::CATEGORIES_FLD_ID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " JOIN " . Constants::TBL_AVAILABILITY_STATUS . " a ON a." . Constants::AVAILABILITY_FLD_ID . " = p." . Constants::PRODUCTS_FLD_AVA_STATUS . " WHERE p." . Constants::PRODUCTS_FLD_AVAILABILITY_ID . " != " . Constants::PRODUCT_DELETED . " AND p.".Constants::PRODUCTS_FLD_CATEGORY_ID." = '$cateID' ORDER BY p." . Constants::PRODUCTS_FLD_ID . " DESC";
+        }
         if (!$result = $this->db_link->query($query)) {
             return $this->returnError(Constants::PRODUCTS_GET_ALL_PRODUCTS_FAILED, "Please try again later!");
         } else {
@@ -1360,7 +1383,7 @@ class SQLOperations implements SQLOperationsInterface {
                 }
                 $lastRow = $row;
             }
-            $theResponse = new Response(Constants::PRODUCTS_GET_ALL_PRODUCTS_SUCCESS, $ret, ""); //to do const
+            $theResponse = new Response(Constants::PRODUCTS_GET_ALL_PRODUCTS_SUCCESS, $ret, "");
             return(json_encode($theResponse));
         }
     }
@@ -1370,6 +1393,7 @@ class SQLOperations implements SQLOperationsInterface {
      * @param int $productId 
      * @param array $specs contains array of index AKA specName ,value
      * @return response 
+     * @checkedByIAR
      */
     public function addProductSpec($productId, $specs) {
         $productId = Utilities::makeInputSafe($productId);
@@ -1408,66 +1432,26 @@ class SQLOperations implements SQLOperationsInterface {
     }
 
     /**
-     * This function updates product spec. No product id with cat id repeated .
+     * This function updates product spec.
      * @param integer $id
-     * @param integer $productId
-     * @param integer $catId 
-     * @param string $spec ,Aka value
+     * @param string $newSpecValue ,Aka value
      * @return response 
+     * @checkedByIAR
      */
-    public function updateProductSpec($id, $productId, $catId, $spec) { //products id and cat id should be unique
-        if ((strlen(trim($id)) != 0) && (strlen(trim($productId)) != 0) && (strlen(trim($spec)) != 0) && (strlen(trim($catId)) != 0)) {
+    public function updateProductSpec($id, $newSpecValue) {
+        if ((strlen(trim($id)) != 0) && (strlen(trim($newSpecValue)) != 0)) {
             $id = Utilities::makeInputSafe($id);
-            $productId = Utilities::makeInputSafe($productId);
-            $catId = Utilities::makeInputSafe($catId);
-            $spec = Utilities::makeInputSafe($spec);
+            $newSpecValue = Utilities::makeInputSafe($newSpecValue);
             //check if id exists 
             if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_PRODUCT_SPEC . "` WHERE `" . Constants::PRODUCT_SPEC_FLD_ID . "` = '$id' LIMIT 1")) {
                 return $this->returnError(Constants::PRODUCT_SPECS_UPDATE_FAILED, "Please try again later!");
             }
             if ($result->num_rows == 1) {
-                //check if category's spec id (foreign key) exists
-                if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_CATEGORIES_SPEC . "` WHERE `" . Constants::CATEGORIES_SPEC_FLD_ID . "` = '$catId' LIMIT 1")) {
-                    return $this->returnError(Constants::PRODUCT_SPECS_UPDATE_FAILED, "Please try again later!");
-                }
-                if ($result->num_rows == 1) {
-                    //check if product id (foreign key) exists
-                    if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_PRODUCTS . "` WHERE `" . Constants::PRODUCTS_FLD_ID . "` = '$productId' LIMIT 1")) {
-                        return $this->returnError(Constants::PRODUCT_SPECS_UPDATE_FAILED, "Please try again later!");
-                    }
-                    if ($result->num_rows == 1) {
-
-                        if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_PRODUCT_SPEC . "` WHERE " . Constants::PRODUCT_SPEC_FLD_CAT_ID . " = '$catId' AND " . Constants::PRODUCT_SPEC_FLD_ID . " = '$id' AND " . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . " = '$productId' LIMIT 1 ")) {
-                            return $this->returnError(Constants::PRODUCT_SPECS_UPDATE_FAILED, "Please try again later!");
-                        }
-                        if ($result->num_rows == 0) { //updating all if primary isnt repeated
-                            if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_PRODUCT_SPEC . "` WHERE " . Constants::PRODUCT_SPEC_FLD_CAT_ID . " = '$catId' AND " . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . " = '$productId' LIMIT 1 ")) {
-                                return $this->returnError(Constants::PRODUCT_SPECS_UPDATE_FAILED, "Please try again later!");
-                            }
-                            if ($result->num_rows == 1) {
-                                return $this->returnError(Constants::PRODUCT_SPEC_PRIMARY_KEY_REPEATED, "Product and category shouldnt be repeated");
-                            } else {
-                                $this->db_link->query("UPDATE `" . Constants::TBL_PRODUCT_SPEC . "` SET `" . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . "` = '$productId' , `" . Constants::PRODUCT_SPEC_FLD_CAT_ID . "` = '$catId' , `" . Constants::PRODUCT_SPEC_FLD_VALUE . "` = '$spec' WHERE `" . Constants::PRODUCT_SPEC_FLD_ID . "` = '$id' ");
-                                $theResponse = new Response(Constants::PRODUCT_SPEC_UPDATE_SUCCESS, array(), "");
-                                return(json_encode($theResponse));
-                            }
-                        } else {
-                            //update spec only
-
-                            $this->db_link->query("UPDATE `" . Constants::TBL_PRODUCT_SPEC . "` SET `" . Constants::PRODUCT_SPEC_FLD_VALUE . "` = '$spec'  WHERE `" . Constants::PRODUCT_SPEC_FLD_ID . "` = '$id' ");
-                            $theResponse = new Response(Constants::PRODUCT_SPEC_UPDATE_SUCCESS, array(), "");
-                            return(json_encode($theResponse));
-                        }
-                    } else {
-                        //error invalid product
-                        return $this->returnError(Constants::PRODUCT_SPEC_INVALID_PRODUCTID, "Please,enter a valid product id");
-                    }
-                } else {
-                    //error invalid cat
-                    return $this->returnError(Constants::PRODUCT_SPEC_INVALID_CAT_SPECID, "Please,enter a valid Category spec's id");
-                }
-            } else {//error invalid id
-                return $this->returnError(Constants::PRODUCT_SPEC_INVALID_ID, "Please,enter a valid id");
+                $this->db_link->query("UPDATE `" . Constants::TBL_PRODUCT_SPEC . "` SET `" . Constants::PRODUCT_SPEC_FLD_VALUE . "` = '$newSpecValue'  WHERE `" . Constants::PRODUCT_SPEC_FLD_ID . "` = '$id' ");
+                $theResponse = new Response(Constants::PRODUCT_SPEC_UPDATE_SUCCESS, "", "");
+                return(json_encode($theResponse));
+            } else {
+                return $this->returnError(Constants::PRODUCT_SPEC_INVALID_ID, "Please enter a valid ID");
             }
         } else {
             return $this->returnError(Constants::PRODUCT_SPEC_EMPTY_DATA, "All fields are required!");
@@ -1532,6 +1516,7 @@ class SQLOperations implements SQLOperationsInterface {
      * @param array $specs
      * @param string $description
      * @return response 
+     * @checkedByIAR
      */
     public function addProduct($name, $price, $size, $weight, $available_quantity, $origin, $provider, $image, $seller_id, $category_id, $specs, $description) {
 
@@ -1568,7 +1553,7 @@ class SQLOperations implements SQLOperationsInterface {
                         $theResponse = new Response(Constants::PRODUCT_ADD_SUCCESS, $this->db_link->insert_id, "");
                         return(json_encode($theResponse));
                     } else {
-                        if (!$result = $this->db_link->query("DELETE FROM `" . Constants::TBL_PRODUCTS . "` WHERE `".Constants::PRODUCTS_FLD_ID."` = '$productID' LIMIT 1")) {
+                        if (!$result = $this->db_link->query("DELETE FROM `" . Constants::TBL_PRODUCTS . "` WHERE `" . Constants::PRODUCTS_FLD_ID . "` = '$productID' LIMIT 1")) {
                             return $this->returnError(Constants::PRODUCT_ADD_FAILED, "Please try again later!");
                         }
                         return $this->returnError(Constants::PRODUCT_ADD_FAILED, "Please try again later!");
@@ -1634,14 +1619,16 @@ class SQLOperations implements SQLOperationsInterface {
      * @param integer $seller_id
      * @param integer $category_id
      * @param integer $solditems
+     * @param array $more more product specs to edit product specs table
      * @return response 
+     * @checkedByIAR
      */
-    public function updateProduct($id, $name, $price, $rate, $size, $weight, $availability_id, $available_quantity, $origin, $provider, $image, $seller_id, $category_id, $solditems) {
+    public function updateProduct($id, $name, $price, $size, $weight, $availability_id, $available_quantity, $origin, $provider, $image, $seller_id, $desc, $more) {
         //make input safe
         $id = Utilities::makeInputSafe($id);
         $name = Utilities::makeInputSafe($name);
         $price = Utilities::makeInputSafe($price);
-        $rate = Utilities::makeInputSafe($rate);
+        $desc = Utilities::makeInputSafe($desc);
         $size = Utilities::makeInputSafe($size);
         $weight = Utilities::makeInputSafe($weight);
         $availability_id = Utilities::makeInputSafe($availability_id);
@@ -1650,8 +1637,7 @@ class SQLOperations implements SQLOperationsInterface {
         $provider = Utilities::makeInputSafe($provider);
         $image = Utilities::makeInputSafe($image);
         $seller_id = Utilities::makeInputSafe($seller_id);
-        $category_id = Utilities::makeInputSafe($category_id);
-        $solditems = Utilities::makeInputSafe($solditems);
+        // @todo Check if valid input (non-empty, numric, within symantic range)
         //check if availability ,seller ,cat id exists 
         if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_AVAILABILITY_STATUS . "` WHERE `" . Constants::AVAILABILITY_FLD_ID . "` = '$availability_id' LIMIT 1")) {
             return $this->returnError(Constants::PRODUCT_UPDATE_FAILED, "Please try again later!");
@@ -1663,18 +1649,19 @@ class SQLOperations implements SQLOperationsInterface {
             }
             if ($result->num_rows == 1) {
                 //check if cat id (foreign key) exists
-                if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_CATEGORIES . "` WHERE `" . Constants::CATEGORIES_FLD_ID . "` = '$category_id' LIMIT 1")) {
+                if (!$result = $this->db_link->query("UPDATE " . Constants::TBL_PRODUCTS . " SET " . Constants::PRODUCTS_FLD_NAME . " = '$name' ," . Constants::PRODUCTS_FLD_PRICE . " = '$price' ," . Constants::PRODUCTS_FLD_SIZE . " = '$size' ," . Constants::PRODUCTS_FLD_WEIGHT . " = '$weight' ," . Constants::PRODUCTS_FLD_AVAILABILITY_ID . " = '$availability_id' ," . Constants::PRODUCTS_FLD_AVA_QUANTITY . " = '$available_quantity' ," . Constants::PRODUCTS_FLD_ORIGIN . " = '$origin' ," . Constants::PRODUCTS_FLD_PROVIDER . " = '$provider' ," . Constants::PRODUCTS_FLD_IMAGE . " = '$image', " . Constants::PRODUCTS_FLD_DESCRIPTION . " = '$desc' WHERE `" . Constants::PRODUCTS_FLD_SELLER_ID . "` = '$seller_id' AND " . Constants::PRODUCTS_FLD_ID . " = '$id'")) {
                     return $this->returnError(Constants::PRODUCT_UPDATE_FAILED, "Please try again later!");
-                }
-                if ($result->num_rows == 1) { //upate depending on seller id and product id
-                    if (!$result = $this->db_link->query("UPDATE " . Constants::TBL_PRODUCTS . " SET " . Constants::PRODUCTS_FLD_NAME . " = '$name' ," . Constants::PRODUCTS_FLD_PRICE . " = '$price' ," . Constants::PRODUCTS_FLD_SIZE . " = '$size' ," . Constants::PRODUCTS_FLD_WEIGHT . " = '$weight' ," . Constants::PRODUCTS_FLD_AVAILABILITY_ID . " = '$availability_id' ," . Constants::PRODUCTS_FLD_AVA_QUANTITY . " = '$available_quantity' ," . Constants::PRODUCTS_FLD_ORIGIN . " = '$origin' ," . Constants::PRODUCTS_FLD_PROVIDER . " = '$provider' ," . Constants::PRODUCTS_FLD_IMAGE . " = '$image' ," . Constants::PRODUCTS_FLD_SELLER_ID . " = '$seller_id' ," . Constants::PRODUCTS_FLD_CATEGORY_ID . " = '$category_id' ," . Constants::PRODUCTS_FLD_SOLDITEMS . " = '$solditems'  WHERE `" . Constants::PRODUCTS_FLD_SELLER_ID . "` = '$seller_id' AND " . Constants::PRODUCTS_FLD_ID . " = '$id'")) {
-                        return $this->returnError(Constants::PRODUCT_UPDATE_FAILED, "Please try again later!");
-                    } else {
-                        $theResponse = new Response(Constants::PRODUCT_UPDATE_SUCCESS, array(), "");
-                        return(json_encode($theResponse));
+                } else {
+                    foreach ($more as $spec) {
+                        $specvalue = Utilities::makeInputSafe($spec[Constants::PRODUCT_SPEC_FLD_VALUE]);
+                        $specid = Utilities::makeInputSafe($spec[Constants::PRODUCT_SPEC_FLD_ID]);
+                        $updatepecResult = json_decode($this->updateProductSpec($specid, $specvalue), true);
+                        if ($updatepecResult['statusCode'] != Constants::PRODUCT_SPEC_UPDATE_SUCCESS) {
+                            return $this->returnError(Constants::PRODUCT_UPDATE_FAILED, "Please try again later!");
+                        }
                     }
-                } else {//cat's id invalid} 
-                    return $this->returnError(Constants::PRODUCT_INVALID_CATEGORY, "Please try again later!");
+                    $theResponse = new Response(Constants::PRODUCT_UPDATE_SUCCESS, "", "");
+                    return(json_encode($theResponse));
                 }
             } else {//seller's invalid
                 return $this->returnError(Constants::PRODUCT_INVALID_SELLER, "Please try again later!");

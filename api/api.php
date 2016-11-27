@@ -255,6 +255,9 @@ $app->delete('/product/{productID}', function (Request $request, Response $respo
         $data = getTokenData($request);
         $isAdmin = ($data[Constants::USERS_FLD_USER_TYPE] == Constants::USER_ADMIN);
         $sellerID = (($data[Constants::USERS_FLD_USER_TYPE] == Constants::USER_SELLER) ? $data[Constants::USERS_FLD_ID] : -1);
+        if ($sellerID != -1 && !$sqlOperations->checkIfActiveUser($sellerID)) {
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+        }
         return $response->withStatus(200)->write($sqlOperations->deleteProduct($request->getAttribute('productID'), $isAdmin, $sellerID));
     } else {
         return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
@@ -272,25 +275,48 @@ $app->get('/product', function (Request $request, Response $response) {
 $app->post('/product', function (Request $request, Response $response) {
     if (authUsers([Constants::USER_SELLER], $request, $response)) {
         $sqlOperations = new SQLOperations();
+        if (!$sqlOperations->checkIfActiveUser(getTokenData($request)[Constants::USERS_FLD_ID])) {
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+        }
         $postVars = $request->getParsedBody();
         return $response->withStatus(200)->write($sqlOperations->addProduct(
-                $postVars[Constants::PRODUCTS_FLD_NAME], 
-                $postVars[Constants::PRODUCTS_FLD_PRICE], 
-                $postVars[Constants::PRODUCTS_FLD_SIZE], 
-                $postVars[Constants::PRODUCTS_FLD_WEIGHT], 
-                $postVars[Constants::PRODUCTS_FLD_AVA_QUANTITY], 
-                $postVars[Constants::PRODUCTS_FLD_ORIGIN], 
-                $postVars[Constants::PRODUCTS_FLD_PROVIDER], 
-                $postVars[Constants::PRODUCTS_FLD_IMAGE], 
-                getTokenData($request)[Constants::USERS_FLD_ID], 
-                $postVars[Constants::PRODUCTS_FLD_CATEGORY_ID], 
-                $postVars[Constants::CATEGORIES_SPEC], 
-                $postVars[Constants::PRODUCTS_FLD_DESCRIPTION]));
+                                $postVars[Constants::PRODUCTS_FLD_NAME], $postVars[Constants::PRODUCTS_FLD_PRICE], $postVars[Constants::PRODUCTS_FLD_SIZE], $postVars[Constants::PRODUCTS_FLD_WEIGHT], $postVars[Constants::PRODUCTS_FLD_AVA_QUANTITY], $postVars[Constants::PRODUCTS_FLD_ORIGIN], $postVars[Constants::PRODUCTS_FLD_PROVIDER], $postVars[Constants::PRODUCTS_FLD_IMAGE], getTokenData($request)[Constants::USERS_FLD_ID], $postVars[Constants::PRODUCTS_FLD_CATEGORY_ID], $postVars[Constants::CATEGORIES_SPEC], $postVars[Constants::PRODUCTS_FLD_DESCRIPTION]));
     } else {
-        $sqlOperations = new SQLOperations();
-        return $response->withStatus(200)->write($sqlOperations->getAllProducts());
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
     }
 });
+
+$app->put('/product', function (Request $request, Response $response) {
+    if (authUsers([Constants::USER_SELLER], $request, $response)) {
+        $seller_id = getTokenData($request)[Constants::USERS_FLD_ID];
+        $sqlOperations = new SQLOperations();
+        if (!$sqlOperations->checkIfActiveUser($seller_id)) {
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+        }
+        $putVars = $request->getParsedBody();
+        $id = $putVars[Constants::PRODUCTS_FLD_ID];
+        $name = $putVars[Constants::PRODUCTS_FLD_NAME];
+        $price = $putVars[Constants::PRODUCTS_FLD_PRICE];
+        $size = $putVars[Constants::PRODUCTS_FLD_SIZE];
+        $weight = $putVars[Constants::PRODUCTS_FLD_WEIGHT];
+        $availability_id = $putVars[Constants::PRODUCTS_FLD_AVAILABILITY_ID];
+        $available_quantity = $putVars[Constants::PRODUCTS_FLD_AVA_QUANTITY];
+        $origin = $putVars[Constants::PRODUCTS_FLD_ORIGIN];
+        $provider = $putVars[Constants::PRODUCTS_FLD_PROVIDER];
+        $image = $putVars[Constants::PRODUCTS_FLD_IMAGE];
+        $desc = $putVars[Constants::PRODUCTS_FLD_DESCRIPTION];
+        $more = $putVars['more'];
+        return $response->withStatus(200)->write($sqlOperations->updateProduct($id, $name, $price, $size, $weight, $availability_id, $available_quantity, $origin, $provider, $image, $seller_id, $desc, $more));
+    } else {
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+    }
+});
+
+$app->get('/products/{cateID}', function (Request $request, Response $response) {
+    $sqlOperations = new SQLOperations();
+    return $response->withStatus(200)->write($sqlOperations->getAllProducts($request->getAttribute('cateID')));
+});
+
 /**
  * Orders requests
  */

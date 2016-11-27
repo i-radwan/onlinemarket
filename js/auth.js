@@ -151,6 +151,7 @@ function checkIfLoggedInAndRedirect(redirect) {
  * @returns {object} user model
  */
 function getUserModel() {
+	// ToDo constants
     var user = {};
     user.name = ko.observable();
     user.email = ko.observable();

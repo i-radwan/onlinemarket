@@ -17,6 +17,7 @@ const CATEGORY_ENDPOINT = "category";
 const CATEGORY_SPEC_ENDPOINT = "categoryspec";
 const DELIVERYREQUESTS_ENDPOINT = "deliveryrequests";
 const PRODUCT_ENDPOINT = "product";
+const PRODUCTS_ENDPOINT = "products";
 
 const OMARKET_PREFIX = "OMarket_";
 
@@ -127,9 +128,16 @@ const PRODUCTS_FLD_SOLDITEMS = 'solditems';
 const PRODUCTS_FLD_DESCRIPTION = 'description';
 
 
+
+/**
+ * Product availability statuses
+ */
+const AVAILABILITY_STATUSES = ["Available", "Inavailable"];
+const AVAILABILITY_STATUSESID = ["1", "2"];
 const PRODUCT_AVAILABLE = "1"; // Relative to DB
 const PRODUCT_INAVAILABLE = "2"; // Relative to DB'
-const PRODUCT_DELETED = "3"; // Relative to DB'
+const PRODUCT_DELETED = "3"; // Relative to DB (Hidden from sellers, buyers, normal users)
+
 
 const PRODUCT_SPEC_FLD_PRODUCT_ID = 'product_id';
 const PRODUCT_SPEC_FLD_CAT_ID = 'categories_spec_id';

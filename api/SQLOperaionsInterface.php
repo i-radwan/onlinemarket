@@ -70,7 +70,7 @@ interface SQLOperationsInterface {
 
     public function getAllProducts($cateID = -1, $sellerID = -1);
 
-    public function updateProductSpec($id, $productId, $catId, $spec);
+    public function updateProductSpec($id, $newSpecValue);
 
     public function addProductSpec($productId, $specs);
 
@@ -80,7 +80,7 @@ interface SQLOperationsInterface {
 
     public function addProduct($name, $price, $size, $weight, $available_quantity, $origin, $provider, $image, $seller_id, $category_id, $specs, $description);
 
-    public function updateProduct($id, $name, $price, $rate, $size, $weight, $availability_id, $available_quantity, $origin, $provider, $image, $seller_id, $category_id, $solditems);
+    public function updateProduct($id, $name, $price, $size, $weight, $availability_id, $available_quantity, $origin, $provider, $image, $seller_id, $desc, $more);
 
     public function deleteProduct($productId, $isAdmin = false, $sellerID = -1);
 
