@@ -40,7 +40,7 @@ interface SQLOperationsInterface {
 
     public function deleteOrder($id, $userID);
 
-    public function updateOrder($id, $status, $userID = -1);
+    public function updateOrder($id, $status);
 
     public function getOrderItems($orderID, $buyerID);
 

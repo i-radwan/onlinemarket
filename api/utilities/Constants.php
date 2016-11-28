@@ -176,6 +176,7 @@ class Constants {
     const USER_INSERT_INVALID_EMAIL = 843;
     const USER_INSERT_EMPTY_DATA = 844;
     const USER_INSERT_EMAIL_EXISTS = 845;
+    const USER_STATUS_BANNED = 850;
 
     /**
      * Cart operations (9x) constants
@@ -327,6 +328,7 @@ class Constants {
     const PICKED = 2;
     const SHIPPED = 3;
     const DELIVERED = 4;
+    const DELETED = 4;
 
     /**
      * User types (related to db)

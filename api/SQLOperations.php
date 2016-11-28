@@ -653,6 +653,9 @@ class SQLOperations implements SQLOperationsInterface {
         $productId = Utilities::makeInputSafe($productID);
         $userID = Utilities::makeInputSafe($userID);
         if (strlen($productId) > 0 && strlen($userID) > 0) {
+            if (!$this->checkIfActiveUser($userID)) {
+                return $this->returnError(Constants::USER_STATUS_BANNED, "Please contact OMarket administration!", 0, 0, 0);
+            }
             if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_CART_ITEMS . "` WHERE `" . Constants::CART_ITEMS_USER_ID . "` = '$userID' AND `" . Constants::CART_ITEMS_PRODUCT_ID . "` = '$productId' LIMIT 1")) {
                 return $this->returnError(Constants::CART_DELETE_ITEM_FAILED, "Please try again later!", 0, 0, 0);
             }
@@ -685,6 +688,9 @@ class SQLOperations implements SQLOperationsInterface {
         $productId = Utilities::makeInputSafe($productID);
         $userID = Utilities::makeInputSafe($userID);
         if (strlen($productId) > 0 && strlen($userID) > 0) {
+            if (!$this->checkIfActiveUser($userID)) {
+                return $this->returnError(Constants::USER_STATUS_BANNED, "Please contact OMarket administration!", 0, 0, 0);
+            }
             if (!$result = $this->db_link->query("UPDATE `" . Constants::TBL_CART_ITEMS . "` SET `" . Constants::CART_ITEMS_QUANTITY . "` = " . Constants::CART_ITEMS_QUANTITY . " - 1 WHERE `" . Constants::CART_ITEMS_PRODUCT_ID . "` = '$productId' AND `" . Constants::CART_ITEMS_USER_ID . "` = '$userID' AND `" . Constants::CART_ITEMS_QUANTITY . "` > 1 LIMIT 1")) {
                 return $this->returnError(Constants::CART_DECREASE_ITEM_FAILED, "Please try again later!", 0, 0, 0);
             }
@@ -766,12 +772,12 @@ class SQLOperations implements SQLOperationsInterface {
         } else
             $theString = explode(",", $selectionCols);
         if ($userID != "") {
-            $result = $this->db_link->query('SELECT ' . $selectionCols . ' FROM ' . Constants::TBL_ORDERS . ' WHERE '  .Constants::ORDERS_STATUS_ID .' != '. Constants::ORDER_DELETED .' AND '. Constants::ORDERS_BUYER_ID . ' = ' . $userID);
+            $result = $this->db_link->query('SELECT ' . $selectionCols . ' FROM ' . Constants::TBL_ORDERS . ' WHERE ' . Constants::ORDERS_STATUS_ID . ' != ' . Constants::ORDER_DELETED . ' AND ' . Constants::ORDERS_BUYER_ID . ' = ' . $userID);
         } else {
             if (strlen($theWhereQuery) > 0) {
-                $result = $this->db_link->query('SELECT ' . $selectionCols . ' FROM ' . Constants::TBL_ORDERS . ' WHERE ' .Constants::ORDERS_STATUS_ID .' != '. Constants::ORDER_DELETED .' AND ' . $theWhereQuery);
+                $result = $this->db_link->query('SELECT ' . $selectionCols . ' FROM ' . Constants::TBL_ORDERS . ' WHERE ' . Constants::ORDERS_STATUS_ID . ' != ' . Constants::ORDER_DELETED . ' AND ' . $theWhereQuery);
             } else {
-                $result = $this->db_link->query('SELECT ' . $selectionCols . ' FROM ' . Constants::TBL_ORDERS . ' WHERE ' . Constants::ORDERS_STATUS_ID .' != '. Constants::ORDER_DELETED .' AND ');
+                $result = $this->db_link->query('SELECT ' . $selectionCols . ' FROM ' . Constants::TBL_ORDERS . ' WHERE ' . Constants::ORDERS_STATUS_ID . ' != ' . Constants::ORDER_DELETED . ' AND ');
             }
         }
         $ret = array();
@@ -833,6 +839,9 @@ class SQLOperations implements SQLOperationsInterface {
     public function addOrder($buyerId) {
         //Make text safe
         $buyerId = Utilities::makeInputSafe($buyerId);
+        if (!$this->checkIfActiveUser($buyerId)) {
+            return $this->returnError(Constants::USER_STATUS_BANNED, "Please contact OMarket administration!", 0, 0, 0);
+        }
         // @IAR removed status because it will be pending by default when adding the order for the first time
         //Check for non-valid fields 
         if (!is_numeric($buyerId))
@@ -872,7 +881,10 @@ class SQLOperations implements SQLOperationsInterface {
     public function deleteOrder($orderID, $userID) {
         $userID = Utilities::makeInputSafe($userID);
         $orderID = Utilities::makeInputSafe($orderID);
-        $result = $this->db_link->query('SELECT * FROM ' . Constants::TBL_ORDERS . ' where ' . Constants::ORDERS_ID . ' = ' . $orderID . ' AND '.Constants::ORDERS_BUYER_ID.' = '.$userID.' LIMIT 1');
+        if (!$this->checkIfActiveUser($userID)) {
+            return $this->returnError(Constants::USER_STATUS_BANNED, "Please contact OMarket administration!", 0, 0, 0);
+        }
+        $result = $this->db_link->query('SELECT * FROM ' . Constants::TBL_ORDERS . ' where ' . Constants::ORDERS_ID . ' = ' . $orderID . ' AND ' . Constants::ORDERS_BUYER_ID . ' = ' . $userID . ' LIMIT 1');
         $row = $result->fetch_assoc();
         if ($row != "") {
             if (!$mainResut = $this->db_link->query('SELECT * FROM ' . Constants::TBL_ORDERITEMS . ' where ' . Constants::ORDERITEMS_ORDERID . ' = ' . $orderID)) {
@@ -903,12 +915,11 @@ class SQLOperations implements SQLOperationsInterface {
      * @author AhmedSamir
      * @param int $id the order id
      * @param int @status the status of the order. 
-     * @param int $userID the current user id (-1 means deliveryman)
      * @return Response with the order contents
      * @checkedByIAR
      */
     //public function updateOrder($id, $buyerId, $cost, $dueDate, $status) {
-    public function updateOrder($id, $status, $userID = -1) {
+    public function updateOrder($id, $status) {
         //Make text safe
         $id = Utilities::makeInputSafe($id);
         //$buyerId = Utilities::makeInputSafe($buyerId);
@@ -916,11 +927,8 @@ class SQLOperations implements SQLOperationsInterface {
         //$dueDate = Utilities::makeInputSafe($dueDate);
         $status = Utilities::makeInputSafe($status);
         //Check if Order is Found
-        if ($userID != -1) {
-            $result = $this->db_link->query('SELECT * FROM ' . Constants::TBL_ORDERS . ' where ' . Constants::ORDERS_ID . ' = ' . $id . ' AND ' . Constants::ORDERS_BUYER_ID . ' = ' . $userID . ' LIMIT 1');
-        } else {
-            $result = $this->db_link->query('SELECT * FROM ' . Constants::TBL_ORDERS . ' where ' . Constants::ORDERS_ID . ' = ' . $id . ' LIMIT 1');
-        }
+
+        $result = $this->db_link->query('SELECT * FROM ' . Constants::TBL_ORDERS . ' where ' . Constants::ORDERS_ID . ' = ' . $id . ' LIMIT 1');
 
         if ($result->num_rows == 0) {
             return $this->returnError(Constants::ORDERS_UPDATE_FAILED, "Please try again later!" . $this->db_link->error);
@@ -1323,6 +1331,9 @@ class SQLOperations implements SQLOperationsInterface {
             $productId = Utilities::makeInputSafe($productId);
             $rate = Utilities::makeInputSafe($rate);
 
+            if (!$this->checkIfActiveUser($buyerId)) {
+                return $this->returnError(Constants::USER_STATUS_BANNED, "Please contact OMarket administration!", 0, 0, 0);
+            }
             if (($rate > 5) || ($rate <= 0)) {
                 return $this->returnError(Constants::INVALID_INPUT, "Please enter a valid rate");
             } else {
@@ -1628,6 +1639,9 @@ class SQLOperations implements SQLOperationsInterface {
         $image = Utilities::makeInputSafe($image);
         $seller_id = Utilities::makeInputSafe($seller_id);
         $category_id = Utilities::makeInputSafe($category_id);
+        if (!$this->checkIfActiveUser($seller_id)) {
+            return $this->returnError(Constants::USER_STATUS_BANNED, "Please contact OMarket administration!", 0, 0, 0);
+        }
         // @IAR @todo check for valid input data (non-empty, is_numric, +ve values for price, quantity etc)
         //check if seller's  id (foreign key) exists
         if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_SELLERS . "` WHERE `" . Constants::SELLERS_FLD_USER_ID . "` = '$seller_id' LIMIT 1")) {
@@ -1677,6 +1691,9 @@ class SQLOperations implements SQLOperationsInterface {
         if (strlen(trim($productId)) != 0) {
             $productId = Utilities::makeInputSafe($productId);
             if (!$isAdmin && $sellerID > 0) {
+                if (!$this->checkIfActiveUser($sellerID)) {
+                    return $this->returnError(Constants::USER_STATUS_BANNED, "Please contact OMarket administration!", 0, 0, 0);
+                }
                 if (!$result = $this->db_link->query("UPDATE `" . Constants::TBL_PRODUCTS . "` SET `" . Constants::PRODUCTS_FLD_AVAILABILITY_ID . "` = " . Constants::PRODUCT_DELETED . "  WHERE `" . Constants::PRODUCTS_FLD_ID . "` = '$productId' AND `" . Constants::PRODUCTS_FLD_SELLER_ID . "` = '$sellerID'")) {
                     return $this->returnError(Constants::PRODUCT_DELETE_FAILED, "Please try again later!");
                 } else {
@@ -1734,6 +1751,9 @@ class SQLOperations implements SQLOperationsInterface {
         $provider = Utilities::makeInputSafe($provider);
         $image = Utilities::makeInputSafe($image);
         $seller_id = Utilities::makeInputSafe($seller_id);
+        if (!$this->checkIfActiveUser($seller_id)) {
+            return $this->returnError(Constants::USER_STATUS_BANNED, "Please contact OMarket administration!", 0, 0, 0);
+        }
         // @todo Check if valid input (non-empty, numric, within symantic range)
         //check if availability ,seller ,cat id exists 
         if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_AVAILABILITY_STATUS . "` WHERE `" . Constants::AVAILABILITY_FLD_ID . "` = '$availability_id' LIMIT 1")) {

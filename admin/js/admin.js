@@ -1317,25 +1317,6 @@ function deleteCategorySpec(specID) {
 	});
 	return deleted;
 }
-
-function getCategorySpecs(cateID) {
-	return [{
-		_id: 1,
-		name: "spec1"
-        }, {
-		_id: 2,
-		name: "spec2"
-        }, {
-		_id: 3,
-		name: "spec3"
-        }, {
-		_id: 4,
-		name: "spec4"
-        }, {
-		_id: 5,
-		name: "spec5"
-        }];
-}
 /**
  * This function retrieves all the the categories from the server
  * @returns {Array} Categories array -> contains categories objects
@@ -1381,6 +1362,9 @@ function addProduct(data) {
 			var returnedData = JSON.parse(result);
 			if (returnedData.statusCode == PRODUCT_ADD_SUCCESS) {
 				newID = returnedData.result;
+			} else if (returnedData.statusCode == USER_STATUS_BANNED) {
+				alert(returnedData.errorMsg);
+				logOut();
 			} else {
 				alert(returnedData.errorMsg);
 			}
@@ -1411,6 +1395,9 @@ function editProduct(data) {
 			var returnedData = JSON.parse(result);
 			if (returnedData.statusCode == PRODUCT_UPDATE_SUCCESS) {
 				edited = true;
+			} else if (returnedData.statusCode == USER_STATUS_BANNED) {
+				alert(returnedData.errorMsg);
+				logOut();
 			} else {
 				alert(returnedData.errorMsg);
 			}
@@ -1438,6 +1425,9 @@ function deleteProduct(productID) {
 			var returnedData = JSON.parse(result);
 			if (returnedData.statusCode == PRODUCT_DELETE_SUCCESS) {
 				deleted = true;
+			} else if (returnedData.statusCode == USER_STATUS_BANNED) {
+				alert(returnedData.errorMsg);
+				logOut();
 			} else {
 				alert(returnedData.errorMsg);
 			}

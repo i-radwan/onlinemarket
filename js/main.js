@@ -726,19 +726,6 @@ function getUserModel() { // ToDo change to constants
 	user.isBuyer = ko.observable(true);
 	return user;
 }
-/**
- * This function returns the user rate for specific product
- * @param   {number} productID product_id to search for
- * @returns {number} user rate for this product
- */
-function getUserRate(productID) {
-	// ToDo fetch from API
-	if (true) {
-		return 4.5;
-	} else {
-		//		return avg_rate;
-	}
-}
 
 /**
  * This function returns user orders
@@ -930,6 +917,9 @@ function decreaseProductInCart(productID) {
 			var returnedData = JSON.parse(result);
 			if (returnedData.statusCode == CART_DECREASE_ITEM_SUCCESSFUL) {
 				decreased = true;
+			} else if (returnedData.statusCode == USER_STATUS_BANNED) {
+				alert(returnedData.errorMsg);
+				logOut();
 			} else {
 				alert(returnedData.errorMsg);
 			}
@@ -958,6 +948,9 @@ function cancelProductInCart(productID) {
 			var returnedData = JSON.parse(result);
 			if (returnedData.statusCode == CART_DELETE_ITEM_SUCCESSFUL) {
 				deleted = true;
+			} else if (returnedData.statusCode == USER_STATUS_BANNED) {
+				alert(returnedData.errorMsg);
+				logOut();
 			} else {
 				alert(returnedData.errorMsg);
 			}
@@ -984,6 +977,9 @@ function addOrder() {
 			var returnedData = JSON.parse(result);
 			if (returnedData.statusCode == ORDERS_ADD_SUCCESS) {
 				ret = returnedData.result;
+			}else if (returnedData.statusCode == USER_STATUS_BANNED) {
+				alert(returnedData.errorMsg);
+				logOut();
 			} else {
 				alert(returnedData.errorMsg);
 			}
@@ -1012,7 +1008,10 @@ function deleteOrder(orderID) {
 			var returnedData = JSON.parse(result);
 			if (returnedData.statusCode == ORDERS_DELETE_SUCCESS) {
 				deleted = true;
-			} else {
+			} else if (returnedData.statusCode == USER_STATUS_BANNED) {
+				alert(returnedData.errorMsg);
+				logOut();
+			}else {
 				alert(returnedData.errorMsg);
 			}
 		}
@@ -1045,6 +1044,9 @@ function updateRate(productID, rate) {
 			var returnedData = JSON.parse(result);
 			if (returnedData.statusCode == RATE_UPDATE_SUCCESS) {
 				updated = true;
+			} else if (returnedData.statusCode == USER_STATUS_BANNED) {
+				alert(returnedData.errorMsg);
+				logOut();
 			} else {
 				alert(returnedData.errorMsg);
 			}
