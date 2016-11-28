@@ -71,7 +71,6 @@ const ORDERS_ISSUEDATE = 'issuedate';
 const ORDERS_COST = 'cost';
 const ORDERS_BUYER_ID = 'buyer_id';
 const ORDERS_STATUS_ID = 'status_id';
-const ORDERS_ISSUE_DATE = 'issuedate';
 
 const ORDER_STATUS_PENDING = "1";
 const ORDER_STATUS_PICKED = "2";

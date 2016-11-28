@@ -243,6 +243,7 @@ class Constants {
     const CART_ITEMS_USER_ID = 'user_id';
     const CART_ITEMS_PRODUCT_ID = 'product_id';
     const CART_ITEMS_QUANTITY = 'quantity';
+    const CART_ITEMS_PRODUCT_TOTAL_PRICE = 'producttotalprice';
     //==================================
     //THE ORDER TABLE CONSTANTS
     const TBL_ORDERS = 'orders';
@@ -251,7 +252,6 @@ class Constants {
     const ORDERS_COST = 'cost';
     const ORDERS_BUYER_ID = 'buyer_id';
     const ORDERS_STATUS_ID = 'status_id';
-    const ORDERS_ISSUE_DATE = 'issuedate';
     //==================================
     //THE ORDER_ITEMS TABLE CONSTANTS
     const TBL_ORDERITEMS = 'order_items';
@@ -259,6 +259,7 @@ class Constants {
     const ORDERITEMS_PRODUCTID = 'product_id';
     const ORDERITEMS_SELLERID = 'seller_id';
     const ORDERITEMS_QUANTITY = 'quantity';
+    const ORDERITEMS_QUANTITY_TOTAL_PRODUCT_COST = 'producttotalcost';
     //==================================
     //THE DELIVERY REQUESTS TABLE CONSTANTS
     const TBL_DELIVERYREQUESTS = 'deliveryrequests';

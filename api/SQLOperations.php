@@ -599,6 +599,7 @@ class SQLOperations implements SQLOperationsInterface {
                 return $this->returnError(Constants::CART_ADD_ITEM_FAILED, "Please try again later!", 0, 0, 0);
             }
             if ($result->num_rows > 0) {
+                $productPrice = $result->fetch_assoc()[Constants::PRODUCTS_FLD_PRICE];
                 if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_USERS . "` WHERE `" . Constants::USERS_FLD_ID . "` = '$userID' AND `" . Constants::USERS_FLD_STATUS . "` = '" . Constants::USER_BANNED . "'")) {
                     return $this->returnError(Constants::CART_ADD_ITEM_FAILED, "Please try again later!", 0, 0, 0);
                 }
@@ -608,12 +609,12 @@ class SQLOperations implements SQLOperationsInterface {
                     }
                     if ($result->num_rows == 0) {
                         // product isn't in cart 
-                        if (!$result = $this->db_link->query("INSERT INTO `" . Constants::TBL_CART_ITEMS . "` SET `" . Constants::CART_ITEMS_USER_ID . "` = '$userID', `" . Constants::CART_ITEMS_PRODUCT_ID . "` = '$productId'")) {
+                        if (!$result = $this->db_link->query("INSERT INTO `" . Constants::TBL_CART_ITEMS . "` SET `" . Constants::CART_ITEMS_USER_ID . "` = '$userID', `" . Constants::CART_ITEMS_PRODUCT_ID . "` = '$productId', `".Constants::CART_ITEMS_PRODUCT_TOTAL_PRICE."` = '$productPrice'")) {
                             return $this->returnError(Constants::CART_ADD_ITEM_FAILED, "Please try again later!", 0, 0, 0);
                         }
                     } else {
                         // product already exists
-                        if (!$result = $this->db_link->query("UPDATE `" . Constants::TBL_CART_ITEMS . "` SET `" . Constants::CART_ITEMS_QUANTITY . "` = " . Constants::CART_ITEMS_QUANTITY . " + 1 WHERE `" . Constants::CART_ITEMS_PRODUCT_ID . "` = '$productId' AND  `" . Constants::CART_ITEMS_USER_ID . "` = '$userID' AND `" . Constants::CART_ITEMS_QUANTITY . "` <= 9 LIMIT 1")) {
+                        if (!$result = $this->db_link->query("UPDATE `" . Constants::TBL_CART_ITEMS . "` SET `" . Constants::CART_ITEMS_QUANTITY . "` = " . Constants::CART_ITEMS_QUANTITY . " + 1 , `".Constants::CART_ITEMS_PRODUCT_TOTAL_PRICE."` = `".Constants::CART_ITEMS_PRODUCT_TOTAL_PRICE."` + '$productPrice'  WHERE `" . Constants::CART_ITEMS_PRODUCT_ID . "` = '$productId' AND  `" . Constants::CART_ITEMS_USER_ID . "` = '$userID' AND `" . Constants::CART_ITEMS_QUANTITY . "` <= 9 LIMIT 1")) {
                             return $this->returnError(Constants::CART_ADD_ITEM_FAILED, "Please try again later!", 0, 0, 0);
                         }
                         if ($this->db_link->affected_rows == 0) {
@@ -808,7 +809,7 @@ class SQLOperations implements SQLOperationsInterface {
         $selectionCols = Utilities::makeInputSafe($selectionCols); // @IAR
         if ($selectionCols == "") { //Select all columns
             $result = $this->db_link->query('SELECT * FROM ' . Constants::TBL_ORDERS . ' WHERE ' . Constants::ORDERS_ID . ' = ' . $id . ' LIMIT 1');
-            $theString = array(Constants::ORDERS_BUYER_ID, Constants::ORDERS_COST, Constants::ORDERS_ISSUEDATE, Constants::ORDERS_STATUS_ID, Constants::ORDERS_ISSUE_DATE);
+            $theString = array(Constants::ORDERS_BUYER_ID, Constants::ORDERS_COST, Constants::ORDERS_ISSUEDATE, Constants::ORDERS_STATUS_ID, Constants::ORDERS_ISSUEDATE);
         } else { //Select the sent ones only
             $result = $this->db_link->query('SELECT ' . $selectionCols . ' FROM ' . Constants::TBL_ORDERS . ' WHERE ' . Constants::ORDERS_ID . ' = ' . $id . ' LIMIT 1');
             $theString = explode(",", $selectionCols);
@@ -893,8 +894,9 @@ class SQLOperations implements SQLOperationsInterface {
             while ($row = $mainResut->fetch_assoc()) {
                 $productId = $row[Constants::ORDERITEMS_PRODUCTID];
                 $quantity = $row[Constants::ORDERITEMS_QUANTITY];
+                $totalproductprice = $row[Constants::ORDERITEMS_QUANTITY_TOTAL_PRODUCT_COST];
 
-                if (!$result = $this->db_link->query("UPDATE `" . Constants::TBL_PRODUCTS . "` SET `" . Constants::PRODUCTS_FLD_AVA_QUANTITY . "` = " . Constants::PRODUCTS_FLD_AVA_QUANTITY . " + $quantity WHERE`" . Constants::PRODUCTS_FLD_ID . "` = '$productId' LIMIT 1")) {
+                if (!$result = $this->db_link->query("UPDATE `" . Constants::TBL_PRODUCTS . "` SET `" . Constants::PRODUCTS_FLD_AVA_QUANTITY . "` = " . Constants::PRODUCTS_FLD_AVA_QUANTITY . " + $quantity, `" . Constants::PRODUCTS_FLD_EARNINGS . "` = " . Constants::PRODUCTS_FLD_EARNINGS . " - $totalproductprice WHERE`" . Constants::PRODUCTS_FLD_ID . "` = '$productId' LIMIT 1")) {
                     return $this->returnError(Constants::ORDERS_DELETE_FAILED, "Please try again later!", 0, 0, 0);
                 }
                 if (!$this->db_link->query('UPDATE ' . Constants::TBL_ORDERS . ' SET ' . Constants::ORDERS_STATUS_ID . ' = ' . Constants::ORDER_DELETED . ' WHERE ' . Constants::ORDERS_ID . ' = ' . $orderID)) {

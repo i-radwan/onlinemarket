@@ -98,7 +98,7 @@ class Order implements \JsonSerializable {    function getStatus_id() {
                 case Constants::ORDERS_STATUS_ID:
                     $this->setStatusId($row[$value]);
                     break;
-                 case Constants::ORDERS_ISSUE_DATE:
+                 case Constants::ORDERS_ISSUEDATE:
                     $this->setIssueDate($row[$value]);
                     break;
                 default:
