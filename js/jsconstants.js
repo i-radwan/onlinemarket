@@ -65,12 +65,12 @@ const AUTH_RESPONSE_CC_YEAR = "ccYear";
 const AUTH_RESPONSE_CC_CCV = "ccCCV";
 const AUTH_RESPONSE_ERROR_MSG = "errorMsg";
 
-
-const ORDERS_ID = 'id';
-const ORDERS_DATE = 'date';
+const ORDERS_ID = '_id';
+const ORDERS_ISSUEDATE = 'issuedate';
 const ORDERS_COST = 'cost';
 const ORDERS_BUYER_ID = 'buyer_id';
-const ORDERS_STATUS_ID = 'statusId';
+const ORDERS_STATUS_ID = 'status_id';
+const ORDERS_ISSUE_DATE = 'issuedate';
 
 const ORDER_STATUS_PENDING = "1";
 const ORDER_STATUS_PICKED = "2";
@@ -211,7 +211,8 @@ const CART_DELETE_ITEM_EMPTY_DATA = 912;
 const CART_DECREASE_ITEM_SUCCESSFUL = 920;
 const CART_DECREASE_ITEM_FAILED = 921;
 const CART_DECREASE_ITEM_EMPTY_DATA = 922;
-
+const CART_GET_ITEMS_SUCCESSFUL = 930;
+const CART_GET_ITEMS_FAILED = 931;
 /**
  * Order operation functions (4x) constants
  */

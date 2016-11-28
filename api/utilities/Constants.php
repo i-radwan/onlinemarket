@@ -192,6 +192,8 @@ class Constants {
     const CART_DECREASE_ITEM_SUCCESSFUL = 920;
     const CART_DECREASE_ITEM_FAILED = 921;
     const CART_DECREASE_ITEM_EMPTY_DATA = 922;
+    const CART_GET_ITEMS_SUCCESSFUL = 930;
+    const CART_GET_ITEMS_FAILED = 931;
 
     /**
      * Database Constants
@@ -236,6 +238,7 @@ class Constants {
     //==================================
     //THE CART ITEMS TABLE CONSTANTS
     const TBL_CART_ITEMS = 'cart_items';
+    const CART_ITEMS_ID = '_id';
     const CART_ITEMS_USER_ID = 'user_id';
     const CART_ITEMS_PRODUCT_ID = 'product_id';
     const CART_ITEMS_QUANTITY = 'quantity';
@@ -243,10 +246,11 @@ class Constants {
     //THE ORDER TABLE CONSTANTS
     const TBL_ORDERS = 'orders';
     const ORDERS_ID = '_id';
-    const ORDERS_DATE = 'date';
+    const ORDERS_ISSUEDATE = 'issuedate';
     const ORDERS_COST = 'cost';
     const ORDERS_BUYER_ID = 'buyer_id';
     const ORDERS_STATUS_ID = 'status_id';
+    const ORDERS_ISSUE_DATE = 'issuedate';
     //==================================
     //THE ORDER_ITEMS TABLE CONSTANTS
     const TBL_ORDERITEMS = 'order_items';

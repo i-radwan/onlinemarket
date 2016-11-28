@@ -30,11 +30,13 @@ interface SQLOperationsInterface {
 
     function decreaseProductFromCart($productID, $userID);
     
+    function getCartProducts($userID);
+    
     public function getAllOrders($selectionCols, $appliedFilters, $userID = "");
 
     public function getOrder($id, $selectionCols);
 
-    public function addOrder($buyerId, $cost, $dueDate, $status = "Pending");
+    public function addOrder($buyerId);
 
     public function deleteOrder($id);
 

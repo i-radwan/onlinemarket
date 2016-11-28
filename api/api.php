@@ -147,7 +147,17 @@ $app->get('/user/{userType}', function (Request $request, Response $response) {
 });
 /**
  * Cart requests
+ * @todo: handle banned user 
  */
+$app->get('/cart', function (Request $request, Response $response) {
+    if (authUsers([Constants::USER_BUYER], $request, $response)) {
+        $sqlOperations = new SQLOperations();
+        $data = getTokenData($request);
+        return $response->withStatus(200)->write($sqlOperations->getCartProducts($data[Constants::USERS_FLD_ID]));
+    } else {
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+    }
+});
 $app->post('/cart', function (Request $request, Response $response) {
     if (authUsers([Constants::USER_BUYER], $request, $response)) {
         $sqlOperations = new SQLOperations();
@@ -331,10 +341,14 @@ $app->get('/products/{cateID}', function (Request $request, Response $response) 
  */
 // reponds to both `/orders/` and `/orders/123`
 // but not to `/orders`
-$app->get('/orders/[{id}]', function (Request $request, Response $response, $args = []) {
-    if (authUsers([Constants::USER_ACCOUNTANT], $request, $response)) {
+$app->get('/orders', function (Request $request, Response $response, $args = []) {
+    if (authUsers([Constants::USER_ACCOUNTANT, Constants::USER_BUYER], $request, $response)) {
+        $id = '';
+        $data = getTokenData($request);
+        if ($data[Constants::USERS_FLD_USER_TYPE] == Constants::USER_BUYER) {
+            $id = $data[Constants::USERS_FLD_ID];
+        }
         $sqlOperations = new SQLOperations();
-        $id = $args['id'];
         $selectionCols = $request->getParam('fields');
         $appliedFilters = $request->getParam('filters');
         if ((trim($id) != "" && is_numeric($id)) || trim($id) == "") { // certain user
@@ -369,14 +383,14 @@ $app->delete('/order/{id}', function (Request $request, Response $response, $arg
 });
 //Add Order
 // @ToDo check and test
-$app->post('/order/', function (Request $request, Response $response) {
-    $sqlOperations = new SQLOperations();
-    $postVars = $request->getParsedBody();
-    $buyerID = $postVars[Constants::ORDERS_BUYER_ID]; // @IAR @ToDo get id from jwt
-    $cost = $postVars[Constants::ORDERS_COST];
-    $date = $postVars[Constants::ORDERS_DATE];
-    $status = $postVars[Constants::ORDERS_STATUS_ID];
-    return $response->withStatus(200)->write($sqlOperations->addOrder($buyerID, $cost, $date, $status));
+$app->post('/order', function (Request $request, Response $response) {
+    if (authUsers([Constants::USER_BUYER], $request, $response)) {
+        $sqlOperations = new SQLOperations();
+        $buyerID = getTokenData($request)[Constants::USERS_FLD_ID];
+        return $response->withStatus(200)->write($sqlOperations->addOrder($buyerID));
+    } else {
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+    }
 });
 //Update Order
 $app->put('/order/{id}', function (Request $request, Response $response, $args) {

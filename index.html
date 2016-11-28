@@ -136,13 +136,13 @@
             <img src="img/img.png">
         </div>
         <div class="order-details">
-            <p><strong>Order</strong>: #<span data-bind="text: params.id"></span></p>
-            <p><strong>Date</strong>: <span data-bind="text: params.duedate"></span></p>
-            <p><strong>Total</strong>: <span data-bind="text: params.cost"></span>$</p>
+            <p><strong>Order</strong>: #<span data-bind="text: params[ORDERS_ID]"></span></p>
+            <p><strong>Date</strong>: <span data-bind="text: params[ORDERS_ISSUEDATE]"></span></p>
+            <p><strong>Total</strong>: <span data-bind="text: params[ORDERS_COST]"></span>$</p>
         </div>
         <div class="order-actions">
             <p><strong>Total Items</strong>: <span data-bind="text: params.totalItemsCount"></span></p>
-            <p><strong>Status</strong>: <span data-bind="text: params.status"></span></p>
+            <p><strong>Status</strong>: <span data-bind="text: params.textStatus"></span></p>
             <span data-bind="if: checkIfActiveUser()">
 				<span class="order-cancel" data-bind="if: params.status == 'Pending'">cancel</span></span>
         </div>
@@ -163,7 +163,7 @@
                 <div class="categories-single-item--visible-details">
                     <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Price:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params[PRODUCTS_FLD_PRICE]"></span>$</span>
                     </p>
-                    <p class="categories-single-item--visible-details--spec" data-bind="if: params.order"><strong class="categories-single-item--visible-details--spec--key">Quantity:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: 'ToDo ToBEFIXRD'+params[PRODUCTS_FLD_AVA_QUANTITY]"></span></span>
+                    <p class="categories-single-item--visible-details--spec" data-bind="if: params.order"><strong class="categories-single-item--visible-details--spec--key">Quantity:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params[CART_ITEMS_QUANTITY]"></span></span>
                     </p>
                     <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Rate:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params[PRODUCTS_FLD_RATE]"></span>/5</span>
                     </p>
@@ -182,6 +182,28 @@
                     <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key"><span data-bind="text:name"></span>:</strong><span class="categories-single-item--visible-details--spec--val" data-bind="text:value"></span>
                     </p>
                 </div>
+                
+                 <div data-bind="if: !params.cart && !params.order && checkIfSignedIn() && checkIfActiveUser() && checkUserRole() == USER_BUYER">
+                <button class="categories-single-item--buy" data-bind="click:addToCart">Add to Cart</button>
+            </div>
+            <div data-bind="if: params.cart">
+                <div data-bind="css:{'cart-single-item--buy': params.cart}" class="categories-single-item--buy" >
+                    <i class="fa fa-minus cart-button-icon" data-bind="click: function(){if(decreaseQuantity())$parents[2].increaseCartAmount(-params[PRODUCTS_FLD_PRICE]());}"></i>
+                    <span class="cart-button-text">Quantity: <span data-bind="text: params.quantity"></span></span>
+                    <i class="fa fa-plus cart-button-icon"  data-bind="click: function(){if(increaseQuantity())$parents[2].increaseCartAmount(params[PRODUCTS_FLD_PRICE]());}"></i>
+
+                </div>
+                <p data-bind="click: function(){if($parents[1].cancelProduct($data))$parents[2].increaseCartAmount(-params[PRODUCTS_FLD_PRICE]() * params.quantity());}" class="cart-cancel-product">cancel</p>
+            </div>
+
+            <div data-bind="if: params.order && ($parents[2].status == 'Delivered')">
+                <div data-bind="css:{'cart-single-item--buy': params.order}" class="categories-single-item--buy" >
+                    <i class="fa fa-minus cart-button-icon" data-bind="click: decreaseRate"></i>
+                    <span class="cart-button-text">Rate: <span data-bind="text: params.formattedRate"></span></span>
+                    <i class="fa fa-plus cart-button-icon" data-bind="click: increaseRate"></i>
+
+                </div>
+            </div>
         </div>
     </template>
 	<!--Scripts-->

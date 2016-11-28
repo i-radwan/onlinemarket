@@ -965,7 +965,7 @@ function getDeliverymanOrders() {
 function getOrders(filters) {
 	var ret = [];
 	$.ajax({
-		url: API_LINK + ORDERS_ENDPOINT + "/?filters=" + filters,
+		url: API_LINK + ORDERS_ENDPOINT + "?filters=" + filters,
 		type: 'GET',
 		async: false,
 		headers: {

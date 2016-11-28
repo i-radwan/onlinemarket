@@ -46,6 +46,8 @@ function productModel(product) {
 	self[PRODUCT_CATEGORY_NAME] = ko.observable(product[PRODUCT_CATEGORY_NAME]);
 	self[PRODUCT_AVAILABILITY_STATUS] = ko.observable(product[PRODUCT_AVAILABILITY_STATUS]);
 
+	self.quantity = ko.observable(((product.quantity) ? parseInt(product.quantity) : 0));
+
 	self.more = ko.observableArray();
 	product.more.forEach(function (more) {
 		self.more.push(new productSpecModel(more));
@@ -75,12 +77,24 @@ function productModel(product) {
 
 function orderModel(order) { // ToDO fix constants
 	var self = this;
-	self.id = order.id;
-	self.duedate = order.duedate;
-	self.cost = order.cost;
-	self.status = order.status;
+	self[ORDERS_ID] = order[ORDERS_ID];
+	self[ORDERS_ISSUEDATE] = order[ORDERS_ISSUEDATE];
+	self[ORDERS_COST] = order[ORDERS_COST];
+	self[ORDERS_STATUS_ID] = order[ORDERS_STATUS_ID];
 	self.products = order.products;
 	self.isMoreDivVisible = ko.observable(false);
+	self.textStatus = ko.computed(function () {
+		if (self[ORDERS_STATUS_ID] == ORDER_STATUS_PENDING)
+			return "Pending";
+		if (self[ORDERS_STATUS_ID] == ORDER_STATUS_PICKED)
+			return "Picked";
+		if (self[ORDERS_STATUS_ID] == ORDER_STATUS_SHIPPED)
+			return "Shipped";
+		if (self[ORDERS_STATUS_ID] == ORDER_STATUS_DELIVERED)
+			return "Delivered";
+		else
+			return "Error";
+	});
 }
 
 // ==========================================================================================================
@@ -196,6 +210,7 @@ function searchProductsViewModel(params) {
 	self.params.searchWord = params.searchWord;
 	self.searchProductsArray = ko.observableArray();
 	self.search = function (word) {
+		if (word.length <= 0) return;
 		self.searchProductsArray.removeAll();
 		var products = getSearchProducts(word);
 		products.forEach(function (product) {
@@ -215,35 +230,40 @@ function searchProductsViewModel(params) {
 
 function cartProductsViewModel(params) {
 	var self = this;
-	self.cartProductsArray = ko.observableArray(); // make observable
-	/**
-	 This function initializes the categoriesArray
-	 */
+	self.cartProductsArray = ko.observableArray();
 	self.init = function () {
 		var cartProducts = getCartProducts();
+		var cartTotalAmount = 0;
 		cartProducts.forEach(function (product) {
-			product.quantity = 1;
+			cartTotalAmount += product[PRODUCTS_FLD_PRICE] * product.quantity;
 			self.cartProductsArray.push(new productModel(product));
 		});
+		onlineMarketMVVM.increaseCartAmount(cartTotalAmount);
 	}();
 
 	self.cancelProduct = function (product) {
 		if (confirm("Do you want to remove this product for sure ?")) {
-			self.cartProductsArray.remove(product.params);
-			return true;
+			if (cancelProductInCart(product.params[PRODUCTS_FLD_ID])) {
+				self.cartProductsArray.remove(product.params);
+				return true;
+			}
 		}
 	}
 
 	self.checkoutOrder = function () {
 		if (confirm("Are you sure, the amount will be withdrawed from your CC ?")) {
-			var cartProducts = [];
-			ko.utils.arrayForEach(self.cartProductsArray(), function (product, index) {
-				product.quantity = product.quantity();
-				cartProducts.push(product);
-			});
-			shouter.notifySubscribers(cartProducts, "addOrder");
-			self.cartProductsArray.removeAll();
-			return true;
+			var newOrder = addOrder();
+			if (newOrder && newOrder[ORDERS_ID] > 0) {
+				var cartProducts = [];
+				ko.utils.arrayForEach(self.cartProductsArray(), function (product, index) {
+					product.quantity = product.quantity();
+					cartProducts.push(product);
+				});
+				newOrder.products = cartProducts;
+				console.log(newOrder);
+				window.location = WEBSITE_LINK + "/#/profile";
+				return true;
+			}
 		}
 		return false;
 	}
@@ -251,12 +271,13 @@ function cartProductsViewModel(params) {
 	shouter.subscribe(function (newProduct) {
 		var added = false;
 		ko.utils.arrayForEach(self.cartProductsArray(), function (product, index) {
-			if (newProduct.id == product.id) {
+			if (newProduct[CATEGORIES_FLD_ID] == product[CATEGORIES_FLD_ID]) {
 				product.quantity(product.quantity() + 1);
 				added = true;
 			}
 		});
 		if (!added) {
+			newProduct.quantity(1);
 			self.cartProductsArray.push(newProduct);
 		}
 	}, self, "addProductToCart");
@@ -288,27 +309,31 @@ function productViewModel(params) {
 	 */
 	self.addToCart = function (product) {
 		// ToDo: edit later to abdo's constants
-		var cartItemId = addProductToCart(product.params.id);
-		if (cartItemId != -1) {
-			onlineMarketMVVM.increaseCartAmount(product.params.price);
+		var cartItemId = addProductToCart(product.params[PRODUCTS_FLD_ID]);
+		if (cartItemId != -1) {	onlineMarketMVVM.increaseCartAmount(product.params[PRODUCTS_FLD_PRICE]());
 			product.params.cartItemID = cartItemId;
 			shouter.notifySubscribers(product.params, "addProductToCart");
 		}
 	}
 
 	self.increaseQuantity = function () {
-		// ToDo check if available
-		self.params.quantity(self.params.quantity() + 1);
-		return true;
-
-	}
-	self.decreaseQuantity = function () {
-		if (self.params.quantity() > 1) {
-			self.params.quantity(self.params.quantity() - 1);
+		var status = {
+			added: false
+		};
+		addProductToCart(self.params[PRODUCTS_FLD_ID], status)
+		if (status.added) {
+			self.params.quantity(self.params.quantity() + 1);
 			return true;
 		}
 	}
-
+	self.decreaseQuantity = function () {
+		if (self.params.quantity() > 1) {
+			if (decreaseProductInCart(self.params[PRODUCTS_FLD_ID])) {
+				self.params.quantity(self.params.quantity() - 1);
+				return true;
+			}
+		}
+	}
 
 	self.increaseRate = function () {
 		if (self.params.userRate() + 0.5 <= 5) {
@@ -378,18 +403,18 @@ function profileViewModel(params) {
 			});
 		}
 	}
-	shouter.subscribe(function (products) {
-		// ToDo to be retrieved from API
-		var order = {};
-		order.id = 4;
-		order.duedate = "2016-10-28";
-		order.cost = onlineMarketMVVM.cartAmount();
-		order.status = "Pending";
-		order.products = products;
-		self.ordersArray.push(new orderModel(order));
-		alert("Order added successfully!");
-		sammyApp.setLocation("#/profile");
-	}, self, "addOrder");
+//	shouter.subscribe(function (newOrder) {
+//		// ToDo to be retrieved from API, fix to match constants
+//		var order = {};
+//		order[ORDERS_ID] = newOrder[ORDERS_ID];
+//		order[ORDERS_ISSUEDATE] = newOrder[ORDERS_ISSUEDATE];
+//		order[ORDERS_COST] = newOrder[ORDERS_COST];
+//		order[ORDERS_STATUS_ID] = "1";
+//		order.products = newOrder.products; // Check later
+//		self.ordersArray.push(new orderModel(order));
+//		alert("Order added successfully!");
+//		sammyApp.setLocation("#/profile");
+//	}, self, "addOrder");
 }
 
 function orderViewModel(params) {
@@ -403,7 +428,9 @@ function orderViewModel(params) {
 		self.params.isMoreDivVisible(!self.params.isMoreDivVisible());
 	}
 	self.init = function () {
+		console.log("ORDER", self.params);
 		var products = self.params.products;
+		console.log(self.params);
 		products.forEach(function (product) {
 			self.params.totalItemsCount += product.quantity;
 			self.params.productsArray.push(new productModel(product));
@@ -514,7 +541,7 @@ function onlineMarketViewModel() {
 
 	// Utils functions
 	self.increaseCartAmount = function (price) {
-		self.cartAmount(self.cartAmount() + price);
+		self.cartAmount(self.cartAmount() + parseFloat(price));
 	}
 
 	self.changeContentVisibility = function (isCartVisible, isMainContentVisible, isProfileVisible, isSearchVisible) {
@@ -699,6 +726,27 @@ function getUserRate(productID) {
  * @returns {Array} user orders
  */
 function getUserOrders() {
+	var ret = [];
+	$.ajax({
+		url: API_LINK + ORDERS_ENDPOINT,
+		type: 'GET',
+		async: false,
+		headers: {
+			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
+		},
+		success: function (result) {
+			var returnedData = JSON.parse(result);
+			console.log("DATA", returnedData);
+			
+			if (returnedData.statusCode == ORDERS_GET_SUCCESSFUL) {
+				ret = returnedData.result;
+			} else {
+				alert(returnedData.errorMsg);
+			}
+		}
+	});
+	return ret;
+	return [];
 	return [{
 			id: 1,
 			duedate: "2016-08-10",
@@ -916,7 +964,6 @@ function getTopCategories() {
  */
 function getCategoryProducts(categoryID, limit) {
 	if (categoryID != 0) {
-
 		var ret = [];
 		$.ajax({
 			url: API_LINK + PRODUCTS_ENDPOINT + "/" + categoryID,
@@ -944,141 +991,25 @@ function getCategoryProducts(categoryID, limit) {
  * @returns {Array} cart products
  */
 function getCartProducts() {
-	return [];
-	return [
-		{
-			id: 0,
-			name: "IPhone 1",
-			price: 500,
-			rate: 4.5,
-			image: "img/img.png",
-			more: [
-				{
-					name: "Origin",
-					value: "Apple"
-                }
-            ]
-        },
-		{
-			id: 0,
-			name: "IPhone 1S",
-			price: 200,
-			rate: 4.6,
-			image: "img/img.png",
-			more: [
-				{
-					name: "Origin",
-					value: "Apple"
-                },
-				{
-					name: "Sold items",
-					value: "100"
-                }
-            ]
-
-        },
-		{
-			id: 0,
-			name: "IPhone 2",
-			price: 500,
-			rate: 4.5,
-			image: "img/img.png",
-			more: [
-				{
-					name: "Origin",
-					value: "Apple"
-                }
-            ]
-        },
-		{
-			id: 0,
-			name: "IPhone 2S",
-			price: 500,
-			rate: 4.5,
-			image: "img/img.png",
-			more: [
-				{
-					name: "Origin",
-					value: "Apple"
-                }
-            ]
-        },
-		{
-			id: 0,
-			name: "IPhone 3",
-			price: 200,
-			rate: 4.6,
-			image: "img/img.png",
-			more: [
-				{
-					name: "Origin",
-					value: "Apple"
-                },
-				{
-					name: "Sold items",
-					value: "100"
-                }
-            ]
-
-        },
-		{
-			id: 0,
-			name: "IPhone 3S",
-			price: 500,
-			rate: 4.5,
-			image: "img/img.png",
-			more: [
-				{
-					name: "Origin",
-					value: "Apple"
-                }
-            ]
-        },
-		{
-			id: 0,
-			name: "IPhone 4",
-			price: 500,
-			rate: 4.5,
-			image: "img/img.png",
-			more: [
-				{
-					name: "Origin",
-					value: "Apple"
-                }
-            ]
-        },
-		{
-			id: 0,
-			name: "IPhone 4S",
-			price: 200,
-			rate: 4.6,
-			image: "img/img.png",
-			more: [
-				{
-					name: "Origin",
-					value: "Apple"
-                },
-				{
-					name: "Sold items",
-					value: "100"
-                }
-            ]
-
-        },
-		{
-			id: 0,
-			name: "IPhone 5",
-			price: 500,
-			rate: 4.5,
-			image: "img/img.png",
-			more: [
-				{
-					name: "Origin",
-					value: "Apple"
-                }
-            ]
-        }
-    ];
+	var ret = [];
+	$.ajax({
+		url: API_LINK + USER_CART_ENDPOINT,
+		type: 'GET',
+		async: false,
+		headers: {
+			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
+		},
+		success: function (result) {
+			console.log(result);
+			var returnedData = JSON.parse(result);
+			if (returnedData.statusCode == CART_GET_ITEMS_SUCCESSFUL) {
+				ret = returnedData.result;
+			} else {
+				alert(returnedData.errorMsg);
+			}
+		}
+	});
+	return ret;
 }
 
 /**
@@ -1086,7 +1017,7 @@ function getCartProducts() {
  * @param {int} productID the required product ID
  * @returns {object} response which contains status and cartItem ID
  */
-function addProductToCart(productID) {
+function addProductToCart(productID, status = {}) {
 	var newCartID = -1;
 	var data = {};
 	data[PRODUCTS_FLD_ID] = productID;
@@ -1103,6 +1034,7 @@ function addProductToCart(productID) {
 			var returnedData = JSON.parse(result);
 			if (returnedData.statusCode == CART_ADD_ITEM_SUCCESSFUL) {
 				newCartID = returnedData.result;
+				status.added = true;
 			} else if (returnedData.statusCode == CART_ADD_ITEM_USER_BANNED) {
 				alert(returnedData.errorMsg);
 				logOut();
@@ -1112,4 +1044,89 @@ function addProductToCart(productID) {
 		}
 	});
 	return newCartID;
+}
+
+
+/**
+ * This fucntion decreases product in cart
+ * @param {int} productID the required product ID
+ * @returns {boolean} true if decreased
+ */
+function decreaseProductInCart(productID) {
+	var decreased = false;
+	var data = {};
+	data[PRODUCTS_FLD_ID] = productID;
+	$.ajax({
+		url: API_LINK + USER_CART_ENDPOINT,
+		type: 'PUT',
+		async: false,
+		data: data,
+		headers: {
+			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
+		},
+		success: function (result) {
+			console.log(result);
+			var returnedData = JSON.parse(result);
+			if (returnedData.statusCode == CART_DECREASE_ITEM_SUCCESSFUL) {
+				decreased = true;
+			} else {
+				alert(returnedData.errorMsg);
+			}
+		}
+	});
+	return decreased;
+}
+
+
+/**
+ * This fucntion decreases product in cart
+ * @param {int} productID the required product ID
+ * @returns {boolean} true if decreased
+ */
+function cancelProductInCart(productID) {
+	var deleted = false;
+	$.ajax({
+		url: API_LINK + USER_CART_ENDPOINT + "/" + productID,
+		type: 'DELETE',
+		async: false,
+		headers: {
+			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
+		},
+		success: function (result) {
+			console.log(result);
+			var returnedData = JSON.parse(result);
+			if (returnedData.statusCode == CART_DELETE_ITEM_SUCCESSFUL) {
+				deleted = true;
+			} else {
+				alert(returnedData.errorMsg);
+			}
+		}
+	});
+	return deleted;
+}
+
+/**
+ * This fucntion adds order to db
+ * @returns {object} order object
+ */
+function addOrder() {
+	var ret = {};
+	$.ajax({
+		url: API_LINK + ORDER_ENDPOINT,
+		type: 'POST',
+		async: false,
+		headers: {
+			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
+		},
+		success: function (result) {
+			console.log(result);
+			var returnedData = JSON.parse(result);
+			if (returnedData.statusCode == ORDERS_ADD_SUCCESS) {
+				ret = returnedData.result;
+			} else {
+				alert(returnedData.errorMsg);
+			}
+		}
+	});
+	return ret;
 }

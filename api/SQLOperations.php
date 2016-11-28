@@ -544,6 +544,47 @@ class SQLOperations implements SQLOperationsInterface {
     }
 
     /**
+     * This function gets all products in cart items
+     * @param int $userID
+     * @return array array of products in cart
+     */
+    function getCartProducts($userID) {
+        $userID = Utilities::makeInputSafe($userID);
+        $query = "SELECT p.*, ps." . Constants::PRODUCT_SPEC_FLD_ID . " as '" . Constants::PRODUCT_SPEC_PSID . "',  cs." . Constants::CATEGORIES_SPEC_FLD_NAME . " as '" . Constants::PRODUCT_SPEC_CSNAME . "', ps." . Constants::PRODUCT_SPEC_FLD_VALUE . " as '" . Constants::PRODUCT_SPEC_PSVALUE . "' , u." . Constants::USERS_FLD_NAME . " as '" . Constants::PRODUCT_SELLER_NAME . "' , c." . Constants::CATEGORIES_FLD_NAME . " as '" . Constants::PRODUCT_CATEGORY_NAME . "' , a." . Constants::AVAILABILITY_FLD_STATUS . " as '" . Constants::PRODUCT_AVAILABILITY_STATUS . "', ct." . Constants::CART_ITEMS_QUANTITY . " FROM " . Constants::TBL_PRODUCTS . " p LEFT OUTER JOIN " . Constants::TBL_PRODUCT_SPEC . " ps ON ps." . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . " = p." . Constants::PRODUCTS_FLD_ID . " LEFT OUTER JOIN " . Constants::TBL_CATEGORIES_SPEC . " cs ON cs." . Constants::CATEGORIES_SPEC_FLD_CATID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " AND ps." . Constants::PRODUCT_SPEC_FLD_CAT_ID . " = cs." . Constants::CATEGORIES_SPEC_FLD_ID . " JOIN " . Constants::TBL_USERS . " u ON u." . Constants::USERS_FLD_ID . " = p." . Constants::PRODUCTS_FLD_SELLER_ID . " JOIN " . Constants::TBL_CATEGORIES . " c ON c." . Constants::CATEGORIES_FLD_ID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " JOIN " . Constants::TBL_AVAILABILITY_STATUS . " a ON a." . Constants::AVAILABILITY_FLD_ID . " = p." . Constants::PRODUCTS_FLD_AVA_STATUS . " JOIN " . Constants::TBL_CART_ITEMS . " ct ON ct." . Constants::CART_ITEMS_PRODUCT_ID . " = p." . Constants::PRODUCTS_FLD_ID . "  ORDER BY ct." . Constants::CART_ITEMS_ID . " DESC";
+        if (!$result = $this->db_link->query($query)) {
+            return $this->returnError(Constants::CART_GET_ITEMS_FAILED, "Please try again later!");
+        } else {
+            $ret = array();
+            $lastRow;
+            while ($row = $result->fetch_assoc()) {
+                // If this product id is already added to list (products are ordered) then add new element to more details array, else add the new product
+                if ($row[Constants::PRODUCTS_FLD_ID] == $lastRow[Constants::PRODUCTS_FLD_ID]) {
+                    $newMore = array();
+                    $newMore[Constants::PRODUCT_SPEC_PSID] = $row[Constants::PRODUCT_SPEC_PSID];
+                    $newMore[Constants::PRODUCT_SPEC_CSNAME] = $row[Constants::PRODUCT_SPEC_CSNAME];
+                    $newMore[Constants::PRODUCT_SPEC_PSVALUE] = $row[Constants::PRODUCT_SPEC_PSVALUE];
+                    array_push($ret[sizeof($ret) - 1]['more'], $newMore);
+                } else {
+                    $more = array();
+                    $more[Constants::PRODUCT_SPEC_PSID] = $row[Constants::PRODUCT_SPEC_PSID];
+                    $more[Constants::PRODUCT_SPEC_CSNAME] = $row[Constants::PRODUCT_SPEC_CSNAME];
+                    $more[Constants::PRODUCT_SPEC_PSVALUE] = $row[Constants::PRODUCT_SPEC_PSVALUE];
+                    unset($row[Constants::PRODUCT_SPEC_PSID]);
+                    unset($row[Constants::PRODUCT_SPEC_CSNAME]);
+                    unset($row[Constants::PRODUCT_SPEC_PSVALUE]);
+                    $row['more'] = array();
+                    if ($more['PSID'] != 'null' && is_numeric($more['PSID']))
+                        array_push($row['more'], $more);
+                    array_push($ret, $row);
+                }
+                $lastRow = $row;
+            }
+            $theResponse = new Response(Constants::CART_GET_ITEMS_SUCCESSFUL, $ret, "");
+            return(json_encode($theResponse));
+        }
+    }
+
+    /**
      * This function adds product to cart, if it wasn't there already. If the product is already in the cart items table, this function increases the required quantity 
      * @param type $productId the product id to be added to cart
      * @param type $userID the user id 
@@ -686,6 +727,7 @@ class SQLOperations implements SQLOperationsInterface {
      * @checkedByIAR
      */
     public function getAllOrders($selectionCols, $appliedFilters, $userID = "") {
+        $userID = Utilities::makeInputSafe($userID);
         $appliedFilters = json_decode($appliedFilters, true);
         $appliedFilters = $appliedFilters['filters'];
         //the where String
@@ -698,7 +740,7 @@ class SQLOperations implements SQLOperationsInterface {
             array_push($whereStringArray, $stringCost);
         }
         if ($appliedFilters['date']['status']) {
-            $stringDate = constants::ORDERS_DATE . ' >= ' . "'" . Utilities::makeInputSafe($appliedFilters['date']['min']) . "'" . ' and ' . Constants::ORDERS_DATE . ' <= ' . "'" . Utilities::makeInputSafe($appliedFilters['date']['max']) . "'";
+            $stringDate = constants::ORDERS_ISSUEDATE . ' >= ' . "'" . Utilities::makeInputSafe($appliedFilters['date']['min']) . "'" . ' and ' . Constants::ORDERS_ISSUEDATE . ' <= ' . "'" . Utilities::makeInputSafe($appliedFilters['date']['max']) . "'";
             array_push($whereStringArray, $stringDate);
         }
         if ($appliedFilters['status']['pending'])
@@ -719,12 +761,12 @@ class SQLOperations implements SQLOperationsInterface {
             $theWhereQuery = '';
 
         if ($selectionCols == "") {
-            $theString = array(Constants::ORDERS_BUYER_ID, Constants::ORDERS_COST, Constants::ORDERS_DATE, Constants::ORDERS_STATUS_ID);
+            $theString = array(Constants::ORDERS_BUYER_ID, Constants::ORDERS_COST, Constants::ORDERS_ISSUEDATE, Constants::ORDERS_STATUS_ID);
             $selectionCols = ' * ';
         } else
             $theString = explode(",", $selectionCols);
         if ($userID != "") {
-            $result = $this->db_link->query('SELECT ' . $selectionCols . ' FROM ' . Constants::TBL_ORDERS . ' WHERE ' . Constants::ORDERS_BUYER_ID . ' = ' . $userID . ' and ' . $theWhereQuery);
+            $result = $this->db_link->query('SELECT ' . $selectionCols . ' FROM ' . Constants::TBL_ORDERS . ' WHERE ' . Constants::ORDERS_BUYER_ID . ' = ' . $userID);
         } else {
             if (strlen($theWhereQuery) > 0) {
                 $result = $this->db_link->query('SELECT ' . $selectionCols . ' FROM ' . Constants::TBL_ORDERS . ' WHERE ' . $theWhereQuery);
@@ -737,8 +779,15 @@ class SQLOperations implements SQLOperationsInterface {
             $theOrder = new Order(); //Creating new object
             $theOrder->setId($row[Constants::ORDERS_ID]);
             $theOrder->setAttributes($row, $theString); //Assigning the Other Attributes according to the sent columns
+            
+            if ($userID != "") {
+                // Get products of this order 
+                $theOrder->setProducts(json_decode($this->getOrderItems($row[Constants::ORDERS_ID], $userID), true)['result']);
+            }
             array_push($ret, $theOrder);
         }
+        // Fetch products if user
+
         $response = new Response(Constants::ORDERS_GET_SUCCESSFUL, $ret, "");
         return json_encode($response);
     }
@@ -749,28 +798,27 @@ class SQLOperations implements SQLOperationsInterface {
      * @param array $selectionCols required columns from the orders table
      * @param int $id order id
      * @return Response with the order contents 
-     * @checkedByIARButNotTestedYet
+     * @checkedByIAR
      */
     public function getOrder($id, $selectionCols) {
         $selectionCols = Utilities::makeInputSafe($selectionCols); // @IAR
         if ($selectionCols == "") { //Select all columns
             $result = $this->db_link->query('SELECT * FROM ' . Constants::TBL_ORDERS . ' WHERE ' . Constants::ORDERS_ID . ' = ' . $id . ' LIMIT 1');
-            $theString = array(Constants::ORDERS_BUYER_ID, Constants::ORDERS_COST, Constants::ORDERS_DATE, Constants::ORDERS_STATUS_ID);
+            $theString = array(Constants::ORDERS_BUYER_ID, Constants::ORDERS_COST, Constants::ORDERS_ISSUEDATE, Constants::ORDERS_STATUS_ID, Constants::ORDERS_ISSUE_DATE);
         } else { //Select the sent ones only
             $result = $this->db_link->query('SELECT ' . $selectionCols . ' FROM ' . Constants::TBL_ORDERS . ' WHERE ' . Constants::ORDERS_ID . ' = ' . $id . ' LIMIT 1');
             $theString = explode(",", $selectionCols);
         }
-        if (!result)
-            return $this->returnError(Constants::ORDERS_GET_FAILED, "Please try again later!");
-        $theArray = array();
+
+        if (!$result)
+            return $this->returnError(Constants::ORDERS_GET_FAILED, "Please try again later!" . $this->db_link->error);
         if ($row = $result->fetch_assoc()) { //Fetching the Result 
             $theOrder = new Order(); //Creating new object
             $theOrder->setId($id); //Setting the Order ID
             $theOrder->setAttributes($row, $theString); //Assigning the Other Attributes according to the sent columns
-            array_push($theArray, $theOrder);
+            $theResponse = new Response(Constants::ORDERS_GET_SUCCESSFUL, $theOrder, "");
+            return(json_encode($theResponse));
         }
-        $theResponse = new Response(Constants::ORDERS_GET_SUCCESSFUL, $theArray, "");
-        return(json_encode($theResponse));
     }
 
     /**
@@ -782,27 +830,37 @@ class SQLOperations implements SQLOperationsInterface {
      * @param date $dueDate the date of the order
      * @param string @status the status of the order (Initially it's pending) 
      * @return Response with the order contents
-     * @checkedByIARButNotTestedYet
+     * @checkedByIAR
      */
-    public function addOrder($buyerId, $cost, $dueDate, $status = 1) {
+    public function addOrder($buyerId) {
         //Make text safe
         $buyerId = Utilities::makeInputSafe($buyerId);
-        $cost = Utilities::makeInputSafe($cost);
-        $dueDate = Utilities::makeInputSafe($dueDate);
-        // @IAR removed status because it will pending by default when adding the order for the first time
-        // @ToDo check for date format using utilities function checkDate and return proper msg
-        //Check for empty fields 
-        if (!is_numeric($buyerId) || !is_numeric($cost) || $dueDate == "")
-            return new Response(Constants::ORDERS_ADD_FAILED, json_encode(array()), $jwt);
-        //Check for any non-logical parameter values
-        if ($buyerId <= 0 || $cost <= 0 || !Utilities::validateDate($dueDate))
-            return new Response(Constants::ORDERS_ADD_FAILED, json_encode(array()), $jwt);
-        //Insert Sql Statment
-        $this->db_link->query('INSERT INTO ' . Constants::TBL_ORDERS . ' (' . Constants::ORDERS_BUYER_ID . ',' . Constants::ORDERS_COST . ',' . Constants::ORDERS_DATE . ')' . ' VALUE (' . $buyerId . ',' . $cost . ",'" . $dueDate . ')');
-//        echo 'INSERT INTO ' . Constants::TBL_ORDERS . ' (' . Constants::ORDERS_BUYER_ID . ',' . Constants::ORDERS_COST . ',' . Constants::ORDERS_DATE . ',' . Constants::ORDERS_STATUS_ID . ')' . ' VALUE (' . $buyerId . ',' . $cost . ",'" . $dueDate . "'," . $status . ')';
-        //Return the created order by the getOrder function
-        // @ToDo return response object ya Samiiir 
-        return $this->getOrder($this->db_link->insert_id);
+        // @IAR removed status because it will be pending by default when adding the order for the first time
+        //Check for non-valid fields 
+        if (!is_numeric($buyerId))
+            return $this->returnError(Constants::ORDERS_ADD_FAILED, "Invalid buyer!");
+
+        // Use this method to clear results after procedure call
+        if ($this->db_link->multi_query("CALL addOrder($buyerId);")) {
+            do {
+                /* store first result set */
+                if ($result = $this->db_link->store_result()) {
+                    while ($row = $result->fetch_assoc()) {
+                        $orderID = $row['(orderID)'];
+                    }
+                    $result->free();
+                }
+            } while ($this->db_link->next_result());
+        } else {
+            return $this->returnError(Constants::ORDERS_ADD_FAILED, "Please try again later!");
+        }
+        $getOrder = $this->getOrder($orderID, "");
+        $getOrderDecoded = json_decode($getOrder, true);
+        if ($getOrderDecoded['statusCode'] == Constants::ORDERS_GET_SUCCESSFUL) {
+            $getOrderDecoded['statusCode'] = Constants::ORDERS_ADD_SUCCESS;
+        }
+
+        return json_encode($getOrderDecoded);
     }
 
     /**
@@ -882,7 +940,6 @@ class SQLOperations implements SQLOperationsInterface {
     /**
      * This function gets all order items of a certain order
      * @author AhmedSamir
-     * @param int $orderID the order ID
      * @param int $buyerID the buyer ID
      * @return Response with the order items
      * @checkedByIARNotTested
@@ -895,17 +952,37 @@ class SQLOperations implements SQLOperationsInterface {
         $result = $this->db_link->query('SELECT * FROM ' . Constants::TBL_ORDERS . ' where ' . Constants::ORDERS_ID . ' = ' . $orderID . ' and ' . Constants::ORDERS_BUYER_ID . ' = ' . $buyerID . ' LIMIT 1');
         if ($result->fetch_assoc()) { // @ToDo check with $result->num_rows if 0 no rows exist with given ID
             //Order is found and is associated with this buyer , Therefore go and get its items.
+            $query = "SELECT p.*, ps." . Constants::PRODUCT_SPEC_FLD_ID . " as '" . Constants::PRODUCT_SPEC_PSID . "',  cs." . Constants::CATEGORIES_SPEC_FLD_NAME . " as '" . Constants::PRODUCT_SPEC_CSNAME . "', ps." . Constants::PRODUCT_SPEC_FLD_VALUE . " as '" . Constants::PRODUCT_SPEC_PSVALUE . "' , u." . Constants::USERS_FLD_NAME . " as '" . Constants::PRODUCT_SELLER_NAME . "' , c." . Constants::CATEGORIES_FLD_NAME . " as '" . Constants::PRODUCT_CATEGORY_NAME . "' , a." . Constants::AVAILABILITY_FLD_STATUS . " as '" . Constants::PRODUCT_AVAILABILITY_STATUS . "', ot.".Constants::ORDERITEMS_QUANTITY." as 'quantity' FROM " . Constants::TBL_PRODUCTS . " p LEFT OUTER JOIN " . Constants::TBL_PRODUCT_SPEC . " ps ON ps." . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . " = p." . Constants::PRODUCTS_FLD_ID . " LEFT OUTER JOIN " . Constants::TBL_CATEGORIES_SPEC . " cs ON cs." . Constants::CATEGORIES_SPEC_FLD_CATID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " AND ps." . Constants::PRODUCT_SPEC_FLD_CAT_ID . " = cs." . Constants::CATEGORIES_SPEC_FLD_ID . " JOIN " . Constants::TBL_USERS . " u ON u." . Constants::USERS_FLD_ID . " = p." . Constants::PRODUCTS_FLD_SELLER_ID . " JOIN " . Constants::TBL_CATEGORIES . " c ON c." . Constants::CATEGORIES_FLD_ID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " JOIN " . Constants::TBL_AVAILABILITY_STATUS . " a ON a." . Constants::AVAILABILITY_FLD_ID . " = p." . Constants::PRODUCTS_FLD_AVA_STATUS . " JOIN " . Constants::TBL_ORDERITEMS . " ot ON ot." . Constants::ORDERITEMS_PRODUCTID . " = p." . Constants::PRODUCTS_FLD_ID . " WHERE ot." . Constants::ORDERITEMS_ORDERID . " = '$orderID'";
+            $result = $this->db_link->query($query);
             $ret = array();
-            $query = $this->db_link->query('SELECT * FROM ' . Constants::TBL_ORDERITEMS . ' where ' . Constants::ORDERITEMS_ORDERID . ' = ' . $orderID);
-            while ($item = $query->fetch_assoc()) { // @ToDo I don't want the order items themselves only, I need them along side with products so please check with abdo to get the products and add the quantity to the returning array
-                array_push($ret, $item);
+            $lastRow;
+            while ($row = $result->fetch_assoc()) {
+                // If this product id is already added to list (products are ordered) then add new element to more details array, else add the new product
+                if ($row[Constants::PRODUCTS_FLD_ID] == $lastRow[Constants::PRODUCTS_FLD_ID]) {
+                    $newMore = array();
+                    $newMore[Constants::PRODUCT_SPEC_PSID] = $row[Constants::PRODUCT_SPEC_PSID];
+                    $newMore[Constants::PRODUCT_SPEC_CSNAME] = $row[Constants::PRODUCT_SPEC_CSNAME];
+                    $newMore[Constants::PRODUCT_SPEC_PSVALUE] = $row[Constants::PRODUCT_SPEC_PSVALUE];
+                    array_push($ret[sizeof($ret) - 1]['more'], $newMore);
+                } else {
+                    $more = array();
+                    $more[Constants::PRODUCT_SPEC_PSID] = $row[Constants::PRODUCT_SPEC_PSID];
+                    $more[Constants::PRODUCT_SPEC_CSNAME] = $row[Constants::PRODUCT_SPEC_CSNAME];
+                    $more[Constants::PRODUCT_SPEC_PSVALUE] = $row[Constants::PRODUCT_SPEC_PSVALUE];
+                    unset($row[Constants::PRODUCT_SPEC_PSID]);
+                    unset($row[Constants::PRODUCT_SPEC_CSNAME]);
+                    unset($row[Constants::PRODUCT_SPEC_PSVALUE]);
+                    $row['more'] = array();
+                    if ($more['PSID'] != 'null' && is_numeric($more['PSID']))
+                        array_push($row['more'], $more);
+                    array_push($ret, $row);
+                }
+                $lastRow = $row;
             }
             $theResponse = new Response(Constants::ORDERITEMS_GET_SUCCESSFUL, $ret, "");
             return(json_encode($theResponse));
         } else {
-            // @ToDo return error object, proper msg to user
-            $theResponse = new Response(Constants::ORDERITEMS_GET_FAILED, array(), "");
-            return(json_encode($theResponse));
+            return $this->returnError(Constants::ORDERITEMS_GET_FAILED, "Please try again later!");
         }
     }
 
@@ -1337,7 +1414,7 @@ class SQLOperations implements SQLOperationsInterface {
      * @todo fix to return only non-deleted and non-seller-blocked products to non-admins, non-sellers users
      */
     public function getAllProducts($cateID = -1, $sellerID = -1) {
-        /**
+        /*
          * Query:
          *  SELECT p.*, ps._id as 'PSID',  cs.name as 'CSNAME', ps.value as 'PSVALUE', u.name as 'seller_name', c.name as 'category_name', a.status as 'availability_status' FROM products p
          *  LEFT OUTER JOIN product_spec ps ON ps.product_id = p._id
@@ -1777,7 +1854,7 @@ class SQLOperations implements SQLOperationsInterface {
             $query = "SELECT p.*, ps." . Constants::PRODUCT_SPEC_FLD_ID . " as '" . Constants::PRODUCT_SPEC_PSID . "',  cs." . Constants::CATEGORIES_SPEC_FLD_NAME . " as '" . Constants::PRODUCT_SPEC_CSNAME . "', ps." . Constants::PRODUCT_SPEC_FLD_VALUE . " as '" . Constants::PRODUCT_SPEC_PSVALUE . "' , u." . Constants::USERS_FLD_NAME . " as '" . Constants::PRODUCT_SELLER_NAME . "' , c." . Constants::CATEGORIES_FLD_NAME . " as '" . Constants::PRODUCT_CATEGORY_NAME . "' , a." . Constants::AVAILABILITY_FLD_STATUS . " as '" . Constants::PRODUCT_AVAILABILITY_STATUS . "' FROM " . Constants::TBL_PRODUCTS . " p LEFT OUTER JOIN " . Constants::TBL_PRODUCT_SPEC . " ps ON ps." . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . " = p." . Constants::PRODUCTS_FLD_ID . " LEFT OUTER JOIN " . Constants::TBL_CATEGORIES_SPEC . " cs ON cs." . Constants::CATEGORIES_SPEC_FLD_CATID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " AND ps." . Constants::PRODUCT_SPEC_FLD_CAT_ID . " = cs." . Constants::CATEGORIES_SPEC_FLD_ID . " JOIN " . Constants::TBL_USERS . " u ON u." . Constants::USERS_FLD_ID . " = p." . Constants::PRODUCTS_FLD_SELLER_ID . " JOIN " . Constants::TBL_CATEGORIES . " c ON c." . Constants::CATEGORIES_FLD_ID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " JOIN " . Constants::TBL_AVAILABILITY_STATUS . " a ON a." . Constants::AVAILABILITY_FLD_ID . " = p." . Constants::PRODUCTS_FLD_AVA_STATUS . "  WHERE p." . Constants::PRODUCTS_FLD_NAME . " LIKE '%$keyword%' OR p." . Constants::PRODUCTS_FLD_DESCRIPTION . " LIKE '%$keyword%' order by " . Constants::PRODUCTS_FLD_SOLDITEMS . " DESC";
 
             if (!$result = $this->db_link->query($query)) {
-                return $this->returnError(Constants::PRODUCT_GET_FROM_KEY_FAILED, "Please try again later!".$this->db_link->error);
+                return $this->returnError(Constants::PRODUCT_GET_FROM_KEY_FAILED, "Please try again later!" . $this->db_link->error);
             } else {
                 $ret = array();
                 $lastRow;
@@ -1876,3 +1953,6 @@ class SQLOperations implements SQLOperationsInterface {
     }
 
 }
+
+$sql = new SQLOperations();
+$sql->getCartProducts(72);
