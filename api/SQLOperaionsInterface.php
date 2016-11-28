@@ -29,41 +29,41 @@ interface SQLOperationsInterface {
     function removeProductFromCart($productID, $userID);
 
     function decreaseProductFromCart($productID, $userID);
-    
+
     function getCartProducts($userID);
-    
+
     public function getAllOrders($selectionCols, $appliedFilters, $userID = "");
 
     public function getOrder($id, $selectionCols);
 
     public function addOrder($buyerId);
 
-    public function deleteOrder($id);
+    public function deleteOrder($id, $userID);
 
     public function updateOrder($id, $status, $userID = -1);
 
     public function getOrderItems($orderID, $buyerID);
 
     public function getDeliveryRequests($deliveryManID);
-    
+
     public function addCategory($name);
-    
+
     public function deleteCategory($id);
-    
+
     public function selectCategory($id);
-    
+
     public function updateCategory($id, $name);
-    
+
     public function getAllCategories();
-    
-    public function addRate($buyerId, $productId, $rate);
-    
+
+    public function updateRate($buyerId, $productId, $increase);
+
     public function getAvgRate($productId);
-    
+
     public function getProductRate($productId, $buyerId);
-    
+
     public function addCategorySpec($categoryId, $name);
-    
+
     public function updateCategorySpec($id, $categoryId, $name);
 
     public function deleteCategorySpec($id);
@@ -95,5 +95,4 @@ interface SQLOperationsInterface {
     public function getProductByKey($key);
 
     public function getTop3In4Cat();
-
 }

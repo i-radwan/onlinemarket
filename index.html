@@ -144,7 +144,7 @@
             <p><strong>Total Items</strong>: <span data-bind="text: params.totalItemsCount"></span></p>
             <p><strong>Status</strong>: <span data-bind="text: params.textStatus"></span></p>
             <span data-bind="if: checkIfActiveUser()">
-				<span class="order-cancel" data-bind="if: params.status == 'Pending'">cancel</span></span>
+				<span class="order-cancel" data-bind="if: params[ORDERS_STATUS_ID] == ORDER_STATUS_PENDING, click:function(){ if(cancel()){$parents[1].deleteOrder($data);}}">cancel</span></span>
         </div>
 
 
@@ -157,7 +157,7 @@
         <div class="order-loadmore"  data-bind="click: loadMoreClick"><strong class="order-loadmore--link"><i class="fa fa-arrow-down categories-single-item--load-more--arrow" data-bind="css:{'fa-arrow-down-upsidedown': params.isMoreDivVisible()}" aria-hidden="true"></i> Load <span data-bind="text: !params.isMoreDivVisible() ? 'more':'less'">more</span> <i class="fa fa-arrow-down categories-single-item--load-more--arrow" data-bind="css:{'fa-arrow-down-upsidedown': params.isMoreDivVisible()}" aria-hidden="true"></i> </strong></div>
     </template>
 	<template id="single-product-view">
-        <div>
+        <div >
             <h2 class="categories-single-item--title" data-bind="text: params[PRODUCTS_FLD_NAME]"></h2>
                 <img class="categories-single-item--img" data-bind="attr:{src: params[PRODUCTS_FLD_IMAGE]}">
                 <div class="categories-single-item--visible-details">
@@ -196,7 +196,7 @@
                 <p data-bind="click: function(){if($parents[1].cancelProduct($data))$parents[2].increaseCartAmount(-params[PRODUCTS_FLD_PRICE]() * params.quantity());}" class="cart-cancel-product">cancel</p>
             </div>
 
-            <div data-bind="if: params.order && ($parents[2].status == 'Delivered')">
+            <div data-bind="if: params.order && $parents[2][ORDERS_STATUS_ID] == ORDER_STATUS_DELIVERED">
                 <div data-bind="css:{'cart-single-item--buy': params.order}" class="categories-single-item--buy" >
                     <i class="fa fa-minus cart-button-icon" data-bind="click: decreaseRate"></i>
                     <span class="cart-button-text">Rate: <span data-bind="text: params.formattedRate"></span></span>

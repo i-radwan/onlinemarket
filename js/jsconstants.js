@@ -18,6 +18,7 @@ const CATEGORY_SPEC_ENDPOINT = "categoryspec";
 const DELIVERYREQUESTS_ENDPOINT = "deliveryrequests";
 const PRODUCT_ENDPOINT = "product";
 const PRODUCTS_ENDPOINT = "products";
+const RATE_ENDPOINT = "rate";
 
 const OMARKET_PREFIX = "OMarket_";
 
@@ -76,6 +77,8 @@ const ORDER_STATUS_PENDING = "1";
 const ORDER_STATUS_PICKED = "2";
 const ORDER_STATUS_SHIPPED = "3";
 const ORDER_STATUS_DELIVERED = "4";
+const ORDER_STATUS_DELETED = "5";
+
 
 //THE CART ITEMS TABLE CONSTANTS
 const TBL_CART_ITEMS = 'cart_items';
@@ -129,6 +132,9 @@ const PRODUCTS_FLD_DESCRIPTION = 'description';
 
 
 
+const RATE_FLD_PRODUCT_ID = 'product_id';
+const RATE_FLD_RATE = 'rate';
+const RATE_FLD_USER_ID = 'user_id';
 /**
  * Product availability statuses
  */
@@ -314,3 +320,21 @@ const PRODUCT_SPEC_PRIMARY_KEY_REPEATED = 60001;
 const PRODUCT_SPEC_ADD_SUCCESS = 60002;
 const PRODUCT_SPEC_ADD_FAILED = 60003;
 const PRODUCT_SPEC_ADD_EXISTS = 60004;
+
+
+/**
+ * Rates operation functions (7x) constants
+ */
+const RATE_INSERT_FAILED = 70;
+const RATE_INSERT_SUCCESS = 71;
+const RATE_AVGERAGE_FAILED = 72;
+const RATE_AVERAGE_SUCCESS = 73;
+const RATE_AVERAGE_INVALID_PRODUCT = 74;
+const RATE_AVERAGE_EMPTY_DATA = 75;
+const RATE_GET_INVALID_PRODUCT = 76;
+const RATE_GET_EMPTY_DATA = 77;
+const RATE_GET_INVALID_BUYER = 78;
+const RATE_GET_SUCCESS = 79;
+const RATE_GET_FAILED = 700;
+const RATE_UPDATE_SUCCESS = 701;
+const SELECT_PRODUCT_SUCCESS = 702;

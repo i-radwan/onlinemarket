@@ -766,12 +766,12 @@ class SQLOperations implements SQLOperationsInterface {
         } else
             $theString = explode(",", $selectionCols);
         if ($userID != "") {
-            $result = $this->db_link->query('SELECT ' . $selectionCols . ' FROM ' . Constants::TBL_ORDERS . ' WHERE ' . Constants::ORDERS_BUYER_ID . ' = ' . $userID);
+            $result = $this->db_link->query('SELECT ' . $selectionCols . ' FROM ' . Constants::TBL_ORDERS . ' WHERE '  .Constants::ORDERS_STATUS_ID .' != '. Constants::ORDER_DELETED .' AND '. Constants::ORDERS_BUYER_ID . ' = ' . $userID);
         } else {
             if (strlen($theWhereQuery) > 0) {
-                $result = $this->db_link->query('SELECT ' . $selectionCols . ' FROM ' . Constants::TBL_ORDERS . ' WHERE ' . $theWhereQuery);
+                $result = $this->db_link->query('SELECT ' . $selectionCols . ' FROM ' . Constants::TBL_ORDERS . ' WHERE ' .Constants::ORDERS_STATUS_ID .' != '. Constants::ORDER_DELETED .' AND ' . $theWhereQuery);
             } else {
-                $result = $this->db_link->query('SELECT ' . $selectionCols . ' FROM ' . Constants::TBL_ORDERS);
+                $result = $this->db_link->query('SELECT ' . $selectionCols . ' FROM ' . Constants::TBL_ORDERS . ' WHERE ' . Constants::ORDERS_STATUS_ID .' != '. Constants::ORDER_DELETED .' AND ');
             }
         }
         $ret = array();
@@ -779,15 +779,13 @@ class SQLOperations implements SQLOperationsInterface {
             $theOrder = new Order(); //Creating new object
             $theOrder->setId($row[Constants::ORDERS_ID]);
             $theOrder->setAttributes($row, $theString); //Assigning the Other Attributes according to the sent columns
-            
+
             if ($userID != "") {
                 // Get products of this order 
                 $theOrder->setProducts(json_decode($this->getOrderItems($row[Constants::ORDERS_ID], $userID), true)['result']);
             }
             array_push($ret, $theOrder);
         }
-        // Fetch products if user
-
         $response = new Response(Constants::ORDERS_GET_SUCCESSFUL, $ret, "");
         return json_encode($response);
     }
@@ -867,28 +865,36 @@ class SQLOperations implements SQLOperationsInterface {
      * This function Delete one order By taking its ID 
      * @author AhmedSamir
      * @param int $orderID the order id
+     * @param int $userID the user id
      * @return Response with the operation code
      * @checkedByIARButNotTestedYet
      */
-    public function deleteOrder($orderID) {
-        // @ToDO No need to select first you  can execute delete operation and then check if something affected by $this->db_link->affected_rows if  = 0 no order with this ID
+    public function deleteOrder($orderID, $userID) {
+        $userID = Utilities::makeInputSafe($userID);
+        $orderID = Utilities::makeInputSafe($orderID);
+        $result = $this->db_link->query('SELECT * FROM ' . Constants::TBL_ORDERS . ' where ' . Constants::ORDERS_ID . ' = ' . $orderID . ' AND '.Constants::ORDERS_BUYER_ID.' = '.$userID.' LIMIT 1');
+        $row = $result->fetch_assoc();
+        if ($row != "") {
+            if (!$mainResut = $this->db_link->query('SELECT * FROM ' . Constants::TBL_ORDERITEMS . ' where ' . Constants::ORDERITEMS_ORDERID . ' = ' . $orderID)) {
+                return $this->returnError(Constants::ORDERS_DELETE_FAILED, "Please try again later!", 0, 0, 0);
+            }
+            while ($row = $mainResut->fetch_assoc()) {
+                $productId = $row[Constants::ORDERITEMS_PRODUCTID];
+                $quantity = $row[Constants::ORDERITEMS_QUANTITY];
 
-        $result = $this->db_link->query('SELECT * FROM ' . Constants::TBL_ORDERS . ' where ' . Constants::ORDERS_ID . ' = ' . $orderID . ' LIMIT 1');
-        if ($result->fetch_assoc() != "") {
-            //Delete First the order items
-            // @ToDo first of all get the order items and then add the quantity back to product.quantity
-            // @ToDo add new order status deleted and don't delete it completely (Don't return the deleted orders in the get functions)
-            // @ToDo instead of deleting from orders_items, you can easily set constraint to cascade so the order items get deleted once the order itself is deleted
-            // @ToDo when returning successful don't set the msg to any thing (not even empty array) 
-            $this->db_link->query('DELETE FROM ' . Constants::TBL_ORDERITEMS . ' WHERE ' . Constants::ORDERITEMS_ORDERID . ' = ' . $orderID);
-            //Then delete the order
-            $this->db_link->query('DELETE FROM ' . Constants::TBL_ORDERS . ' WHERE ' . Constants::ORDERS_ID . ' = ' . $orderID);
-            $theResponse = new Response(Constants::ORDERS_DELETE_SUCCESS, array(), "");
+                if (!$result = $this->db_link->query("UPDATE `" . Constants::TBL_PRODUCTS . "` SET `" . Constants::PRODUCTS_FLD_AVA_QUANTITY . "` = " . Constants::PRODUCTS_FLD_AVA_QUANTITY . " + $quantity WHERE`" . Constants::PRODUCTS_FLD_ID . "` = '$productId' LIMIT 1")) {
+                    return $this->returnError(Constants::ORDERS_DELETE_FAILED, "Please try again later!", 0, 0, 0);
+                }
+                if (!$this->db_link->query('UPDATE ' . Constants::TBL_ORDERS . ' SET ' . Constants::ORDERS_STATUS_ID . ' = ' . Constants::ORDER_DELETED . ' WHERE ' . Constants::ORDERS_ID . ' = ' . $orderID)) {
+                    return $this->returnError(Constants::ORDERS_DELETE_FAILED, "Please try again later!", 0, 0, 0);
+                }
+            }
+
+            // @ToDo  (Don't return the deleted orders in the get functions)
+            $theResponse = new Response(Constants::ORDERS_DELETE_SUCCESS, "", "");
             return json_encode($theResponse);
         } else {
-            // ToDo return error object
-            $theResponse = new Response(Constants::ORDERS_DELETE_FAILED, array(), "");
-            return json_encode($theResponse);
+            return $this->returnError(Constants::ORDERS_DELETE_FAILED, "Please try again later!");
         }
     }
 
@@ -933,6 +939,27 @@ class SQLOperations implements SQLOperationsInterface {
         //$this->db_link->query('UPDATE ' . Constants::TBL_ORDERS . ' set ' . Constants::ORDERS_BUYER_ID . ' = ' . $buyerId . ' , ' . Constants::ORDERS_COST . ' = ' . $cost . ' , ' . Constants::ORDERS_DATE . " = '" . $dueDate . "' , " . Constants::ORDERS_STATUS_ID . ' = ' . $status . ' where ' . Constants::ORDERS_ID . ' = ' . $id);
         $this->db_link->query('UPDATE ' . Constants::TBL_ORDERS . ' set ' . Constants::ORDERS_STATUS_ID . ' = ' . $status . ' where ' . Constants::ORDERS_ID . ' = ' . $id);
 
+        if ($status == Constants::ORDER_DELIVERED) {
+
+            //Insert avg rate into DB
+            $mainResult = $this->db_link->query('SELECT ' . Constants::ORDERITEMS_PRODUCTID . ' FROM ' . Constants::TBL_ORDERITEMS . ' WHERE ' . Constants::ORDERITEMS_ORDERID . ' = ' . $id);
+
+            while ($row = $mainResult->fetch_assoc()) {
+                $productID = $row[Constants::ORDERITEMS_PRODUCTID];
+                $result = $this->db_link->query('SELECT AVG(' . Constants::RATE_FLD_RATE . ') as `rate`, ' . Constants::ORDERS_BUYER_ID . ' FROM ' . Constants::TBL_RATE . ', ' . Constants::TBL_ORDERS . ' WHERE ' . Constants::RATE_FLD_PRODUCT_ID . ' = ' . $productID . ' AND ' . Constants::RATE_FLD_USER_ID . ' != ' . Constants::ORDERS_BUYER_ID . ' AND ' . Constants::TBL_ORDERS . "." . Constants::ORDERS_ID . ' = ' . $id);
+                if (!$result)
+                    return $this->returnError(Constants::ORDERS_UPDATE_FAILED, "Please try again later!" . $this->db_link->error);
+                $row = $result->fetch_assoc();
+                $buyer_id = $row[Constants::ORDERS_BUYER_ID];
+                $avgRate = $row[Constants::RATE_FLD_RATE];
+                if (!$avgRate || $avgRate == null)
+                    $avgRate = 0;
+                $deletePreviousResult = $this->db_link->query('DELETE FROM ' . Constants::TBL_RATE . ' WHERE ' . Constants::RATE_FLD_PRODUCT_ID . " = '$productID' AND  " . Constants::RATE_FLD_USER_ID . " = '$buyer_id'");
+                $result = $this->db_link->query("INSERT INTO " . Constants::TBL_RATE . " SET " . Constants::RATE_FLD_PRODUCT_ID . " = '$productID', " . Constants::RATE_FLD_USER_ID . " = '$buyer_id', " . Constants::RATE_FLD_RATE . " = '$avgRate'");
+                if (!$result)
+                    return $this->returnError(Constants::ORDERS_UPDATE_FAILED, "Please try again later!" . $this->db_link->error);
+            }
+        }
         $theResponse = new Response(Constants::ORDERS_UPDATE_SUCCESS, "", "");
         return (json_encode($theResponse));
     }
@@ -952,11 +979,11 @@ class SQLOperations implements SQLOperationsInterface {
         $result = $this->db_link->query('SELECT * FROM ' . Constants::TBL_ORDERS . ' where ' . Constants::ORDERS_ID . ' = ' . $orderID . ' and ' . Constants::ORDERS_BUYER_ID . ' = ' . $buyerID . ' LIMIT 1');
         if ($result->fetch_assoc()) { // @ToDo check with $result->num_rows if 0 no rows exist with given ID
             //Order is found and is associated with this buyer , Therefore go and get its items.
-            $query = "SELECT p.*, ps." . Constants::PRODUCT_SPEC_FLD_ID . " as '" . Constants::PRODUCT_SPEC_PSID . "',  cs." . Constants::CATEGORIES_SPEC_FLD_NAME . " as '" . Constants::PRODUCT_SPEC_CSNAME . "', ps." . Constants::PRODUCT_SPEC_FLD_VALUE . " as '" . Constants::PRODUCT_SPEC_PSVALUE . "' , u." . Constants::USERS_FLD_NAME . " as '" . Constants::PRODUCT_SELLER_NAME . "' , c." . Constants::CATEGORIES_FLD_NAME . " as '" . Constants::PRODUCT_CATEGORY_NAME . "' , a." . Constants::AVAILABILITY_FLD_STATUS . " as '" . Constants::PRODUCT_AVAILABILITY_STATUS . "', ot.".Constants::ORDERITEMS_QUANTITY." as 'quantity' FROM " . Constants::TBL_PRODUCTS . " p LEFT OUTER JOIN " . Constants::TBL_PRODUCT_SPEC . " ps ON ps." . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . " = p." . Constants::PRODUCTS_FLD_ID . " LEFT OUTER JOIN " . Constants::TBL_CATEGORIES_SPEC . " cs ON cs." . Constants::CATEGORIES_SPEC_FLD_CATID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " AND ps." . Constants::PRODUCT_SPEC_FLD_CAT_ID . " = cs." . Constants::CATEGORIES_SPEC_FLD_ID . " JOIN " . Constants::TBL_USERS . " u ON u." . Constants::USERS_FLD_ID . " = p." . Constants::PRODUCTS_FLD_SELLER_ID . " JOIN " . Constants::TBL_CATEGORIES . " c ON c." . Constants::CATEGORIES_FLD_ID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " JOIN " . Constants::TBL_AVAILABILITY_STATUS . " a ON a." . Constants::AVAILABILITY_FLD_ID . " = p." . Constants::PRODUCTS_FLD_AVA_STATUS . " JOIN " . Constants::TBL_ORDERITEMS . " ot ON ot." . Constants::ORDERITEMS_PRODUCTID . " = p." . Constants::PRODUCTS_FLD_ID . " WHERE ot." . Constants::ORDERITEMS_ORDERID . " = '$orderID'";
-            $result = $this->db_link->query($query);
+            $query = "SELECT p.*, ps." . Constants::PRODUCT_SPEC_FLD_ID . " as '" . Constants::PRODUCT_SPEC_PSID . "',  cs." . Constants::CATEGORIES_SPEC_FLD_NAME . " as '" . Constants::PRODUCT_SPEC_CSNAME . "', ps." . Constants::PRODUCT_SPEC_FLD_VALUE . " as '" . Constants::PRODUCT_SPEC_PSVALUE . "' , u." . Constants::USERS_FLD_NAME . " as '" . Constants::PRODUCT_SELLER_NAME . "' , c." . Constants::CATEGORIES_FLD_NAME . " as '" . Constants::PRODUCT_CATEGORY_NAME . "' , a." . Constants::AVAILABILITY_FLD_STATUS . " as '" . Constants::PRODUCT_AVAILABILITY_STATUS . "', ot." . Constants::ORDERITEMS_QUANTITY . " as 'quantity', r." . Constants::RATE_FLD_RATE . " as 'userrate' FROM " . Constants::TBL_PRODUCTS . " p LEFT OUTER JOIN " . Constants::TBL_PRODUCT_SPEC . " ps ON ps." . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . " = p." . Constants::PRODUCTS_FLD_ID . " LEFT OUTER JOIN " . Constants::TBL_CATEGORIES_SPEC . " cs ON (cs." . Constants::CATEGORIES_SPEC_FLD_CATID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " AND ps." . Constants::PRODUCT_SPEC_FLD_CAT_ID . " = cs." . Constants::CATEGORIES_SPEC_FLD_ID . ") JOIN " . Constants::TBL_USERS . " u ON u." . Constants::USERS_FLD_ID . " = p." . Constants::PRODUCTS_FLD_SELLER_ID . " JOIN " . Constants::TBL_CATEGORIES . " c ON c." . Constants::CATEGORIES_FLD_ID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " JOIN " . Constants::TBL_AVAILABILITY_STATUS . " a ON a." . Constants::AVAILABILITY_FLD_ID . " = p." . Constants::PRODUCTS_FLD_AVA_STATUS . " JOIN " . Constants::TBL_ORDERITEMS . " ot ON ot." . Constants::ORDERITEMS_PRODUCTID . " = p." . Constants::PRODUCTS_FLD_ID . " JOIN " . Constants::TBL_ORDERS . " o ON o." . Constants::ORDERS_ID . " = ot." . Constants::ORDERITEMS_ORDERID . " INNER JOIN " . Constants::TBL_RATE . " r ON (r." . Constants::RATE_FLD_PRODUCT_ID . " = p." . Constants::PRODUCTS_FLD_ID . " AND r." . Constants::RATE_FLD_USER_ID . " = o." . Constants::ORDERS_BUYER_ID . ") WHERE ot." . Constants::ORDERITEMS_ORDERID . " = '$orderID'";
+            $mainResult = $this->db_link->query($query);
             $ret = array();
             $lastRow;
-            while ($row = $result->fetch_assoc()) {
+            while ($row = $mainResult->fetch_assoc()) {
                 // If this product id is already added to list (products are ordered) then add new element to more details array, else add the new product
                 if ($row[Constants::PRODUCTS_FLD_ID] == $lastRow[Constants::PRODUCTS_FLD_ID]) {
                     $newMore = array();
@@ -1278,14 +1305,18 @@ class SQLOperations implements SQLOperationsInterface {
         $this->db_link->close();
     }
 
-    //=======================================   NEED CHECK ==============================================================================
     /**
-     * This function adds non existed rate or updates existed rate
-     * @parm integer $buyerId, integer $productId, float $rate
+     * This function updates rate of product
+     * @parm integer $buyerId
+     * @param integer $productId
+     * @param integer $rate new rate value
      * @return response with response
+     * @checkedByIAR
      */
-    public function addRate($buyerId, $productId, $rate) {
-
+    public function updateRate($buyerId, $productId, $rate) {
+        $buyerId = Utilities::makeInputSafe($buyerId);
+        $productId = Utilities::makeInputSafe($productId);
+        $increase = Utilities::makeInputSafe($increase);
 
         if ((strlen(trim($rate)) != 0) && (strlen(trim($productId)) != 0) && (strlen(trim($rate)) != 0)) {
             $buyerId = Utilities::makeInputSafe($buyerId);
@@ -1293,7 +1324,7 @@ class SQLOperations implements SQLOperationsInterface {
             $rate = Utilities::makeInputSafe($rate);
 
             if (($rate > 5) || ($rate <= 0)) {
-                return $this->returnError(Constants::INVALID_INPUT, "Please,enter a valid rate");
+                return $this->returnError(Constants::INVALID_INPUT, "Please enter a valid rate");
             } else {
                 if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_BUYERS . "` WHERE `" . Constants::BUYERS_FLD_USER_ID . "` = '$buyerId' LIMIT 1")) {
                     return $this->returnError(Constants::RATE_INSERT_FAILED, "Please try again later!");
@@ -1305,24 +1336,14 @@ class SQLOperations implements SQLOperationsInterface {
                         return $this->returnError(Constants::RATE_INSERT_FAILED, "Please try again later!");
                     }
                     if ($result->num_rows == 1) {
-                        //checking if buyer has already rated to that product ,if yes Update..if not insert
-                        $check = $this->db_link->query("SELECT * FROM `" . Constants::TBL_RATE . "` WHERE " . Constants::BUYERS_FLD_USER_ID . " ='$buyerId' AND " . Constants::RATE_FLD_PRODUCT_ID . "= '$productId'");
-                        if ($check->num_rows == 0) {
-
-                            $this->db_link->query("INSERT INTO `" . Constants::TBL_RATE . "` (`" . Constants::BUYERS_FLD_USER_ID . "`, `" . Constants::RATE_FLD_PRODUCT_ID . "`, `" . Constants::RATE_FLD_RATE . "` ) Values ('$buyerId' , '$productId' , '$rate' )");
-                            $theResponse = new Response(Constants::RATE_INSERT_SUCCESS, array(), "");
-                            return(json_encode($theResponse));
-                        } else {
-
-                            $this->db_link->query("UPDATE `" . Constants::TBL_RATE . "` SET `" . Constants::RATE_FLD_RATE . "` = '$rate' WHERE " . Constants::RATE_FLD_PRODUCT_ID . "= '$productId' AND " . Constants::BUYERS_FLD_USER_ID . "= '$buyerId'");
-                            $theResponse = new Response(Constants::RATE_UPDATE_SUCCESS, array(), "");
-                            return(json_encode($theResponse));
-                        }
+                        $this->db_link->query("UPDATE `" . Constants::TBL_RATE . "` SET `" . Constants::RATE_FLD_RATE . "` = '$rate' WHERE " . Constants::RATE_FLD_PRODUCT_ID . "= '$productId' AND " . Constants::BUYERS_FLD_USER_ID . "= '$buyerId'");
+                        $theResponse = new Response(Constants::RATE_UPDATE_SUCCESS, array(), "");
+                        return(json_encode($theResponse));
                     } else {
-                        return $this->returnError(Constants::RATE_PRODUCT_NOT_EXISTS, "Please,enter a valid product id");
+                        return $this->returnError(Constants::RATE_PRODUCT_NOT_EXISTS, "Please try again later!");
                     }
                 } else {
-                    return $this->returnError(Constants::RATE_BUYER_NOT_EXISTS, "Please,enter a valid buyer id");
+                    return $this->returnError(Constants::RATE_BUYER_NOT_EXISTS, "Please try again later!");
                 }
             }
         } else {
@@ -1953,6 +1974,3 @@ class SQLOperations implements SQLOperationsInterface {
     }
 
 }
-
-$sql = new SQLOperations();
-$sql->getCartProducts(72);

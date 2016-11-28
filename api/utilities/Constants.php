@@ -303,6 +303,7 @@ class Constants {
     const TBL_RATE = 'rates';
     const RATE_FLD_PRODUCT_ID = 'product_id';
     const RATE_FLD_RATE = 'rate';
+    const RATE_FLD_USER_ID = 'user_id';
     //==================================
     //THE PRODUCT SPEC TABLE CONSTANTS
     const TBL_PRODUCT_SPEC = 'product_spec';
@@ -348,11 +349,12 @@ class Constants {
     /**
      * Order status
      */
-    const ORDER_STATUSES = array("1", "2", "3", "4");
+    const ORDER_STATUSES = array("1", "2", "3", "4", "5");
     const ORDER_PENDING = "1";
     const ORDER_PICKED = "2";
     const ORDER_SHIPPED = "3";
     const ORDER_DELIVERED = "4";
+    const ORDER_DELETED = "5";
 
     /**
      * Product availability statuses

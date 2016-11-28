@@ -123,7 +123,7 @@ function userModel(user) {
 function orderModel(order) {
 	var self = this;
 	self[ORDERS_ID] = order[ORDERS_ID];
-	self[ORDERS_DATE] = order[ORDERS_DATE];
+	self[ORDERS_ISSUEDATE] = order[ORDERS_ISSUEDATE];
 	self[ORDERS_COST] = order[ORDERS_COST];
 	self[ORDERS_STATUS_ID] = ko.observable(order[ORDERS_STATUS_ID]);
 	self.textStatus = ko.computed(function () {
@@ -921,6 +921,7 @@ function changeOrderStatus(orderID, newStatus) {
 			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
 		},
 		success: function (result) {
+			console.log("DATA", result);
 			var returnedData = JSON.parse(result);
 			if (returnedData.statusCode == ORDERS_UPDATE_SUCCESS) {
 				statusChanged = true;

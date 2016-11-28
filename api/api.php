@@ -335,7 +335,24 @@ $app->get('/products/{cateID}', function (Request $request, Response $response) 
     return $response->withStatus(200)->write($sqlOperations->getAllProducts($request->getAttribute('cateID')));
 });
 
-
+/**
+ * Rate requests
+ */
+$app->put('/rate', function (Request $request, Response $response) {
+    if (authUsers([Constants::USER_BUYER], $request, $response)) {
+        $buyer_id = getTokenData($request)[Constants::USERS_FLD_ID];
+        $sqlOperations = new SQLOperations();
+        if (!$sqlOperations->checkIfActiveUser($buyer_id)) {
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+        }
+        $putVars = $request->getParsedBody();
+        $productID = $putVars[Constants::RATE_FLD_PRODUCT_ID];
+        $rate = $putVars[Constants::RATE_FLD_RATE];
+        return $response->withStatus(200)->write($sqlOperations->updateRate($buyer_id, $productID, $rate));
+    } else {
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+    }
+});
 /**
  * Orders requests
  */
@@ -375,11 +392,14 @@ $app->get('/order/{id}', function (Request $request, Response $response, $args =
 //Delete Certain Order by the ID (Semi Finished) (Middleware Authorization)/ WithStatus 401 / Retuen respone
 // @ToDo authenticate and let users only delete their only orders
 $app->delete('/order/{id}', function (Request $request, Response $response, $args) {
-    //middleware (authorization)
-    //with status (401) Error
-    $sqlOperations = new SQLOperations();
-    $id = $args['id'];
-    return $response->withStatus(200)->write($sqlOperations->deleteOrder($id));
+    if (authUsers([Constants::USER_BUYER], $request, $response)) {
+        $sqlOperations = new SQLOperations();
+        $id = $args['id'];
+        $userID = getTokenData($request)[Constants::USERS_FLD_ID];
+        return $response->withStatus(200)->write($sqlOperations->deleteOrder($id, $userID));
+    } else {
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+    }
 });
 //Add Order
 // @ToDo check and test

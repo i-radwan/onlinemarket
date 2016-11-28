@@ -46,6 +46,7 @@ function productModel(product) {
 	self[PRODUCT_CATEGORY_NAME] = ko.observable(product[PRODUCT_CATEGORY_NAME]);
 	self[PRODUCT_AVAILABILITY_STATUS] = ko.observable(product[PRODUCT_AVAILABILITY_STATUS]);
 
+	self.userRate = ko.observable(((product.userrate) ? parseFloat(product.userrate) : 0));
 	self.quantity = ko.observable(((product.quantity) ? parseInt(product.quantity) : 0));
 
 	self.more = ko.observableArray();
@@ -288,7 +289,6 @@ function productViewModel(params) {
 	self.params = params.value;
 	self.params.cart = params.cart;
 	self.params.order = params.order;
-	self.params.userRate = ko.observable(getUserRate(self.params.id));
 
 	self.params.formattedRate = ko.computed(function () {
 		return (self.params.userRate()).toFixed(1);
@@ -310,7 +310,8 @@ function productViewModel(params) {
 	self.addToCart = function (product) {
 		// ToDo: edit later to abdo's constants
 		var cartItemId = addProductToCart(product.params[PRODUCTS_FLD_ID]);
-		if (cartItemId != -1) {	onlineMarketMVVM.increaseCartAmount(product.params[PRODUCTS_FLD_PRICE]());
+		if (cartItemId != -1) {
+			onlineMarketMVVM.increaseCartAmount(product.params[PRODUCTS_FLD_PRICE]());
 			product.params.cartItemID = cartItemId;
 			shouter.notifySubscribers(product.params, "addProductToCart");
 		}
@@ -336,15 +337,27 @@ function productViewModel(params) {
 	}
 
 	self.increaseRate = function () {
-		if (self.params.userRate() + 0.5 <= 5) {
+		if (self.params.userRate() + 0.5 <= 5 && updateRate(self.params[PRODUCTS_FLD_ID], self.params.userRate() + 0.5)) {
 			self.params.userRate(self.params.userRate() + 0.5);
+			// notify other orders to update existing same products
+			var newData = {};
+			newData[PRODUCTS_FLD_ID] = self.params[PRODUCTS_FLD_ID];
+			newData[RATE_FLD_RATE] = self.params.userRate();
+			shouter.notifySubscribers(newData, "rateChanged");
+
 			return true;
 		}
 		return false;
 	}
 	self.decreaseRate = function () {
-		if (self.params.userRate() - 0.5 >= 0) {
+		if (self.params.userRate() - 0.5 >= 0 && updateRate(self.params[PRODUCTS_FLD_ID], self.params.userRate() - 0.5)) {
 			self.params.userRate(self.params.userRate() - 0.5);
+			// notify other orders to update existing same products
+			var newData = {};
+			newData[PRODUCTS_FLD_ID] = self.params[PRODUCTS_FLD_ID];
+			newData[RATE_FLD_RATE] = self.params.userRate();
+			shouter.notifySubscribers(newData, "rateChanged");
+
 			return true;
 		}
 		return false;
@@ -356,6 +369,16 @@ function profileViewModel(params) {
 	self.ordersArray = ko.observableArray();
 	self.userModel = getUserModel();
 
+	shouter.subscribe(function (newData) {
+		ko.utils.arrayForEach(self.ordersArray(), function (order, index) {
+			order.productsArray.forEach(function (product) {
+				if (product[PRODUCTS_FLD_ID] == newData[PRODUCTS_FLD_ID]) {
+					product.userRate(newData[RATE_FLD_RATE]);
+				}
+			});
+		});
+	}, self, "rateChanged");
+
 	self.init = function () {
 		var orders = getUserOrders();
 		orders.forEach(function (order) {
@@ -363,6 +386,10 @@ function profileViewModel(params) {
 		});
 	}();
 
+	self.deleteOrder = function (order) {
+		console.log(order.params);
+		self.ordersArray.remove(order.params);
+	}
 	self.saveProfile = function () {
 		self.saveProfile = function () {
 			var data = {};
@@ -403,18 +430,6 @@ function profileViewModel(params) {
 			});
 		}
 	}
-//	shouter.subscribe(function (newOrder) {
-//		// ToDo to be retrieved from API, fix to match constants
-//		var order = {};
-//		order[ORDERS_ID] = newOrder[ORDERS_ID];
-//		order[ORDERS_ISSUEDATE] = newOrder[ORDERS_ISSUEDATE];
-//		order[ORDERS_COST] = newOrder[ORDERS_COST];
-//		order[ORDERS_STATUS_ID] = "1";
-//		order.products = newOrder.products; // Check later
-//		self.ordersArray.push(new orderModel(order));
-//		alert("Order added successfully!");
-//		sammyApp.setLocation("#/profile");
-//	}, self, "addOrder");
 }
 
 function orderViewModel(params) {
@@ -432,10 +447,14 @@ function orderViewModel(params) {
 		var products = self.params.products;
 		console.log(self.params);
 		products.forEach(function (product) {
-			self.params.totalItemsCount += product.quantity;
+			self.params.totalItemsCount += parseInt(product.quantity);
 			self.params.productsArray.push(new productModel(product));
 		});
 	}();
+	self.cancel = function () {
+		if (confirm("Are you sure?"))
+			return deleteOrder(self.params[ORDERS_ID]);
+	}
 }
 
 function headerViewModel(params) {
@@ -735,9 +754,10 @@ function getUserOrders() {
 			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
 		},
 		success: function (result) {
+			console.log("DATA", result);
+
 			var returnedData = JSON.parse(result);
-			console.log("DATA", returnedData);
-			
+
 			if (returnedData.statusCode == ORDERS_GET_SUCCESSFUL) {
 				ret = returnedData.result;
 			} else {
@@ -746,165 +766,6 @@ function getUserOrders() {
 		}
 	});
 	return ret;
-	return [];
-	return [{
-			id: 1,
-			duedate: "2016-08-10",
-			cost: 1200,
-			status: "Pending",
-			products: [{
-					id: 1,
-					name: "IPhone 6S",
-					price: 500,
-					rate: 4.5,
-					image: "img/img.png",
-					quantity: 10,
-					more: [
-						{
-							name: "Origin",
-							value: "Apple"
-                        }
-                    ]
-                },
-				{
-					id: 2,
-					name: "IPhone 4S",
-					price: 200,
-					rate: 4.6,
-					image: "img/img.png",
-					quantity: 20,
-					more: [
-						{
-							name: "Origin",
-							value: "Apple"
-                        },
-						{
-							name: "Sold items",
-							value: "100"
-                        }
-                    ]
-
-                },
-				{
-					id: 3,
-					name: "IPhone 3S",
-					price: 100,
-					rate: 4.5,
-					image: "img/img.png",
-					quantity: 30,
-					more: [
-						{
-							name: "Origin",
-							value: "Apple"
-                        }
-                    ]
-                }]
-        }, {
-			id: 2,
-			duedate: "2016-08-12",
-			cost: 1000,
-			status: "Picked",
-			products: [{
-					id: 1,
-					name: "IPhone 6S",
-					price: 500,
-					rate: 4.5,
-					image: "img/img.png",
-					quantity: 10,
-					more: [
-						{
-							name: "Origin",
-							value: "Apple"
-                        }
-                    ]
-                },
-				{
-					id: 2,
-					name: "IPhone 4S",
-					price: 200,
-					rate: 4.6,
-					image: "img/img.png",
-					quantity: 20,
-					more: [
-						{
-							name: "Origin",
-							value: "Apple"
-                        },
-						{
-							name: "Sold items",
-							value: "100"
-                        }
-                    ]
-
-                },
-				{
-					id: 3,
-					name: "IPhone 3S",
-					price: 100,
-					rate: 4.5,
-					image: "img/img.png",
-					quantity: 30,
-					more: [
-						{
-							name: "Origin",
-							value: "Apple"
-                        }
-                    ]
-                }]
-        },
-		{
-			id: 3,
-			duedate: "2016-08-13",
-			cost: 1300,
-			status: "Delivered",
-			products: [{
-					id: 1,
-					name: "IPhone 6S",
-					price: 500,
-					rate: 4.5,
-					image: "img/img.png",
-					quantity: 10,
-					more: [
-						{
-							name: "Origin",
-							value: "Apple"
-                        }
-                    ]
-                },
-				{
-					id: 2,
-					name: "IPhone 4S",
-					price: 200,
-					rate: 4.6,
-					image: "img/img.png",
-					quantity: 20,
-					more: [
-						{
-							name: "Origin",
-							value: "Apple"
-                        },
-						{
-							name: "Sold items",
-							value: "100"
-                        }
-                    ]
-
-                },
-				{
-					id: 3,
-					name: "IPhone 3S",
-					price: 100,
-					rate: 4.5,
-					image: "img/img.png",
-					quantity: 30,
-					more: [
-						{
-							name: "Origin",
-							value: "Apple"
-                        }
-                    ]
-                }]
-        }];
 }
 
 /**
@@ -1013,7 +874,7 @@ function getCartProducts() {
 }
 
 /**
- * This fucntion adds product to cart items
+ * This function adds product to cart items
  * @param {int} productID the required product ID
  * @returns {object} response which contains status and cartItem ID
  */
@@ -1048,7 +909,7 @@ function addProductToCart(productID, status = {}) {
 
 
 /**
- * This fucntion decreases product in cart
+ * This function decreases product in cart
  * @param {int} productID the required product ID
  * @returns {boolean} true if decreased
  */
@@ -1079,7 +940,7 @@ function decreaseProductInCart(productID) {
 
 
 /**
- * This fucntion decreases product in cart
+ * This function decreases product in cart
  * @param {int} productID the required product ID
  * @returns {boolean} true if decreased
  */
@@ -1106,7 +967,7 @@ function cancelProductInCart(productID) {
 }
 
 /**
- * This fucntion adds order to db
+ * This function adds order to db
  * @returns {object} order object
  */
 function addOrder() {
@@ -1129,4 +990,65 @@ function addOrder() {
 		}
 	});
 	return ret;
+}
+
+
+/**
+ * This function deletes order
+ * @param {int} orderID the required order ID
+ * @returns {boolean} true if decreased
+ */
+function deleteOrder(orderID) {
+	var deleted = false;
+	$.ajax({
+		url: API_LINK + ORDER_ENDPOINT + "/" + orderID,
+		type: 'DELETE',
+		async: false,
+		headers: {
+			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
+		},
+		success: function (result) {
+			console.log(result);
+			var returnedData = JSON.parse(result);
+			if (returnedData.statusCode == ORDERS_DELETE_SUCCESS) {
+				deleted = true;
+			} else {
+				alert(returnedData.errorMsg);
+			}
+		}
+	});
+	return deleted;
+}
+
+
+/**
+ * This function updates product rate in db
+ * @param   {integer} productID product id to be updated
+ * @param   {float}   rate      new rate value
+ * @returns {boolean} true if updated
+ */
+function updateRate(productID, rate) {
+	var updated = false;
+	var data = {};
+	data[RATE_FLD_PRODUCT_ID] = productID;
+	data[RATE_FLD_RATE] = rate;
+	$.ajax({
+		url: API_LINK + RATE_ENDPOINT,
+		type: 'PUT',
+		async: false,
+		data: data,
+		headers: {
+			'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
+		},
+		success: function (result) {
+			console.log(result);
+			var returnedData = JSON.parse(result);
+			if (returnedData.statusCode == RATE_UPDATE_SUCCESS) {
+				updated = true;
+			} else {
+				alert(returnedData.errorMsg);
+			}
+		}
+	});
+	return updated;
 }
