@@ -423,7 +423,7 @@ function profileViewModel(params) {
 						window.location = WEBSITE_LINK;
 
 					} else {
-						alert(returnedData.errorMsg);
+						alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 					}
 				}
 			});
@@ -687,7 +687,7 @@ function getSearchProducts(searchWord) {
 			if (returnedData.statusCode == PRODUCT_GET_FROM_KEY_SUCCESS) {
 				ret = returnedData.result;
 			} else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		}
 	});
@@ -747,7 +747,7 @@ function getUserOrders() {
 			if (returnedData.statusCode == ORDERS_GET_SUCCESSFUL) {
 				ret = returnedData.result;
 			} else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		}
 	});
@@ -773,7 +773,7 @@ function getCategoriesArray() {
 			if (returnedData.statusCode == CATEGORY_GET_ALL_CATEGORIES_SUCCESS) {
 				ret = returnedData.result;
 			} else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		}
 	});
@@ -798,7 +798,7 @@ function getTopCategories() {
 			if (returnedData.statusCode == PRODUCT_GET_TOP_3_IN_4_CAT_SUCCESS) {
 				ret = returnedData.result;
 			} else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		}
 	});
@@ -825,7 +825,7 @@ function getCategoryProducts(categoryID, limit) {
 				if (returnedData.statusCode == PRODUCTS_GET_ALL_PRODUCTS_SUCCESS) {
 					ret = returnedData.result;
 				} else {
-					alert(returnedData.errorMsg);
+					alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 				}
 			}
 		});
@@ -852,7 +852,7 @@ function getCartProducts() {
 			if (returnedData.statusCode == CART_GET_ITEMS_SUCCESSFUL) {
 				ret = returnedData.result;
 			} else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		}
 	});
@@ -883,10 +883,10 @@ function addProductToCart(productID, status = {}) {
 				newCartID = returnedData.result;
 				status.added = true;
 			} else if (returnedData.statusCode == CART_ADD_ITEM_USER_BANNED) {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 				logOut();
 			} else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		}
 	});
@@ -917,10 +917,10 @@ function decreaseProductInCart(productID) {
 			if (returnedData.statusCode == CART_DECREASE_ITEM_SUCCESSFUL) {
 				decreased = true;
 			} else if (returnedData.statusCode == USER_STATUS_BANNED) {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 				logOut();
 			} else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		}
 	});
@@ -948,10 +948,10 @@ function cancelProductInCart(productID) {
 			if (returnedData.statusCode == CART_DELETE_ITEM_SUCCESSFUL) {
 				deleted = true;
 			} else if (returnedData.statusCode == USER_STATUS_BANNED) {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 				logOut();
 			} else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		}
 	});
@@ -977,10 +977,10 @@ function addOrder() {
 			if (returnedData.statusCode == ORDERS_ADD_SUCCESS) {
 				ret = returnedData.result;
 			}else if (returnedData.statusCode == USER_STATUS_BANNED) {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 				logOut();
 			} else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		}
 	});
@@ -1008,10 +1008,10 @@ function deleteOrder(orderID) {
 			if (returnedData.statusCode == ORDERS_DELETE_SUCCESS) {
 				deleted = true;
 			} else if (returnedData.statusCode == USER_STATUS_BANNED) {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 				logOut();
 			}else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		}
 	});
@@ -1044,10 +1044,10 @@ function updateRate(productID, rate) {
 			if (returnedData.statusCode == RATE_UPDATE_SUCCESS) {
 				updated = true;
 			} else if (returnedData.statusCode == USER_STATUS_BANNED) {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 				logOut();
 			} else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		}
 	});

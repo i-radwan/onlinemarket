@@ -319,7 +319,7 @@ function profileViewModel(params) {
 					}
 					window.location = ADMIN_LINK;
 				} else {
-					alert(returnedData.errorMsg);
+					alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 				}
 			}
 		});
@@ -898,7 +898,7 @@ function getAllProducts() {
 			if (returnedData.statusCode == PRODUCTS_GET_ALL_PRODUCTS_SUCCESS) {
 				ret = returnedData.result;
 			} else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		}
 	});
@@ -928,7 +928,7 @@ function changeOrderStatus(orderID, newStatus) {
 			if (returnedData.statusCode == ORDERS_UPDATE_SUCCESS) {
 				statusChanged = true;
 			} else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		}
 	});
@@ -954,7 +954,7 @@ function getDeliverymanOrders() {
 			if (returnedData.statusCode == DELIVERYREQUESTS_GET_SUCCESSFUL) {
 				ret = returnedData.result;
 			} else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		}
 	});
@@ -979,7 +979,7 @@ function getOrders(filters) {
 			if (returnedData.statusCode == ORDERS_GET_SUCCESSFUL) {
 				ret = returnedData.result;
 			} else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		}
 	});
@@ -1005,7 +1005,7 @@ function getAllUsers(userType) {
 			if (returnedData.statusCode == USER_GET_USERS_SUCCESSFUL) {
 				ret = returnedData.result;
 			} else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		}
 	});
@@ -1036,7 +1036,7 @@ function changeUserBanStatus(userID, newStatus) {
 			if (returnedData.statusCode == USER_UPDATE_STATUS_SUCCESSFUL) {
 				statusChanged = true;
 			} else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		}
 	});
@@ -1065,7 +1065,7 @@ function deleteEmployee(empID) {
 			if (returnedData.statusCode == USER_DELETE_SUCCESSFUL) {
 				deleted = true;
 			} else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		}
 	});
@@ -1098,7 +1098,7 @@ function addEmployee(email, pass, empType) {
 			if (returnedData.statusCode == USER_INSERT_SUCCESSFUL) {
 				newID = returnedData.result;
 			} else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		}
 	});
@@ -1133,7 +1133,7 @@ function editEmployee(userID, email, pass) {
 				edited = true;
 				alert(returnedData.result);
 			} else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		}
 	});
@@ -1162,7 +1162,7 @@ function addCategory(name) {
 			if (returnedData.statusCode == CATEGORY_ADD_SUCCESS) {
 				newID = returnedData.result;
 			} else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		}
 	});
@@ -1193,7 +1193,7 @@ function editCategory(id, name) {
 			if (returnedData.statusCode == CATEGORY_UPDATE_SUCCESS) {
 				updated = true;
 			} else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		}
 	});
@@ -1220,7 +1220,7 @@ function deleteCategory(cateID) {
 			if (returnedData.statusCode == CATEGORY_DELETE_SUCCESS) {
 				deleted = true;
 			} else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		}
 	});
@@ -1252,7 +1252,7 @@ function addCategorySpec(name, cateID) {
 			if (returnedData.statusCode == CATEGORY_SPECS_ADD_SUCCESS) {
 				newID = returnedData.result;
 			} else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		}
 	});
@@ -1286,7 +1286,7 @@ function editCategorySpec(id, cateID, name) {
 			if (returnedData.statusCode == CATEGORY_SPEC_UPDATE_SUCCESS) {
 				updated = true;
 			} else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		}
 	});
@@ -1313,7 +1313,7 @@ function deleteCategorySpec(specID) {
 			if (returnedData.statusCode == CATEGORY_SPEC_DELETE_SUCCESS) {
 				deleted = true;
 			} else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		}
 	});
@@ -1337,7 +1337,7 @@ function getCategoriesArray() {
 			if (returnedData.statusCode == CATEGORY_GET_ALL_CATEGORIES_SUCCESS) {
 				ret = returnedData.result;
 			} else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		}
 	});
@@ -1365,10 +1365,10 @@ function addProduct(data) {
 			if (returnedData.statusCode == PRODUCT_ADD_SUCCESS) {
 				newID = returnedData.result;
 			} else if (returnedData.statusCode == USER_STATUS_BANNED) {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 				logOut();
 			} else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		}
 	});
@@ -1398,10 +1398,10 @@ function editProduct(data) {
 			if (returnedData.statusCode == PRODUCT_UPDATE_SUCCESS) {
 				edited = true;
 			} else if (returnedData.statusCode == USER_STATUS_BANNED) {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 				logOut();
 			} else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		}
 	});
@@ -1428,10 +1428,10 @@ function deleteProduct(productID) {
 			if (returnedData.statusCode == PRODUCT_DELETE_SUCCESS) {
 				deleted = true;
 			} else if (returnedData.statusCode == USER_STATUS_BANNED) {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 				logOut();
 			} else {
-				alert(returnedData.errorMsg);
+				alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
 			}
 		},
 		fail: function (result) {
