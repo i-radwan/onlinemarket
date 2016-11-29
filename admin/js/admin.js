@@ -661,8 +661,11 @@ function ordersViewModel(params) {
 
 	shouter.subscribe(function (deliveredOrderID) {
 		ko.utils.arrayForEach(self.ordersArray(), function (order, index) {
-			if (order && order.id == deliveredOrderID) {
+			if (order && order[ORDERS_ID] == deliveredOrderID) {
+				console.log("TEST", order, order[ORDERS_ID], deliveredOrderID);
 				self.ordersArray.remove(order);
+			}else{
+				console.log(order);
 			}
 		});
 	}, self, "removeDeliveredOrder");
@@ -674,10 +677,9 @@ function singleOrderViewModel(params) {
 	self.params = params.value;
 	self.changeOrderStatus = function (orderStatus) {
 		if (changeOrderStatus(self.params[DELIVERYREQUESTS_ORDER_ID], orderStatus)) {
-			// update via API ToDO
 			self.params[ORDERS_STATUS_ID](orderStatus);
 			if (orderStatus == ORDER_STATUS_DELIVERED)
-				shouter.notifySubscribers(self.params.id, "removeDeliveredOrder");
+				shouter.notifySubscribers(self.params[ORDERS_ID], "removeDeliveredOrder");
 		}
 	};
 }

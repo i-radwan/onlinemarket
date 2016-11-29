@@ -257,7 +257,6 @@ function cartProductsViewModel(params) {
 			if (newOrder && newOrder[ORDERS_ID] > 0) {
 				var cartProducts = [];
 				ko.utils.arrayForEach(self.cartProductsArray(), function (product, index) {
-					product.quantity = product.quantity();
 					cartProducts.push(product);
 				});
 				newOrder.products = cartProducts;
@@ -447,7 +446,7 @@ function orderViewModel(params) {
 		var products = self.params.products;
 		console.log(self.params);
 		products.forEach(function (product) {
-			self.params.totalItemsCount += parseInt(product.quantity);
+			self.params.totalItemsCount += 1;
 			self.params.productsArray.push(new productModel(product));
 		});
 	}();
