@@ -623,7 +623,7 @@ class SQLOperations implements SQLOperationsInterface {
                     }
                     $cartItemID = $this->db_link->insert_id;
                     // reduce product qunatity 
-                    if (!$result = $this->db_link->query("UPDATE `" . Constants::TBL_PRODUCTS . "` SET `" . Constants::PRODUCTS_FLD_AVA_QUANTITY . "` = " . Constants::PRODUCTS_FLD_AVA_QUANTITY . " - 1 WHERE`" . Constants::PRODUCTS_FLD_ID . "` = '$productId' AND `" . Constants::PRODUCTS_FLD_AVA_QUANTITY . "` > 0 LIMIT 1")) {
+                    if (!$result = $this->db_link->query("UPDATE `" . Constants::TBL_PRODUCTS . "` SET `" . Constants::PRODUCTS_FLD_AVA_QUANTITY . "` = " . Constants::PRODUCTS_FLD_AVA_QUANTITY . " - 1,  `" . Constants::PRODUCTS_FLD_SOLDITEMS . "` = " . Constants::PRODUCTS_FLD_SOLDITEMS . " + 1,  `" . Constants::PRODUCTS_FLD_EARNINGS. "` = " . Constants::PRODUCTS_FLD_EARNINGS. " + ".Constants::PRODUCTS_FLD_PRICE."  WHERE`" . Constants::PRODUCTS_FLD_ID . "` = '$productId' AND `" . Constants::PRODUCTS_FLD_AVA_QUANTITY . "` > 0 LIMIT 1")) {
                         return $this->returnError(Constants::CART_ADD_ITEM_FAILED, "Please try again later!", 0, 0, 0);
                     }
                     if ($this->db_link->affected_rows == 1) {
@@ -778,7 +778,7 @@ class SQLOperations implements SQLOperationsInterface {
             if (strlen($theWhereQuery) > 0) {
                 $result = $this->db_link->query('SELECT ' . $selectionCols . ' FROM ' . Constants::TBL_ORDERS . ' WHERE ' . Constants::ORDERS_STATUS_ID . ' != ' . Constants::ORDER_DELETED . ' AND ' . $theWhereQuery . ' ORDER BY ' . Constants::ORDERS_STATUS_ID . ' ASC');
             } else {
-                $result = $this->db_link->query('SELECT ' . $selectionCols . ' FROM ' . Constants::TBL_ORDERS . ' WHERE ' . Constants::ORDERS_STATUS_ID . ' != ' . Constants::ORDER_DELETED  . ' ORDER BY ' . Constants::ORDERS_STATUS_ID . ' ASC');
+                $result = $this->db_link->query('SELECT ' . $selectionCols . ' FROM ' . Constants::TBL_ORDERS . ' WHERE ' . Constants::ORDERS_STATUS_ID . ' != ' . Constants::ORDER_DELETED . ' ORDER BY ' . Constants::ORDERS_STATUS_ID . ' ASC');
             }
         }
         $ret = array();
@@ -860,7 +860,7 @@ class SQLOperations implements SQLOperationsInterface {
                 }
             } while ($this->db_link->next_result());
         } else {
-            return $this->returnError(Constants::ORDERS_ADD_FAILED, "Please try again later!". $this->db_link->error);
+            return $this->returnError(Constants::ORDERS_ADD_FAILED, "Please try again later!" . $this->db_link->error);
         }
         $getOrder = $this->getOrder($orderID, "");
         $getOrderDecoded = json_decode($getOrder, true);
@@ -1329,12 +1329,9 @@ class SQLOperations implements SQLOperationsInterface {
     public function updateRate($buyerId, $productId, $rate) {
         $buyerId = Utilities::makeInputSafe($buyerId);
         $productId = Utilities::makeInputSafe($productId);
-        $increase = Utilities::makeInputSafe($increase);
+        $rate = Utilities::makeInputSafe($rate);
 
-        if ((strlen(trim($rate)) != 0) && (strlen(trim($productId)) != 0) && (strlen(trim($rate)) != 0)) {
-            $buyerId = Utilities::makeInputSafe($buyerId);
-            $productId = Utilities::makeInputSafe($productId);
-            $rate = Utilities::makeInputSafe($rate);
+        if ((strlen($rate) != 0) && (strlen($productId) != 0) && (strlen($rate) != 0)) {
 
             if (!$this->checkIfActiveUser($buyerId)) {
                 return $this->returnError(Constants::USER_STATUS_BANNED, "Please contact OMarket administration!", 0, 0, 0);
@@ -1352,8 +1349,17 @@ class SQLOperations implements SQLOperationsInterface {
                         return $this->returnError(Constants::RATE_INSERT_FAILED, "Please try again later!");
                     }
                     if ($result->num_rows == 1) {
-                        $this->db_link->query("UPDATE `" . Constants::TBL_RATE . "` SET `" . Constants::RATE_FLD_RATE . "` = '$rate' WHERE " . Constants::RATE_FLD_PRODUCT_ID . "= '$productId' AND " . Constants::BUYERS_FLD_USER_ID . "= '$buyerId'");
-                        $theResponse = new Response(Constants::RATE_UPDATE_SUCCESS, array(), "");
+                        // Select rate if exists if not insert it
+                        if (!$result = $this->db_link->query("INSERT INTO " . Constants::TBL_RATE . " SET " . Constants::RATE_FLD_PRODUCT_ID . " = '$productId', " . Constants::RATE_FLD_USER_ID . " = '$buyerId', " . Constants::RATE_FLD_RATE . " = '$rate' ON DUPLICATE KEY UPDATE " . Constants::RATE_FLD_RATE . " = $rate")) {
+                            return $this->returnError(Constants::RATE_INSERT_FAILED, "Please try again later!");
+                        }
+                        // Update product total rate
+                        //UPDATE products p,( SELECT product_id, avg(rate)  as avgrate FROM rates GROUP BY product_id) as s SET p.rate = s.avgrate  WHERE p._id = s.product_id
+                        $qy = "UPDATE ".Constants::TBL_PRODUCTS." p, (SELECT ".Constants::RATE_FLD_PRODUCT_ID.", avg( ".Constants::RATE_FLD_RATE.") as avgrate FROM ".Constants::TBL_RATE." GROUP BY ".Constants::RATE_FLD_PRODUCT_ID.") as s SET p.".Constants::PRODUCTS_FLD_RATE." = s.avgrate WHERE p.".Constants::PRODUCTS_FLD_ID." = s.".Constants::RATE_FLD_PRODUCT_ID." AND p.".Constants::PRODUCTS_FLD_ID." = '$productId'";
+                        if (!$result = $this->db_link->query($qy)) {
+                            return $this->returnError(Constants::RATE_INSERT_FAILED, "Please try again later!");
+                        }
+                        $theResponse = new Response(Constants::RATE_UPDATE_SUCCESS, "", "");
                         return(json_encode($theResponse));
                     } else {
                         return $this->returnError(Constants::RATE_PRODUCT_NOT_EXISTS, "Please try again later!");
