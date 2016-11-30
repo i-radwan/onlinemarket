@@ -554,31 +554,7 @@ class SQLOperations implements SQLOperationsInterface {
         if (!$result = $this->db_link->query($query)) {
             return $this->returnError(Constants::CART_GET_ITEMS_FAILED, "Please try again later!");
         } else {
-            $ret = array();
-            $lastRow;
-            while ($row = $result->fetch_assoc()) {
-                // If this product id is already added to list (products are ordered) then add new element to more details array, else add the new product
-                if ($row[Constants::PRODUCTS_FLD_ID] == $lastRow[Constants::PRODUCTS_FLD_ID]) {
-                    $newMore = array();
-                    $newMore[Constants::PRODUCT_SPEC_PSID] = $row[Constants::PRODUCT_SPEC_PSID];
-                    $newMore[Constants::PRODUCT_SPEC_CSNAME] = $row[Constants::PRODUCT_SPEC_CSNAME];
-                    $newMore[Constants::PRODUCT_SPEC_PSVALUE] = $row[Constants::PRODUCT_SPEC_PSVALUE];
-                    array_push($ret[sizeof($ret) - 1]['more'], $newMore);
-                } else {
-                    $more = array();
-                    $more[Constants::PRODUCT_SPEC_PSID] = $row[Constants::PRODUCT_SPEC_PSID];
-                    $more[Constants::PRODUCT_SPEC_CSNAME] = $row[Constants::PRODUCT_SPEC_CSNAME];
-                    $more[Constants::PRODUCT_SPEC_PSVALUE] = $row[Constants::PRODUCT_SPEC_PSVALUE];
-                    unset($row[Constants::PRODUCT_SPEC_PSID]);
-                    unset($row[Constants::PRODUCT_SPEC_CSNAME]);
-                    unset($row[Constants::PRODUCT_SPEC_PSVALUE]);
-                    $row['more'] = array();
-                    if ($more['PSID'] != 'null' && is_numeric($more['PSID']))
-                        array_push($row['more'], $more);
-                    array_push($ret, $row);
-                }
-                $lastRow = $row;
-            }
+            $ret = $this->fetchProductsFromResult($result);
             $theResponse = new Response(Constants::CART_GET_ITEMS_SUCCESSFUL, $ret, "");
             return(json_encode($theResponse));
         }
@@ -623,7 +599,7 @@ class SQLOperations implements SQLOperationsInterface {
                     }
                     $cartItemID = $this->db_link->insert_id;
                     // reduce product qunatity 
-                    if (!$result = $this->db_link->query("UPDATE `" . Constants::TBL_PRODUCTS . "` SET `" . Constants::PRODUCTS_FLD_AVA_QUANTITY . "` = " . Constants::PRODUCTS_FLD_AVA_QUANTITY . " - 1,  `" . Constants::PRODUCTS_FLD_SOLDITEMS . "` = " . Constants::PRODUCTS_FLD_SOLDITEMS . " + 1,  `" . Constants::PRODUCTS_FLD_EARNINGS. "` = " . Constants::PRODUCTS_FLD_EARNINGS. " + ".Constants::PRODUCTS_FLD_PRICE."  WHERE`" . Constants::PRODUCTS_FLD_ID . "` = '$productId' AND `" . Constants::PRODUCTS_FLD_AVA_QUANTITY . "` > 0 LIMIT 1")) {
+                    if (!$result = $this->db_link->query("UPDATE `" . Constants::TBL_PRODUCTS . "` SET `" . Constants::PRODUCTS_FLD_AVA_QUANTITY . "` = " . Constants::PRODUCTS_FLD_AVA_QUANTITY . " - 1,  `" . Constants::PRODUCTS_FLD_SOLDITEMS . "` = " . Constants::PRODUCTS_FLD_SOLDITEMS . " + 1,  `" . Constants::PRODUCTS_FLD_EARNINGS . "` = " . Constants::PRODUCTS_FLD_EARNINGS . " + " . Constants::PRODUCTS_FLD_PRICE . "  WHERE`" . Constants::PRODUCTS_FLD_ID . "` = '$productId' AND `" . Constants::PRODUCTS_FLD_AVA_QUANTITY . "` > 0 LIMIT 1")) {
                         return $this->returnError(Constants::CART_ADD_ITEM_FAILED, "Please try again later!", 0, 0, 0);
                     }
                     if ($this->db_link->affected_rows == 1) {
@@ -994,31 +970,7 @@ class SQLOperations implements SQLOperationsInterface {
             //Order is found and is associated with this buyer , Therefore go and get its items.
             $query = "SELECT p.*, ps." . Constants::PRODUCT_SPEC_FLD_ID . " as '" . Constants::PRODUCT_SPEC_PSID . "',  cs." . Constants::CATEGORIES_SPEC_FLD_NAME . " as '" . Constants::PRODUCT_SPEC_CSNAME . "', ps." . Constants::PRODUCT_SPEC_FLD_VALUE . " as '" . Constants::PRODUCT_SPEC_PSVALUE . "' , u." . Constants::USERS_FLD_NAME . " as '" . Constants::PRODUCT_SELLER_NAME . "' , c." . Constants::CATEGORIES_FLD_NAME . " as '" . Constants::PRODUCT_CATEGORY_NAME . "' , a." . Constants::AVAILABILITY_FLD_STATUS . " as '" . Constants::PRODUCT_AVAILABILITY_STATUS . "', ot." . Constants::ORDERITEMS_QUANTITY . " as 'quantity', r." . Constants::RATE_FLD_RATE . " as 'userrate' FROM " . Constants::TBL_PRODUCTS . " p LEFT OUTER JOIN " . Constants::TBL_PRODUCT_SPEC . " ps ON ps." . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . " = p." . Constants::PRODUCTS_FLD_ID . " LEFT OUTER JOIN " . Constants::TBL_CATEGORIES_SPEC . " cs ON (cs." . Constants::CATEGORIES_SPEC_FLD_CATID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " AND ps." . Constants::PRODUCT_SPEC_FLD_CAT_ID . " = cs." . Constants::CATEGORIES_SPEC_FLD_ID . ") JOIN " . Constants::TBL_USERS . " u ON u." . Constants::USERS_FLD_ID . " = p." . Constants::PRODUCTS_FLD_SELLER_ID . " JOIN " . Constants::TBL_CATEGORIES . " c ON c." . Constants::CATEGORIES_FLD_ID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " JOIN " . Constants::TBL_AVAILABILITY_STATUS . " a ON a." . Constants::AVAILABILITY_FLD_ID . " = p." . Constants::PRODUCTS_FLD_AVA_STATUS . " JOIN " . Constants::TBL_ORDERITEMS . " ot ON ot." . Constants::ORDERITEMS_PRODUCTID . " = p." . Constants::PRODUCTS_FLD_ID . " JOIN " . Constants::TBL_ORDERS . " o ON o." . Constants::ORDERS_ID . " = ot." . Constants::ORDERITEMS_ORDERID . " LEFT OUTER JOIN " . Constants::TBL_RATE . " r ON (r." . Constants::RATE_FLD_PRODUCT_ID . " = p." . Constants::PRODUCTS_FLD_ID . " AND r." . Constants::RATE_FLD_USER_ID . " = o." . Constants::ORDERS_BUYER_ID . ") WHERE ot." . Constants::ORDERITEMS_ORDERID . " = '$orderID'  ORDER BY p." . Constants::PRODUCTS_FLD_ID . " DESC";
             $mainResult = $this->db_link->query($query);
-            $ret = array();
-            $lastRow;
-            while ($row = $mainResult->fetch_assoc()) {
-                // If this product id is already added to list (products are ordered) then add new element to more details array, else add the new product
-                if ($row[Constants::PRODUCTS_FLD_ID] == $lastRow[Constants::PRODUCTS_FLD_ID]) {
-                    $newMore = array();
-                    $newMore[Constants::PRODUCT_SPEC_PSID] = $row[Constants::PRODUCT_SPEC_PSID];
-                    $newMore[Constants::PRODUCT_SPEC_CSNAME] = $row[Constants::PRODUCT_SPEC_CSNAME];
-                    $newMore[Constants::PRODUCT_SPEC_PSVALUE] = $row[Constants::PRODUCT_SPEC_PSVALUE];
-                    array_push($ret[sizeof($ret) - 1]['more'], $newMore);
-                } else {
-                    $more = array();
-                    $more[Constants::PRODUCT_SPEC_PSID] = $row[Constants::PRODUCT_SPEC_PSID];
-                    $more[Constants::PRODUCT_SPEC_CSNAME] = $row[Constants::PRODUCT_SPEC_CSNAME];
-                    $more[Constants::PRODUCT_SPEC_PSVALUE] = $row[Constants::PRODUCT_SPEC_PSVALUE];
-                    unset($row[Constants::PRODUCT_SPEC_PSID]);
-                    unset($row[Constants::PRODUCT_SPEC_CSNAME]);
-                    unset($row[Constants::PRODUCT_SPEC_PSVALUE]);
-                    $row['more'] = array();
-                    if ($more['PSID'] != 'null' && is_numeric($more['PSID']))
-                        array_push($row['more'], $more);
-                    array_push($ret, $row);
-                }
-                $lastRow = $row;
-            }
+            $ret = $this->fetchProductsFromResult($mainResult);
             $theResponse = new Response(Constants::ORDERITEMS_GET_SUCCESSFUL, $ret, "");
             return(json_encode($theResponse));
         } else {
@@ -1355,7 +1307,7 @@ class SQLOperations implements SQLOperationsInterface {
                         }
                         // Update product total rate
                         //UPDATE products p,( SELECT product_id, avg(rate)  as avgrate FROM rates GROUP BY product_id) as s SET p.rate = s.avgrate  WHERE p._id = s.product_id
-                        $qy = "UPDATE ".Constants::TBL_PRODUCTS." p, (SELECT ".Constants::RATE_FLD_PRODUCT_ID.", avg( ".Constants::RATE_FLD_RATE.") as avgrate FROM ".Constants::TBL_RATE." GROUP BY ".Constants::RATE_FLD_PRODUCT_ID.") as s SET p.".Constants::PRODUCTS_FLD_RATE." = s.avgrate WHERE p.".Constants::PRODUCTS_FLD_ID." = s.".Constants::RATE_FLD_PRODUCT_ID." AND p.".Constants::PRODUCTS_FLD_ID." = '$productId'";
+                        $qy = "UPDATE " . Constants::TBL_PRODUCTS . " p, (SELECT " . Constants::RATE_FLD_PRODUCT_ID . ", avg( " . Constants::RATE_FLD_RATE . ") as avgrate FROM " . Constants::TBL_RATE . " GROUP BY " . Constants::RATE_FLD_PRODUCT_ID . ") as s SET p." . Constants::PRODUCTS_FLD_RATE . " = s.avgrate WHERE p." . Constants::PRODUCTS_FLD_ID . " = s." . Constants::RATE_FLD_PRODUCT_ID . " AND p." . Constants::PRODUCTS_FLD_ID . " = '$productId'";
                         if (!$result = $this->db_link->query($qy)) {
                             return $this->returnError(Constants::RATE_INSERT_FAILED, "Please try again later!");
                         }
@@ -1450,6 +1402,44 @@ class SQLOperations implements SQLOperationsInterface {
     }
 
     /**
+     * This function takes products result and returns the corrosponding array
+     * @param type $mainResult
+     * @return array
+     */
+    private function fetchProductsFromResult($mainResult, $limit = 0) {
+        $ret = array();
+        $lastRow;
+        $actualProductCount = 0;
+        while ($row = $mainResult->fetch_assoc()) {
+            if ($limit > 0 && $actualProductCount >= $limit)
+                break;
+            // If this product id is already added to list (products are ordered) then add new element to more details array, else add the new product
+            if ($row[Constants::PRODUCTS_FLD_ID] == $lastRow[Constants::PRODUCTS_FLD_ID]) {
+                $newMore = array();
+                $newMore[Constants::PRODUCT_SPEC_PSID] = $row[Constants::PRODUCT_SPEC_PSID];
+                $newMore[Constants::PRODUCT_SPEC_CSNAME] = $row[Constants::PRODUCT_SPEC_CSNAME];
+                $newMore[Constants::PRODUCT_SPEC_PSVALUE] = $row[Constants::PRODUCT_SPEC_PSVALUE];
+                array_push($ret[sizeof($ret) - 1]['more'], $newMore);
+            } else {
+                $more = array();
+                $more[Constants::PRODUCT_SPEC_PSID] = $row[Constants::PRODUCT_SPEC_PSID];
+                $more[Constants::PRODUCT_SPEC_CSNAME] = $row[Constants::PRODUCT_SPEC_CSNAME];
+                $more[Constants::PRODUCT_SPEC_PSVALUE] = $row[Constants::PRODUCT_SPEC_PSVALUE];
+                unset($row[Constants::PRODUCT_SPEC_PSID]);
+                unset($row[Constants::PRODUCT_SPEC_CSNAME]);
+                unset($row[Constants::PRODUCT_SPEC_PSVALUE]);
+                $row['more'] = array();
+                if ($more['PSID'] != 'null' && is_numeric($more['PSID']))
+                    array_push($row['more'], $more);
+                array_push($ret, $row);
+                $actualProductCount++;
+            }
+            $lastRow = $row;
+        }
+        return $ret;
+    }
+
+    /**
      * This function gets all products with specifications ,1 spec of a product per row
      * @param int $cateID category id to get its products
      * @param int $sellerID seller id to get his/her products
@@ -1477,31 +1467,7 @@ class SQLOperations implements SQLOperationsInterface {
         if (!$result = $this->db_link->query($query)) {
             return $this->returnError(Constants::PRODUCTS_GET_ALL_PRODUCTS_FAILED, "Please try again later!");
         } else {
-            $ret = array();
-            $lastRow;
-            while ($row = $result->fetch_assoc()) {
-                // If this product id is already added to list (products are ordered) then add new element to more details array, else add the new product
-                if ($row[Constants::PRODUCTS_FLD_ID] == $lastRow[Constants::PRODUCTS_FLD_ID]) {
-                    $newMore = array();
-                    $newMore[Constants::PRODUCT_SPEC_PSID] = $row[Constants::PRODUCT_SPEC_PSID];
-                    $newMore[Constants::PRODUCT_SPEC_CSNAME] = $row[Constants::PRODUCT_SPEC_CSNAME];
-                    $newMore[Constants::PRODUCT_SPEC_PSVALUE] = $row[Constants::PRODUCT_SPEC_PSVALUE];
-                    array_push($ret[sizeof($ret) - 1]['more'], $newMore);
-                } else {
-                    $more = array();
-                    $more[Constants::PRODUCT_SPEC_PSID] = $row[Constants::PRODUCT_SPEC_PSID];
-                    $more[Constants::PRODUCT_SPEC_CSNAME] = $row[Constants::PRODUCT_SPEC_CSNAME];
-                    $more[Constants::PRODUCT_SPEC_PSVALUE] = $row[Constants::PRODUCT_SPEC_PSVALUE];
-                    unset($row[Constants::PRODUCT_SPEC_PSID]);
-                    unset($row[Constants::PRODUCT_SPEC_CSNAME]);
-                    unset($row[Constants::PRODUCT_SPEC_PSVALUE]);
-                    $row['more'] = array();
-                    if ($more['PSID'] != 'null' && is_numeric($more['PSID']))
-                        array_push($row['more'], $more);
-                    array_push($ret, $row);
-                }
-                $lastRow = $row;
-            }
+            $ret = $this->fetchProductsFromResult($result);
             $theResponse = new Response(Constants::PRODUCTS_GET_ALL_PRODUCTS_SUCCESS, $ret, "");
             return(json_encode($theResponse));
         }
@@ -1908,31 +1874,7 @@ class SQLOperations implements SQLOperationsInterface {
             if (!$result = $this->db_link->query($query)) {
                 return $this->returnError(Constants::PRODUCT_GET_FROM_KEY_FAILED, "Please try again later!" . $this->db_link->error);
             } else {
-                $ret = array();
-                $lastRow;
-                while ($row = $result->fetch_assoc()) {
-                    // If this product id is already added to list (products are ordered) then add new element to more details array, else add the new product
-                    if ($row[Constants::PRODUCTS_FLD_ID] == $lastRow[Constants::PRODUCTS_FLD_ID]) {
-                        $newMore = array();
-                        $newMore[Constants::PRODUCT_SPEC_PSID] = $row[Constants::PRODUCT_SPEC_PSID];
-                        $newMore[Constants::PRODUCT_SPEC_CSNAME] = $row[Constants::PRODUCT_SPEC_CSNAME];
-                        $newMore[Constants::PRODUCT_SPEC_PSVALUE] = $row[Constants::PRODUCT_SPEC_PSVALUE];
-                        array_push($ret[sizeof($ret) - 1]['more'], $newMore);
-                    } else {
-                        $more = array();
-                        $more[Constants::PRODUCT_SPEC_PSID] = $row[Constants::PRODUCT_SPEC_PSID];
-                        $more[Constants::PRODUCT_SPEC_CSNAME] = $row[Constants::PRODUCT_SPEC_CSNAME];
-                        $more[Constants::PRODUCT_SPEC_PSVALUE] = $row[Constants::PRODUCT_SPEC_PSVALUE];
-                        unset($row[Constants::PRODUCT_SPEC_PSID]);
-                        unset($row[Constants::PRODUCT_SPEC_CSNAME]);
-                        unset($row[Constants::PRODUCT_SPEC_PSVALUE]);
-                        $row['more'] = array();
-                        if ($more['PSID'] != 'null' && is_numeric($more['PSID']))
-                            array_push($row['more'], $more);
-                        array_push($ret, $row);
-                    }
-                    $lastRow = $row;
-                }
+                $ret = $this->fetchProductsFromResult($result);
                 $theResponse = new Response(Constants::PRODUCT_GET_FROM_KEY_SUCCESS, $ret, "");
                 return(json_encode($theResponse));
             }
@@ -1962,35 +1904,7 @@ class SQLOperations implements SQLOperationsInterface {
                 if (!$result = $this->db_link->query($query)) {
                     return $this->returnError(Constants::PRODUCT_GET_TOP_3_IN_4_CAT_FAILED, "Please try again later!");
                 } else {
-                    $ret = array();
-                    $lastRow;
-                    $actualProductCount = 0;
-                    while ($row = $result->fetch_assoc()) {
-                        if ($actualProductCount >= 3)
-                            break;
-                        // If this product id is already added to list (products are ordered) then add new element to more details array, else add the new product
-                        if ($row[Constants::PRODUCTS_FLD_ID] == $lastRow[Constants::PRODUCTS_FLD_ID]) {
-                            $newMore = array();
-                            $newMore[Constants::PRODUCT_SPEC_PSID] = $row[Constants::PRODUCT_SPEC_PSID];
-                            $newMore[Constants::PRODUCT_SPEC_CSNAME] = $row[Constants::PRODUCT_SPEC_CSNAME];
-                            $newMore[Constants::PRODUCT_SPEC_PSVALUE] = $row[Constants::PRODUCT_SPEC_PSVALUE];
-                            array_push($ret[sizeof($ret) - 1]['more'], $newMore);
-                        } else {
-                            $more = array();
-                            $more[Constants::PRODUCT_SPEC_PSID] = $row[Constants::PRODUCT_SPEC_PSID];
-                            $more[Constants::PRODUCT_SPEC_CSNAME] = $row[Constants::PRODUCT_SPEC_CSNAME];
-                            $more[Constants::PRODUCT_SPEC_PSVALUE] = $row[Constants::PRODUCT_SPEC_PSVALUE];
-                            unset($row[Constants::PRODUCT_SPEC_PSID]);
-                            unset($row[Constants::PRODUCT_SPEC_CSNAME]);
-                            unset($row[Constants::PRODUCT_SPEC_PSVALUE]);
-                            $row['more'] = array();
-                            if ($more['PSID'] != 'null' && is_numeric($more['PSID']))
-                                array_push($row['more'], $more);
-                            array_push($ret, $row);
-                            $actualProductCount++;
-                        }
-                        $lastRow = $row;
-                    }
+                    $ret = $ret = $this->fetchProductsFromResult($result, 3);
                     $cate = array();
                     $cate[Constants::CATEGORIES_FLD_ID] = $cateID;
                     $cate[Constants::CATEGORIES_FLD_NAME] = json_decode($this->selectCategory($cateID), true)['result'][Constants::CATEGORIES_FLD_NAME];
