@@ -31,10 +31,10 @@
 
 					<div class="auth-container--input-div">
 						<i class="fa fa-user auth-container--inputicon"></i>
-						<input type="email" name="auth-container-username" id="auth-container-username" class="auth-container--input" placeholder="Email" required data-bind="textInput: userModel.email"></div>
+						<input type="email" name="auth-container-username" id="auth-container-username" class="auth-container--input" placeholder="Email" required data-bind="textInput: userModel[USERS_FLD_EMAIL]"></div>
 					<div class="auth-container--input-div">
 						<i class="fa fa-lock auth-container--inputicon"></i>
-						<input type="password" name="auth-container-password" data-bind="textInput: userModel.pass1" id="auth-container-password" class="auth-container--input" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" required></div>
+						<input type="password" name="auth-container-password" data-bind="textInput: userModel[USERS_FLD_PASS]" id="auth-container-password" class="auth-container--input" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" required></div>
 					<i class="fa fa-spinner spinner-icon" data-bind="visible: loading()"></i>
 
 					<button class="auth-container--login-button" data-bind="click: login, visible: !loading()">Login</button>

@@ -58,15 +58,15 @@
                 <div class="account-details">
 
                     <div class="account-div">
-                        <div class="account-currentpass"><p class="account-passtext">Name: </p><input type="text" data-bind="textInput: userModel.name" placeholder="Name" class="account-currentpassinput account-input"></div>
+                        <div class="account-currentpass"><p class="account-passtext">Name: </p><input type="text" data-bind="textInput: userModel[USERS_FLD_NAME]" placeholder="Name" class="account-currentpassinput account-input"></div>
                     </div>
 
                     <div class="account-div">
-                        <div class="account-currentpass"><p class="account-passtext">Telephone: </p><input type="text" data-bind="textInput: userModel.tel" placeholder="Telephone..." class="account-currentpassinput account-input"></div>
+                        <div class="account-currentpass"><p class="account-passtext">Telephone: </p><input type="text" data-bind="textInput: userModel[USERS_FLD_TEL]" placeholder="Telephone..." class="account-currentpassinput account-input"></div>
                     </div>
                     <div class="account-div" data-bind="if: checkUserRole() == USER_SELLER">		
-                        <p class="account-addresstext">Address: </p><textarea class="account-addresstextarea" data-bind="textInput: userModel.address" placeholder="Address..."></textarea>
-                        <p class="account-addresstext">Bank Account: </p><textarea class="account-addresstextarea" data-bind="textInput: userModel.bankAccount" placeholder="Bank Account..."></textarea>
+                        <p class="account-addresstext">Address: </p><textarea class="account-addresstextarea" data-bind="textInput: userModel[SELLERS_FLD_ADDRESS]" placeholder="Address..."></textarea>
+                        <p class="account-addresstext">Bank Account: </p><textarea class="account-addresstextarea" data-bind="textInput: userModel[SELLERS_FLD_BANK_ACCOUNT]" placeholder="Bank Account..."></textarea>
                     </div>
                     <div class="account-div">
 

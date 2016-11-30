@@ -11,4 +11,4 @@ define(db_pass, "20061996");
 //define(db_pass, "samir");
 
 //Disable errors
-//error_reporting(0);
+error_reporting(0);

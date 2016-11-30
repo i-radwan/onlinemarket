@@ -292,13 +292,14 @@ function profileViewModel(params) {
     self.userModel = getUserModel();
     self.saveProfile = function () {
         var data = {};
-        data[USERS_FLD_NAME] = self.userModel.name();
-        data[USERS_FLD_TEL] = self.userModel.tel();
+        data[USERS_FLD_NAME] = self.userModel[USERS_FLD_NAME]();
+        data[USERS_FLD_TEL] = self.userModel[USERS_FLD_TEL]();
         data[USERS_FLD_PASS1] = self.userModel.currentPass();
         data[USERS_FLD_PASS2] = self.userModel.newPass();
-        if (self.userModel.type() == USER_SELLER) {
-            data[SELLERS_FLD_ADDRESS] = self.userModel.address();
-            data[SELLERS_FLD_BACK_ACCOUNT_SMALLCASE] = self.userModel.bankAccount();
+        if (self.userModel[USERS_FLD_USER_TYPE]() == USER_SELLER) {
+            data[SELLERS_FLD_ADDRESS] = self.userModel[SELLERS_FLD_ADDRESS]();
+			// ToDo check if tedrab
+            data[SELLERS_FLD_BANK_ACCOUNT] = self.userModel[SELLERS_FLD_BANK_ACCOUNT]();
         }
         $.ajax({
             url: API_LINK + USER_ENDPOINT,
@@ -308,15 +309,16 @@ function profileViewModel(params) {
                 'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
             },
             success: function (result) {
+				console.log(result);
                 try {
                     var returnedData = JSON.parse(result);
                     if (returnedData.statusCode == USER_EDIT_ACCOUNT_SUCCESSFUL) {
                         alert(returnedData.result);
                         localStorage.setItem(OMARKET_PREFIX + USERS_FLD_NAME, data[USERS_FLD_NAME]);
                         localStorage.setItem(OMARKET_PREFIX + USERS_FLD_TEL, data[USERS_FLD_TEL]);
-                        if (self.userModel.type() == USER_SELLER) {
+                        if (self.userModel[USERS_FLD_USER_TYPE]() == USER_SELLER) {
                             localStorage.setItem(OMARKET_PREFIX + SELLERS_FLD_ADDRESS, data[SELLERS_FLD_ADDRESS]);
-                            localStorage.setItem(OMARKET_PREFIX + SELLERS_FLD_BACK_ACCOUNT_SMALLCASE, data[SELLERS_FLD_BACK_ACCOUNT_SMALLCASE]);
+                            localStorage.setItem(OMARKET_PREFIX + SELLERS_FLD_BANK_ACCOUNT, data[SELLERS_FLD_BANK_ACCOUNT]);
                         }
                         window.location = ADMIN_LINK;
                     } else {
@@ -859,15 +861,15 @@ function checkUserRole() {
  */
 function getUserModel() {
     var user = {};
-    user.name = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_NAME));
-    user.email = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_EMAIL));
-    user.type = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_USER_TYPE));
-    user.tel = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_TEL));
-    user.status = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_STATUS));
+    user[USERS_FLD_NAME] = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_NAME));
+    user[USERS_FLD_EMAIL] = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_EMAIL));
+    user[USERS_FLD_USER_TYPE] = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_USER_TYPE));
+    user[USERS_FLD_TEL] = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_TEL));
+    user[USERS_FLD_STATUS] = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_STATUS));
 
-    if (user.type() == USER_SELLER) {
-        user.address = ko.observable(localStorage.getItem(OMARKET_PREFIX + SELLERS_FLD_ADDRESS));
-        user.bankAccount = ko.observable(localStorage.getItem(OMARKET_PREFIX + SELLERS_FLD_BACK_ACCOUNT));
+    if (user[USERS_FLD_USER_TYPE]() == USER_SELLER) {
+        user[SELLERS_FLD_ADDRESS] = ko.observable(localStorage.getItem(OMARKET_PREFIX + SELLERS_FLD_ADDRESS));
+        user[SELLERS_FLD_BANK_ACCOUNT] = ko.observable(localStorage.getItem(OMARKET_PREFIX + SELLERS_FLD_BANK_ACCOUNT));
     }
 
     // Observables to control forms
@@ -886,7 +888,7 @@ function getUserModel() {
 function logOut() {
     if (localStorage.getItem(OMARKET_PREFIX + USERS_FLD_USER_TYPE) == USER_SELLER) {
         localStorage.setItem(OMARKET_PREFIX + SELLERS_FLD_ADDRESS, "");
-        localStorage.setItem(OMARKET_PREFIX + SELLERS_FLD_BACK_ACCOUNT, "");
+        localStorage.setItem(OMARKET_PREFIX + SELLERS_FLD_BANK_ACCOUNT, "");
     }
     localStorage.setItem(OMARKET_JWT, "");
     localStorage.setItem(OMARKET_PREFIX + USERS_FLD_NAME, "");

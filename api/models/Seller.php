@@ -9,13 +9,13 @@ require_once 'User.php';
  */
 class Seller extends User implements \JsonSerializable {
 
-    private $address, $bankAccount;
+    private $address, $bankaccount;
 
-    function __construct($_id, $name, $email, $tel, $user_type, $user_status, $address, $bankAccount) {
+    function __construct($_id, $name, $email, $tel, $user_type, $user_status, $address, $bankaccount) {
         parent::__construct($_id, $name, $email, $tel, $user_type, $user_status);
 
         $this->address = $address;
-        $this->bankAccount = $bankAccount;
+        $this->bankaccount = $bankaccount;
     }
 
     function getAddress() {
@@ -23,15 +23,15 @@ class Seller extends User implements \JsonSerializable {
     }
 
     function getBankAccount() {
-        return $this->bankAccount;
+        return $this->bankaccount;
     }
 
     function setAddress($address) {
         $this->address = $address;
     }
 
-    function setBankAccount($bankAccount) {
-        $this->bankAccount = $bankAccount;
+    function setBankAccount($bankaccount) {
+        $this->bankaccount = $bankaccount;
     }
 
     public function jsonSerialize() {

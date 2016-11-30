@@ -21,22 +21,22 @@ function authViewModel() {
         if (checkIfLoggedInAndRedirect(true))
             return;
         var data = {};
-        data[USERS_FLD_EMAIL] = userModel.email();
-        data[USERS_FLD_PASS1] = userModel.pass1();
-        data[USERS_FLD_PASS2] = userModel.pass2();
-        data[USERS_FLD_USER_TYPE] = userModel.type();
-        data[USERS_FLD_NAME] = userModel.name();
-        data[USERS_FLD_TEL] = userModel.tel();
+        data[USERS_FLD_EMAIL] = userModel[USERS_FLD_EMAIL]();
+        data[USERS_FLD_PASS1] = userModel[USERS_FLD_PASS1]();
+        data[USERS_FLD_PASS2] = userModel[USERS_FLD_PASS2]();
+        data[USERS_FLD_USER_TYPE] = userModel[USERS_FLD_USER_TYPE]();
+        data[USERS_FLD_NAME] = userModel[USERS_FLD_NAME]();
+        data[USERS_FLD_TEL] = userModel[USERS_FLD_TEL]();
         data[USERS_FLD_STATUS] = USER_ACTIVE;
-        if (userModel.type() == USER_BUYER) {
-            data[BUYERS_FLD_ADDRESS] = userModel.address();
-            data[BUYERS_FLD_CCNUMBER] = userModel.ccnumber();
-            data[BUYERS_FLD_CC_CCV] = userModel.ccccv();
-            data[BUYERS_FLD_CC_MONTH] = userModel.ccmonth();
-            data[BUYERS_FLD_CC_YEAR] = userModel.ccyear();
-        } else if (userModel.type() == USER_SELLER) {
-            data[SELLERS_FLD_ADDRESS] = userModel.address();
-            data[SELLERS_FLD_BACK_ACCOUNT_SMALLCASE] = userModel.bankAccount();
+        if (userModel[USERS_FLD_USER_TYPE]() == USER_BUYER) {
+            data[BUYERS_FLD_ADDRESS] = userModel[BUYERS_FLD_ADDRESS]();
+            data[BUYERS_FLD_CCNUMBER] = userModel[BUYERS_FLD_CCNUMBER]();
+            data[BUYERS_FLD_CC_CCV] = userModel[BUYERS_FLD_CC_CCV]();
+            data[BUYERS_FLD_CC_MONTH] = userModel[BUYERS_FLD_CC_MONTH]();
+            data[BUYERS_FLD_CC_YEAR] = userModel[BUYERS_FLD_CC_YEAR]();
+        } else if (userModel[USERS_FLD_USER_TYPE]() == USER_SELLER) {
+            data[SELLERS_FLD_ADDRESS] = userModel[SELLERS_FLD_ADDRESS]();
+            data[SELLERS_FLD_BANK_ACCOUNT] = userModel[SELLERS_FLD_BANK_ACCOUNT]();
         }
         self.loading(true);
         $.post(API_LINK + SIGNUP_ENDPOINT, data, function (returnedData) {
@@ -48,8 +48,8 @@ function authViewModel() {
         if (checkIfLoggedInAndRedirect(true))
             return;
         var data = {};
-        data[USERS_FLD_EMAIL] = userModel.email();
-        data[USERS_FLD_PASS] = userModel.pass1();
+        data[USERS_FLD_EMAIL] = userModel[USERS_FLD_EMAIL]();
+        data[USERS_FLD_PASS] = userModel[USERS_FLD_PASS]();
         self.loading(true);
         $.post(API_LINK + LOGIN_ENDPOINT, data, function (returnedData) {
             self.storeLocalStorageData(returnedData);
@@ -73,7 +73,7 @@ function authViewModel() {
                 localStorage.setItem(OMARKET_PREFIX + BUYERS_FLD_CC_MONTH, returnedData[AUTH_RESPONSE_RESULT][AUTH_RESPONSE_CC_MONTH]);
             } else if (returnedData[AUTH_RESPONSE_RESULT][USERS_FLD_USER_TYPE] == USER_SELLER) {
                 localStorage.setItem(OMARKET_PREFIX + SELLERS_FLD_ADDRESS, returnedData[AUTH_RESPONSE_RESULT][SELLERS_FLD_ADDRESS]);
-                localStorage.setItem(OMARKET_PREFIX + SELLERS_FLD_BACK_ACCOUNT, returnedData[AUTH_RESPONSE_RESULT][SELLERS_FLD_BACK_ACCOUNT]);
+                localStorage.setItem(OMARKET_PREFIX + SELLERS_FLD_BANK_ACCOUNT, returnedData[AUTH_RESPONSE_RESULT][SELLERS_FLD_BANK_ACCOUNT]);
             }
             self.errorMsg("Welcome " + returnedData[AUTH_RESPONSE_RESULT][USERS_FLD_NAME] + "!");
 
@@ -153,20 +153,21 @@ function checkIfLoggedInAndRedirect(redirect) {
 function getUserModel() {
 	// ToDo constants
     var user = {};
-    user.name = ko.observable();
-    user.email = ko.observable();
-    user.address = ko.observable();
-    user.ccnumber = ko.observable();
-    user.ccccv = ko.observable();
-    user.ccmonth = ko.observable();
-    user.ccyear = ko.observable();
-    user.pass1 = ko.observable();
-    user.pass2 = ko.observable();
-    user.bankAccount = ko.observable();
-    user.tel = ko.observable();
-    user.status = ko.observable();
+    user[USERS_FLD_NAME] = ko.observable();
+    user[USERS_FLD_EMAIL] = ko.observable();
+    user[BUYERS_FLD_ADDRESS] = ko.observable();
+    user[BUYERS_FLD_CCNUMBER] = ko.observable();
+    user[BUYERS_FLD_CC_CCV] = ko.observable();
+    user[BUYERS_FLD_CC_MONTH] = ko.observable();
+    user[BUYERS_FLD_CC_YEAR] = ko.observable();
+    user[USERS_FLD_PASS] = ko.observable();
+    user[USERS_FLD_PASS1] = ko.observable();
+    user[USERS_FLD_PASS2] = ko.observable();
+    user[SELLERS_FLD_BANK_ACCOUNT] = ko.observable();
+    user[USERS_FLD_TEL] = ko.observable();
+    user[USERS_FLD_STATUS] = ko.observable();
 
     // Observables to control forms
-    user.type = ko.observable(USER_BUYER);
+    user[USERS_FLD_USER_TYPE] = ko.observable(USER_BUYER);
     return user;
 }

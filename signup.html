@@ -40,42 +40,42 @@
 					<h1 class="auth-container--title"><span class="header-title-O">O</span><span class="header-title-Market">Market</span></h1>
 					<div class="auth-container--input-div">
 						<i class="fa fa-user auth-container--inputicon"></i>
-						<input type="text" class="auth-container--input" placeholder="Name" required data-bind="textInput: userModel.name" maxlength="50"></div>
+						<input type="text" class="auth-container--input" placeholder="Name" required data-bind="textInput: userModel[USERS_FLD_NAME]" maxlength="50"></div>
 					<div class="auth-container--input-div">
 						<i class="fa fa-envelope auth-container--inputicon"></i>
-						<input data-bind="textInput: userModel.email" type="email" class="auth-container--input" placeholder="example@ex.com" required maxlength="50"></div>
+						<input data-bind="textInput: userModel[USERS_FLD_EMAIL]" type="email" class="auth-container--input" placeholder="example@ex.com" required maxlength="50"></div>
 					<div class="auth-container--input-div">
 						<i class="fa fa-lock auth-container--inputicon"></i>
-						<input type="password" class="auth-container--input" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" required data-bind="textInput: userModel.pass1"></div>
+						<input type="password" class="auth-container--input" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" required data-bind="textInput: userModel[USERS_FLD_PASS1]"></div>
 					<div class="auth-container--input-div">
 						<i class="fa fa-lock auth-container--inputicon"></i>
-						<input type="password" class="auth-container--input" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" required data-bind="textInput: userModel.pass2"></div>
+						<input type="password" class="auth-container--input" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" required data-bind="textInput: userModel[USERS_FLD_PASS2]"></div>
 					<div class="auth-container--input-div">
 						<i class="fa fa-phone auth-container--inputicon"></i>
-						<input type="text" class="auth-container--input" placeholder="+2010xxxx856" maxlength="25" required data-bind="textInput: userModel.tel"></div>
+						<input type="text" class="auth-container--input" placeholder="+2010xxxx856" maxlength="25" required data-bind="textInput: userModel[USERS_FLD_TEL]"></div>
 					<div class="auth-container--input-div">
 						<i class="fa fa-map-marker auth-container--inputicon"></i>
-						<input type="email" class="auth-container--input" placeholder="Address" required data-bind="textInput: userModel.address"></div>
+						<input type="email" class="auth-container--input" placeholder="Address" required data-bind="textInput: userModel[BUYERS_FLD_ADDRESS]"></div>
 					<div class="auth-container--input-div">
 						<div class="auth-container--radio-option">
-							<label style="cursor:pointer"><input type="radio" name="type" class="auth-container-type" data-bind="checked: userModel.type" value="1" /> Buyer</label></div>
+							<label style="cursor:pointer"><input type="radio" name="type" class="auth-container-type" data-bind="checked: userModel[USERS_FLD_USER_TYPE]" value="1" /> Buyer</label></div>
 						<div class="auth-container--radio-option auth-container--radio-option2">
-							<label style="cursor:pointer"><input type="radio" name="type"  data-bind="checked: userModel.type" class="auth-container-type" value="2" /> Seller</label></div>
+							<label style="cursor:pointer"><input type="radio" name="type"  data-bind="checked: userModel[USERS_FLD_USER_TYPE]" class="auth-container-type" value="2" /> Seller</label></div>
 					</div>
 
-					<div class="auth-container--input-div" data-bind="fadeVisible: userModel.type() == '1'">
+					<div class="auth-container--input-div" data-bind="fadeVisible: userModel[USERS_FLD_USER_TYPE]() == '1'">
 						<i class="fa fa-credit-card-alt auth-container--inputicon auth-container--inputicon-marginedtop"></i>
-						<input type="text" class="auth-container--input auth-container--ccnumber" placeholder="Credit Card No." required data-bind="textInput: userModel.ccnumber">
-						<input type="text" class="auth-container--input auth-container--ccccv" maxlength="3" placeholder="CCV" required data-bind="textInput: userModel.ccccv">
+						<input type="text" class="auth-container--input auth-container--ccnumber" placeholder="Credit Card No." required data-bind="textInput: userModel[BUYERS_FLD_CCNUMBER]">
+						<input type="text" class="auth-container--input auth-container--ccccv" maxlength="3" placeholder="CCV" required data-bind="textInput: userModel[BUYERS_FLD_CC_CCV]">
 					</div>
 
-					<div class="auth-container--input-div auth-container--input-div-leftaligned" data-bind="fadeVisible: userModel.type() == '1'">
-						<i class="fa fa-calendar auth-container--inputicon auth-container--inputicon-marginedtop"></i><input type="text" class="auth-container--input auth-container--ccyear" placeholder="YYYY" required maxlength="4" data-bind="textInput: userModel.ccyear">
-						<input type="text" class="auth-container--input auth-container--ccmonth" maxlength="2" placeholder="MM" required data-bind="textInput: userModel.ccmonth">
+					<div class="auth-container--input-div auth-container--input-div-leftaligned" data-bind="fadeVisible: userModel[USERS_FLD_USER_TYPE]() == '1'">
+						<i class="fa fa-calendar auth-container--inputicon auth-container--inputicon-marginedtop"></i><input type="text" class="auth-container--input auth-container--ccyear" placeholder="YYYY" required maxlength="4" data-bind="textInput: userModel[BUYERS_FLD_CC_YEAR]">
+						<input type="text" class="auth-container--input auth-container--ccmonth" maxlength="2" placeholder="MM" required data-bind="textInput: userModel[BUYERS_FLD_CC_MONTH]">
 					</div>
-					<div class="auth-container--input-div" data-bind="fadeVisible: userModel.type() == '2'">
+					<div class="auth-container--input-div" data-bind="fadeVisible: userModel[USERS_FLD_USER_TYPE]() == '2'">
 						<i class="fa fa-usd auth-container--inputicon"></i>
-						<textarea class="auth-container--input auth-container--input-backaccount" placeholder="Back Account..." required data-bind="textInput: userModel.bankAccount"></textarea></div>
+						<textarea class="auth-container--input auth-container--input-backaccount" placeholder="Back Account..." required data-bind="textInput: userModel[SELLERS_FLD_BANK_ACCOUNT]"></textarea></div>
 					<i class="fa fa-spinner spinner-icon" data-bind="visible: loading()"></i>
 
 					<button class="auth-container--login-button" data-bind="click: signup">Signup</button>

@@ -1,164 +1,172 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-	<meta charset="UTF-8">
-	<title>OMarket</title>
-	<link href="css/font-awesome/css/font-awesome.min.css" rel="stylesheet">
-	<link href="css/fonts.css" rel="stylesheet">
-	<link href="css/style.css" rel="stylesheet">
-	<link rel="icon" href="img/OMarket.ico">
-	<script src="js/jquery.min.js"></script>
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <title>OMarket</title>
+        <link href="css/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+        <link href="css/fonts.css" rel="stylesheet">
+        <link href="css/style.css" rel="stylesheet">
+        <link rel="icon" href="img/OMarket.ico">
+        <script src="js/jquery.min.js"></script>
+    </head>
 
-<body>
-	<div class="container" id="container">
-		<header id="header" params="cartAmount: cartAmount">
-			<div class="header-leftside">
-				<h1 class="header-title"><a  data-bind="click: logoClicked" class="header-title-link"><span class="header-title-O">O</span><span class="header-title-Market">Market</span></a></h1>
-			</div>
-			<div class="header-rightside">
-				<div class="header-links" data-bind="if: !checkIfSignedIn()">
-					<a href="login.html" class="header-links--login">Login</a>, <a href="signup.html" class="header-links--signup">Sign up</a>
-				</div>
-				<div class="header-links" data-bind="if: checkIfSignedIn()">
-				<span  data-bind="if: checkUserRole() == USER_BUYER">
-					<a class="header-cart" data-bind="click: cartClicked"><span class="header-cartamount"><span data-bind="text:cartAmount()"  ></span> $</span>
-                            <i class="fa fa-shopping-cart header-carticon" aria-hidden="true"></i>
-                        </a>
-					<a class="header-username" data-bind="click: profileClicked"><span data-bind="text: $parent.userModel.name()"></span></a>
-					</span>
-					<a data-bind="click: logOut" class="header-logout"><span>Logout</span></a>
-				</div>
-				<div class="header-search"><input data-bind="textInput: $parent.tmpSearchWord" placeholder="Search..." type="text" class="header-search-input">
-					<a class="search-img" title="Search" data-bind="click: function(){ if($parent.tmpSearchWord()){ $parent.searchWord($parent.tmpSearchWord());sammyApp.setLocation('#/search');console.log($data)}}"><img src="img/search-icon-nocolor.png"></a>
-				</div>
-			</div>
-		</header>
-		<content id="content" class="content" data-bind="visible: isMainContentVisible"></content>
-		<cart data-bind="visible: isCartVisible"></cart>
-		<profile data-bind="visible: isProfileVisible"></profile>
-		<search data-bind="visible: isSearchVisible" params="searchWord: searchWord, value: $data"></search>
-		<footer>
-			<p class="copy">All copyrights are reserved, OMarket ® 2016</p>
-			<p class="devby">Developed by CMP-2019</p>
-		</footer>
+    <body>
+        <div class="container" id="container">
+            <header id="header" params="cartAmount: cartAmount">
+                <div class="header-leftside">
+                    <h1 class="header-title"><a  data-bind="click: logoClicked" class="header-title-link"><span class="header-title-O">O</span><span class="header-title-Market">Market</span></a></h1>
+                </div>
+                <div class="header-rightside">
+                    <div class="header-links" data-bind="if: !checkIfSignedIn()">
+                        <a href="login.html" class="header-links--login">Login</a>, <a href="signup.html" class="header-links--signup">Sign up</a>
+                    </div>
+                    <div class="header-links" data-bind="if: checkIfSignedIn()">
+                        <span data-bind="if: checkUserRole() == USER_BUYER">
+                            <a class="header-cart" data-bind="click: cartClicked"><span class="header-cartamount"><span data-bind="text:cartAmount()"  ></span> $</span>
+                                <i class="fa fa-shopping-cart header-carticon" aria-hidden="true"></i>
+                            </a>
+                            <a class="header-username" data-bind="click: profileClicked"><span data-bind="text: $parent.userModel[USERS_FLD_NAME]()"></span></a>
+                        </span>
+                        <a data-bind="click: logOut" class="header-logout"><span>Logout</span></a>
+                    </div>
+                    <div class="header-search"><input data-bind="textInput: $parent.tmpSearchWord" placeholder="Search..." type="text" class="header-search-input">
+                        <a class="search-img" title="Search" data-bind="click: function(){ if($parent.tmpSearchWord()){ $parent.searchWord($parent.tmpSearchWord());sammyApp.setLocation('#/search');console.log($data)}}"><img src="img/search-icon-nocolor.png"></a>
+                    </div>
+                </div>
+            </header>
+            <content id="content" class="content" data-bind="visible: isMainContentVisible"></content>
+            <cart data-bind="visible: isCartVisible"></cart>
+            <profile data-bind="visible: isProfileVisible"></profile>
+            <search data-bind="visible: isSearchVisible" params="searchWord: searchWord, value: $data"></search>
+            <footer>
+                <p class="copy">All copyrights are reserved, OMarket ® 2016</p>
+                <p class="devby">Developed by CMP-2019</p>
+            </footer>
 
-	</div>
-	<!--Templates-->
-	<template id="search-page-content">
-        <search-products id="search-products">
+        </div>
+        <!--Templates-->
+        <template id="search-page-content">
+            <search-products id="search-products">
+                <div class="category-items-short cart-items-short">
+                    <a class="category-items-short--title" data-bind="text: (!params.searchWord())? 'Search' : params.searchWord"></a>
+                    <p class="no-items" data-bind="if: !searchProductsArray().length">No Items</p>
+                    <div class="categories-items-container" data-bind="foreach: searchProductsArray">
+                        <product-container class="categories-single-item categories-single-cartitem" params="value: $data, cart: false"></product-container>
+                    </div>
+                </div>
+            </search-products>
+        </template>
+        <template id="cart-page-content">
+            <cart-products id="cart-products">
+                <div class="category-items-short cart-items-short">
+                    <a class="category-items-short--title">Cart</a>
+                    <p class="no-items" data-bind="if: !cartProductsArray().length">No Items</p>
+                    <div class="categories-items-container" data-bind="foreach: cartProductsArray">
+                        <product-container class="categories-single-item categories-single-cartitem" params="value: $data, cart: true"></product-container>
+                    </div>
+                </div>
+                <div style="width: 100%; text-align:center;" data-bind="if: checkIfSignedIn() && checkIfActiveUser()  && checkUserRole() == USER_BUYER">
+                    <button data-bind="visible: cartProductsArray().length, click: function(){ if($data.checkoutOrder())$parent.cartAmount(0);}" class="cart-checkout">Checkout <span data-bind="text: $parent.cartAmount()"></span> $</button>
+                </div>
+            </cart-products>
+        </template>
+        <template id="profile-page-content">
             <div class="category-items-short cart-items-short">
-                <a class="category-items-short--title" data-bind="text: (!params.searchWord())? 'Search' : params.searchWord"></a>
-                <p class="no-items" data-bind="if: !searchProductsArray().length">No Items</p>
-                <div class="categories-items-container" data-bind="foreach: searchProductsArray">
-                    <product-container class="categories-single-item categories-single-cartitem" params="value: $data, cart: false"></product-container>
+                <a class="category-items-short--title">Orders</a>
+                <p class="no-items" data-bind="if: !ordersArray().length">No Orders</p>
+                <div class="categories-items-container" data-bind="foreach: ordersArray">
+                    <order-container class="order-single-item" params="value: $data, order:true">
+
+                    </order-container>
                 </div>
             </div>
-        </search-products>
-    </template>
-	<template id="cart-page-content">
-        <cart-products id="cart-products">
             <div class="category-items-short cart-items-short">
-                <a class="category-items-short--title">Cart</a>
-                <p class="no-items" data-bind="if: !cartProductsArray().length">No Items</p>
-                <div class="categories-items-container" data-bind="foreach: cartProductsArray">
-                    <product-container class="categories-single-item categories-single-cartitem" params="value: $data, cart: true"></product-container>
-                </div>
-            </div>
-            <div style="width: 100%; text-align:center;" data-bind="if: checkIfSignedIn() && checkIfActiveUser()  && checkUserRole() == USER_BUYER">
-                <button data-bind="visible: cartProductsArray().length, click: function(){ if($data.checkoutOrder())$parent.cartAmount(0);}" class="cart-checkout">Checkout <span data-bind="text: $parent.cartAmount()"></span> $</button>
-            </div>
-        </cart-products>
-    </template>
-	<template id="profile-page-content">
-        <div class="category-items-short cart-items-short">
-            <a class="category-items-short--title">Orders</a>
-            <p class="no-items" data-bind="if: !ordersArray().length">No Orders</p>
-            <div class="categories-items-container" data-bind="foreach: ordersArray">
-                <order-container class="order-single-item" params="value: $data, order:true">
-
-                </order-container>
-            </div>
-        </div>
-        <div class="category-items-short cart-items-short">
-            <a class="category-items-short--title">Account</a>
-            <div class="account-details">
-                <div class="account-div">		
-                    <p class="account-addresstext">Address: </p><textarea class="account-addresstextarea" data-bind="textInput: userModel.address, disable: !checkIfActiveUser()" placeholder="Address..."></textarea>
-                </div>
-                <div class="account-div">
-                    <p class="account-cctext">Credit Card: </p><input class="account-ccinput account-ccnumber" type="text" value="51xxxxxx421" data-bind="textInput: userModel.ccnumber, disable: !checkIfActiveUser()" maxlength="11" placeholder="Credit Card No.">
-                    <input class="account-ccinput account-ccccv" type="text" value="xxx" data-bind="textInput: userModel.ccccv, disable: !checkIfActiveUser()" maxlength="3" placeholder="CCV">
-                </div>
-                <div class="account-div">
-                    <p class="account-expdate">Expiry Date: </p>
-                    <div class="account-dateinputs">
-                        <input type="number" max="2024" min="2016" class="account-yearinput"  data-bind="textInput: userModel.ccyear, disable: !checkIfActiveUser()"><input type="number" max="12" min="1" class="account-monthinput" data-bind="textInput: userModel.ccmonth, disable: !checkIfActiveUser()">
+                <a class="category-items-short--title">Account</a>
+                <div class="account-details">
+                    <div class="account-div">
+                        <div class="account-currentpass"><p class="account-passtext">Name: </p><input type="text" data-bind="textInput: userModel[USERS_FLD_NAME]" placeholder="Name" class="account-currentpassinput account-input"></div>
                     </div>
-                </div>
-                <div class="account-div">
 
-                    <div class="account-editpass"><p class="account-editpasstext" data-bind="visible: !userModel.changePass(), click: function(){userModel.changePass(!userModel.changePass());}">edit password</p>
+                    <div class="account-div">
+                        <div class="account-currentpass"><p class="account-passtext">Telephone: </p><input type="text" data-bind="textInput: userModel[USERS_FLD_TEL]" placeholder="Telephone..." class="account-currentpassinput account-input"></div>
                     </div>
-                    <div class="account-div" data-bind="visible: userModel.changePass()">
-                        <p class="account-passtext">New Pass: </p>
-                        <input type="password" data-bind="textInput: userModel.newPass, disable: !checkIfActiveUser()" placeholder="•••••••••••" class="account-newpassinput account-input">
+
+                    <div class="account-div">		
+                        <p class="account-addresstext">Address: </p><textarea class="account-addresstextarea" data-bind="textInput: userModel[BUYERS_FLD_ADDRESS], disable: !checkIfActiveUser()" placeholder="Address..."></textarea>
                     </div>
+                    <div class="account-div">
+                        <p class="account-cctext">Credit Card: </p><input class="account-ccinput account-ccnumber" type="text" value="51xxxxxx421" data-bind="textInput: userModel[BUYERS_FLD_CCNUMBER], disable: !checkIfActiveUser()" maxlength="11" placeholder="Credit Card No.">
+                        <input class="account-ccinput account-ccccv" type="text" value="xxx" data-bind="textInput: userModel[BUYERS_FLD_CC_CCV], disable: !checkIfActiveUser()" maxlength="3" placeholder="CCV">
+                    </div>
+                    <div class="account-div">
+                        <p class="account-expdate">Expiry Date: </p>
+                        <div class="account-dateinputs">
+                            <input type="number" max="2024" min="2016" class="account-yearinput"  data-bind="textInput: userModel[BUYERS_FLD_CC_YEAR], disable: !checkIfActiveUser()"><input type="number" max="12" min="1" class="account-monthinput" data-bind="textInput: userModel[BUYERS_FLD_CC_MONTH], disable: !checkIfActiveUser()">
+                        </div>
+                    </div>
+                    <div class="account-div">
+
+                        <div class="account-editpass"><p class="account-editpasstext" data-bind="visible: !userModel.changePass(), click: function(){userModel.changePass(!userModel.changePass());}">edit password</p>
+                        </div>
+                        <div class="account-div" data-bind="visible: userModel.changePass()">
+                            <p class="account-passtext">New Pass: </p>
+                            <input type="password" data-bind="textInput: userModel.newPass, disable: !checkIfActiveUser()" placeholder="•••••••••••" class="account-newpassinput account-input">
+                        </div>
+                    </div>
+                    <div class="account-div">
+                        <div class="account-currentpass"><p class="account-passtext">Current Pass: </p><input type="password" data-bind="textInput: userModel.currentPass, disable: !checkIfActiveUser()" placeholder="•••••••••••" class="account-currentpassinput account-input"></div>
+                    </div>
+                    <div class="account-save" data-bind="if: checkIfActiveUser()"><button class="cart-checkout account-save" data-bind="click: saveProfile">Save</button></div>
                 </div>
-                <div class="account-div">
-                    <div class="account-currentpass"><p class="account-passtext">Current Pass: </p><input type="password" data-bind="textInput: userModel.currentPass, disable: !checkIfActiveUser()" placeholder="•••••••••••" class="account-currentpassinput account-input"></div>
-                </div>
-                <div class="account-save" data-bind="if: checkIfActiveUser()"><button class="cart-checkout account-save" data-bind="click: saveProfile">Save</button></div>
             </div>
-        </div>
-    </template>
-	<template id="main-page-content">
-        <left-menu class="left-menu" id="left-menu" params="categoryID: $parent.categoryID">
-            <ul class="left-menu--list" data-bind="foreach: categoriesArray">
-                <li class="left-menu--listitem" data-bind="text: name, css:{'selected': $data.selected()}, click: $parent.categoryClick"></li>
-            </ul>
-        </left-menu>
-        <products id="products" params="categoryID: $parent.categoryID">
-            <section class="main-content" data-bind="foreach: topCategoriesArray">
-                <div class="category-items-short">
-                    <a class="category-items-short--title" data-bind="text: $data[CATEGORIES_FLD_NAME], click: $parent.expandCategory"></a>
-                    <p class="no-items" data-bind="if: !$data.products.length">No Products</p>
-                    <div class="categories-items-container" data-bind="foreach: products">
-                        <product-container  class="categories-single-item" params="value: $data, cart:false"></product-container>
+        </template>
+        <template id="main-page-content">
+            <left-menu class="left-menu" id="left-menu" params="categoryID: $parent.categoryID">
+                <ul class="left-menu--list" data-bind="foreach: categoriesArray">
+                    <li class="left-menu--listitem" data-bind="text: name, css:{'selected': $data.selected()}, click: $parent.categoryClick"></li>
+                </ul>
+            </left-menu>
+            <products id="products" params="categoryID: $parent.categoryID">
+                <section class="main-content" data-bind="foreach: topCategoriesArray">
+                    <div class="category-items-short">
+                        <a class="category-items-short--title" data-bind="text: $data[CATEGORIES_FLD_NAME], click: $parent.expandCategory"></a>
+                        <p class="no-items" data-bind="if: !$data.products.length">No Products</p>
+                        <div class="categories-items-container" data-bind="foreach: products">
+                            <product-container  class="categories-single-item" params="value: $data, cart:false"></product-container>
+                        </div>
                     </div>
-                </div>
-            </section>
-        </products>
-    </template>
-	<template id="single-order-view">
-        <div class="order-thumb">
-            <img src="img/img.png">
-        </div>
-        <div class="order-details">
-            <p><strong>Order</strong>: #<span data-bind="text: params[ORDERS_ID]"></span></p>
-            <p><strong>Date</strong>: <span data-bind="text: params[ORDERS_ISSUEDATE]"></span></p>
-            <p><strong>Total</strong>: <span data-bind="text: params[ORDERS_COST]"></span>$</p>
-        </div>
-        <div class="order-actions">
-            <p><strong>Total Items</strong>: <span data-bind="text: params.totalItemsCount"></span></p>
-            <p><strong>Status</strong>: <span data-bind="text: params.textStatus"></span></p>
-            <span data-bind="if: checkIfActiveUser()">
-				<span class="order-cancel" data-bind="if: params[ORDERS_STATUS_ID] == ORDER_STATUS_PENDING, click:function(){ if(cancel()){$parents[1].deleteOrder($data);}}">cancel</span></span>
-        </div>
-
-
-        <div class="order-more" data-bind="visible: params.isMoreDivVisible()">
-            <div class="categories-items-container" data-bind="foreach: params.productsArray">
-                <product-container  class="categories-single-item" params="value: $data, cart:false, order:true"></product-container>
+                </section>
+            </products>
+        </template>
+        <template id="single-order-view">
+            <div class="order-thumb">
+                <img src="img/img.png">
             </div>
-        </div>
+            <div class="order-details">
+                <p><strong>Order</strong>: #<span data-bind="text: params[ORDERS_ID]"></span></p>
+                <p><strong>Date</strong>: <span data-bind="text: params[ORDERS_ISSUEDATE]"></span></p>
+                <p><strong>Total</strong>: <span data-bind="text: params[ORDERS_COST]"></span>$</p>
+            </div>
+            <div class="order-actions">
+                <p><strong>Total Items</strong>: <span data-bind="text: params.totalItemsCount"></span></p>
+                <p><strong>Status</strong>: <span data-bind="text: params.textStatus"></span></p>
+                <span data-bind="if: checkIfActiveUser()">
+                    <span class="order-cancel" data-bind="if: params[ORDERS_STATUS_ID] == ORDER_STATUS_PENDING, click:function(){ if(cancel()){$parents[1].deleteOrder($data);}}">cancel</span></span>
+            </div>
 
-        <div class="order-loadmore"  data-bind="click: loadMoreClick"><strong class="order-loadmore--link"><i class="fa fa-arrow-down categories-single-item--load-more--arrow" data-bind="css:{'fa-arrow-down-upsidedown': params.isMoreDivVisible()}" aria-hidden="true"></i> Load <span data-bind="text: !params.isMoreDivVisible() ? 'more':'less'">more</span> <i class="fa fa-arrow-down categories-single-item--load-more--arrow" data-bind="css:{'fa-arrow-down-upsidedown': params.isMoreDivVisible()}" aria-hidden="true"></i> </strong></div>
-    </template>
-	<template id="single-product-view">
-        <div >
-            <h2 class="categories-single-item--title" data-bind="text: params[PRODUCTS_FLD_NAME]"></h2>
+
+            <div class="order-more" data-bind="visible: params.isMoreDivVisible()">
+                <div class="categories-items-container" data-bind="foreach: params.productsArray">
+                    <product-container  class="categories-single-item" params="value: $data, cart:false, order:true"></product-container>
+                </div>
+            </div>
+
+            <div class="order-loadmore"  data-bind="click: loadMoreClick"><strong class="order-loadmore--link"><i class="fa fa-arrow-down categories-single-item--load-more--arrow" data-bind="css:{'fa-arrow-down-upsidedown': params.isMoreDivVisible()}" aria-hidden="true"></i> Load <span data-bind="text: !params.isMoreDivVisible() ? 'more':'less'">more</span> <i class="fa fa-arrow-down categories-single-item--load-more--arrow" data-bind="css:{'fa-arrow-down-upsidedown': params.isMoreDivVisible()}" aria-hidden="true"></i> </strong></div>
+        </template>
+        <template id="single-product-view">
+            <div >
+                <h2 class="categories-single-item--title" data-bind="text: params[PRODUCTS_FLD_NAME]"></h2>
                 <img class="categories-single-item--img" data-bind="attr:{src: params[PRODUCTS_FLD_IMAGE]}">
                 <div class="categories-single-item--visible-details">
                     <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Price:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params[PRODUCTS_FLD_PRICE]"></span>$</span>
@@ -167,9 +175,9 @@
                     </p>
                     <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Rate:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params[PRODUCTS_FLD_RATE]"></span>/5</span>
                     </p>
-                     <p class="categories-single-item--visible-details--spec" date-bind="if: checkUserRole() != USER_SELLER, visible: checkUserRole() != USER_SELLER"><strong class="categories-single-item--visible-details--spec--key">Seller:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params[PRODUCT_SELLER_NAME]"></span></span>
+                    <p class="categories-single-item--visible-details--spec" date-bind="if: checkUserRole() != USER_SELLER, visible: checkUserRole() != USER_SELLER"><strong class="categories-single-item--visible-details--spec--key">Seller:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params[PRODUCT_SELLER_NAME]"></span></span>
                     </p>
-                     <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Category:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params[PRODUCT_CATEGORY_NAME]"></span></span>
+                    <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Category:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params[PRODUCT_CATEGORY_NAME]"></span></span>
                     </p>
                     <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key">Availability:</strong><span class="categories-single-item--visible-details--spec--val"><span data-bind="text: params[PRODUCT_AVAILABILITY_STATUS]"></span></span>
                     </p>                   
@@ -182,36 +190,36 @@
                     <p class="categories-single-item--visible-details--spec"><strong class="categories-single-item--visible-details--spec--key"><span data-bind="text:name"></span>:</strong><span class="categories-single-item--visible-details--spec--val" data-bind="text:value"></span>
                     </p>
                 </div>
-                
-                 <div data-bind="if: !params.cart && !params.order && checkIfSignedIn() && checkIfActiveUser() && checkUserRole() == USER_BUYER">
-                <button class="categories-single-item--buy" data-bind="click:addToCart">Add to Cart</button>
-            </div>
-            <div data-bind="if: params.cart">
-                <div data-bind="css:{'cart-single-item--buy': params.cart}" class="categories-single-item--buy" >
-                    <i class="fa fa-minus cart-button-icon" data-bind="click: function(){if(decreaseQuantity())$parents[2].increaseCartAmount(-params[PRODUCTS_FLD_PRICE]());}"></i>
-                    <span class="cart-button-text">Quantity: <span data-bind="text: params.quantity"></span></span>
-                    <i class="fa fa-plus cart-button-icon"  data-bind="click: function(){if(increaseQuantity())$parents[2].increaseCartAmount(params[PRODUCTS_FLD_PRICE]());}"></i>
 
+                <div data-bind="if: !params.cart && !params.order && checkIfSignedIn() && checkIfActiveUser() && checkUserRole() == USER_BUYER">
+                    <button class="categories-single-item--buy" data-bind="click:addToCart">Add to Cart</button>
                 </div>
-                <p data-bind="click: function(){if($parents[1].cancelProduct($data))$parents[2].increaseCartAmount(-params[PRODUCTS_FLD_PRICE]() * params.quantity());}" class="cart-cancel-product">cancel</p>
-            </div>
+                <div data-bind="if: params.cart">
+                    <div data-bind="css:{'cart-single-item--buy': params.cart}" class="categories-single-item--buy" >
+                        <i class="fa fa-minus cart-button-icon" data-bind="click: function(){if(decreaseQuantity())$parents[2].increaseCartAmount(-params[PRODUCTS_FLD_PRICE]());}"></i>
+                        <span class="cart-button-text">Quantity: <span data-bind="text: params.quantity"></span></span>
+                        <i class="fa fa-plus cart-button-icon"  data-bind="click: function(){if(increaseQuantity())$parents[2].increaseCartAmount(params[PRODUCTS_FLD_PRICE]());}"></i>
 
-            <div data-bind="if: params.order && $parents[2][ORDERS_STATUS_ID] == ORDER_STATUS_DELIVERED">
-                <div data-bind="css:{'cart-single-item--buy': params.order}" class="categories-single-item--buy" >
-                    <i class="fa fa-minus cart-button-icon" data-bind="click: decreaseRate"></i>
-                    <span class="cart-button-text">Rate: <span data-bind="text: params.formattedRate"></span></span>
-                    <i class="fa fa-plus cart-button-icon" data-bind="click: increaseRate"></i>
+                    </div>
+                    <p data-bind="click: function(){if($parents[1].cancelProduct($data))$parents[2].increaseCartAmount(-params[PRODUCTS_FLD_PRICE]() * params.quantity());}" class="cart-cancel-product">cancel</p>
+                </div>
 
+                <div data-bind="if: params.order && $parents[2][ORDERS_STATUS_ID] == ORDER_STATUS_DELIVERED">
+                    <div data-bind="css:{'cart-single-item--buy': params.order}" class="categories-single-item--buy" >
+                        <i class="fa fa-minus cart-button-icon" data-bind="click: decreaseRate"></i>
+                        <span class="cart-button-text">Rate: <span data-bind="text: params.formattedRate"></span></span>
+                        <i class="fa fa-plus cart-button-icon" data-bind="click: increaseRate"></i>
+
+                    </div>
                 </div>
             </div>
-        </div>
-    </template>
-	<!--Scripts-->
-	<script type="text/javascript" src="js/jwt-decode.min.js"></script>
-	<script type="text/javascript" src="js/knockout-3.3.0.js"></script>
-	<script type="text/javascript" src="js/sammy-latest.min.js"></script>
-	<script src="js/jsconstants.js"></script>
-	<script src="js/main.js"></script>
-</body>
+        </template>
+        <!--Scripts-->
+        <script type="text/javascript" src="js/jwt-decode.min.js"></script>
+        <script type="text/javascript" src="js/knockout-3.3.0.js"></script>
+        <script type="text/javascript" src="js/sammy-latest.min.js"></script>
+        <script src="js/jsconstants.js"></script>
+        <script src="js/main.js"></script>
+    </body>
 
 </html>

@@ -87,7 +87,7 @@ $app->post('/signup', function (Request $request, Response $response) {
         case Constants::USER_SELLER:
             $extraData = array(
                 Constants::SELLERS_FLD_ADDRESS => $allPostPutVars[Constants::SELLERS_FLD_ADDRESS],
-                Constants::SELLERS_FLD_BACK_ACCOUNT => $allPostPutVars[Constants::SELLERS_FLD_BACK_ACCOUNT]
+                Constants::SELLERS_FLD_BANK_ACCOUNT => $allPostPutVars[Constants::SELLERS_FLD_BANK_ACCOUNT]
             );
             break;
     }

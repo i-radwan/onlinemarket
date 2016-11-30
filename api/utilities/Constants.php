@@ -223,7 +223,7 @@ class Constants {
     const TBL_SELLERS = 'sellers';
     const SELLERS_FLD_USER_ID = 'user_id';
     const SELLERS_FLD_ADDRESS = 'address';
-    const SELLERS_FLD_BACK_ACCOUNT = 'bankaccount';
+    const SELLERS_FLD_BANK_ACCOUNT = 'bankaccount';
     //==================================
     //THE ADMINS TABLE CONSTANTS
     const TBL_ADMINS = 'admins';

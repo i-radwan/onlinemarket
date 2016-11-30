@@ -393,15 +393,15 @@ function profileViewModel(params) {
     self.saveProfile = function () {
         self.saveProfile = function () {
             var data = {};
-            data[USERS_FLD_NAME] = self.userModel.name();
-            data[USERS_FLD_TEL] = self.userModel.tel();
+            data[USERS_FLD_NAME] = self.userModel[USERS_FLD_NAME]();
+            data[USERS_FLD_TEL] = self.userModel[USERS_FLD_TEL]();
             data[USERS_FLD_PASS1] = self.userModel.currentPass();
             data[USERS_FLD_PASS2] = self.userModel.newPass();
-            data[BUYERS_FLD_ADDRESS] = self.userModel.address();
-            data[BUYERS_FLD_CCNUMBER] = self.userModel.ccnumber();
-            data[BUYERS_FLD_CC_CCV] = self.userModel.ccccv();
-            data[BUYERS_FLD_CC_MONTH] = self.userModel.ccmonth();
-            data[BUYERS_FLD_CC_YEAR] = self.userModel.ccyear();
+            data[BUYERS_FLD_ADDRESS] = self.userModel[BUYERS_FLD_ADDRESS]();
+            data[BUYERS_FLD_CCNUMBER] = self.userModel[BUYERS_FLD_CCNUMBER]();
+            data[BUYERS_FLD_CC_CCV] = self.userModel[BUYERS_FLD_CC_CCV]();
+            data[BUYERS_FLD_CC_MONTH] = self.userModel[BUYERS_FLD_CC_MONTH]();
+            data[BUYERS_FLD_CC_YEAR] = self.userModel[BUYERS_FLD_CC_YEAR]();
 
             $.ajax({
                 url: API_LINK + USER_ENDPOINT,
@@ -706,21 +706,21 @@ function getSearchProducts(searchWord) {
 function getUserModel() { // ToDo change to constants
     var user = {};
     //	console.log(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_NAME));
-    user.name = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_NAME));
-    user.email = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_EMAIL));
-    user.type = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_USER_TYPE));
-    user.tel = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_TEL));
-    user.status = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_STATUS));
+    user[USERS_FLD_NAME] = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_NAME));
+    user[USERS_FLD_EMAIL] = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_EMAIL));
+    user[USERS_FLD_USER_TYPE] = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_USER_TYPE));
+    user[USERS_FLD_TEL] = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_TEL));
+    user[USERS_FLD_STATUS] = ko.observable(localStorage.getItem(OMARKET_PREFIX + USERS_FLD_STATUS));
 
-    if (user.type() == USER_BUYER) {
-        user.address = ko.observable(localStorage.getItem(OMARKET_PREFIX + BUYERS_FLD_ADDRESS));
-        user.ccnumber = ko.observable(localStorage.getItem(OMARKET_PREFIX + BUYERS_FLD_CCNUMBER));
-        user.ccccv = ko.observable(localStorage.getItem(OMARKET_PREFIX + BUYERS_FLD_CC_CCV));
-        user.ccmonth = ko.observable(localStorage.getItem(OMARKET_PREFIX + BUYERS_FLD_CC_MONTH));
-        user.ccyear = ko.observable(localStorage.getItem(OMARKET_PREFIX + BUYERS_FLD_CC_YEAR));
-    } else if (user.type() == USER_SELLER) {
-        user.address = ko.observable(localStorage.getItem(OMARKET_PREFIX + SELLERS_FLD_ADDRESS));
-        user.bankAccount = ko.observable(localStorage.getItem(OMARKET_PREFIX + SELLERS_FLD_BACK_ACCOUNT));
+    if (user[USERS_FLD_USER_TYPE]() == USER_BUYER) {
+        user[BUYERS_FLD_ADDRESS] = ko.observable(localStorage.getItem(OMARKET_PREFIX + BUYERS_FLD_ADDRESS));
+        user[BUYERS_FLD_CCNUMBER] = ko.observable(localStorage.getItem(OMARKET_PREFIX + BUYERS_FLD_CCNUMBER));
+        user[BUYERS_FLD_CC_CCV] = ko.observable(localStorage.getItem(OMARKET_PREFIX + BUYERS_FLD_CC_CCV));
+        user[BUYERS_FLD_CC_MONTH] = ko.observable(localStorage.getItem(OMARKET_PREFIX + BUYERS_FLD_CC_MONTH));
+        user[BUYERS_FLD_CC_YEAR] = ko.observable(localStorage.getItem(OMARKET_PREFIX + BUYERS_FLD_CC_YEAR));
+    } else if (user[USERS_FLD_USER_TYPE]() == USER_SELLER) {
+        user[SELLERS_FLD_ADDRESS] = ko.observable(localStorage.getItem(OMARKET_PREFIX + SELLERS_FLD_ADDRESS));
+        user[SELLERS_FLD_BANK_ACCOUNT] = ko.observable(localStorage.getItem(OMARKET_PREFIX + SELLERS_FLD_BANK_ACCOUNT));
     }
 
     // Observables to control forms
