@@ -308,18 +308,22 @@ function profileViewModel(params) {
                 'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
             },
             success: function (result) {
-                var returnedData = JSON.parse(result);
-                if (returnedData.statusCode == USER_EDIT_ACCOUNT_SUCCESSFUL) {
-                    alert(returnedData.result);
-                    localStorage.setItem(OMARKET_PREFIX + USERS_FLD_NAME, data[USERS_FLD_NAME]);
-                    localStorage.setItem(OMARKET_PREFIX + USERS_FLD_TEL, data[USERS_FLD_TEL]);
-                    if (self.userModel.type() == USER_SELLER) {
-                        localStorage.setItem(OMARKET_PREFIX + SELLERS_FLD_ADDRESS, data[SELLERS_FLD_ADDRESS]);
-                        localStorage.setItem(OMARKET_PREFIX + SELLERS_FLD_BACK_ACCOUNT_SMALLCASE, data[SELLERS_FLD_BACK_ACCOUNT_SMALLCASE]);
+                try {
+                    var returnedData = JSON.parse(result);
+                    if (returnedData.statusCode == USER_EDIT_ACCOUNT_SUCCESSFUL) {
+                        alert(returnedData.result);
+                        localStorage.setItem(OMARKET_PREFIX + USERS_FLD_NAME, data[USERS_FLD_NAME]);
+                        localStorage.setItem(OMARKET_PREFIX + USERS_FLD_TEL, data[USERS_FLD_TEL]);
+                        if (self.userModel.type() == USER_SELLER) {
+                            localStorage.setItem(OMARKET_PREFIX + SELLERS_FLD_ADDRESS, data[SELLERS_FLD_ADDRESS]);
+                            localStorage.setItem(OMARKET_PREFIX + SELLERS_FLD_BACK_ACCOUNT_SMALLCASE, data[SELLERS_FLD_BACK_ACCOUNT_SMALLCASE]);
+                        }
+                        window.location = ADMIN_LINK;
+                    } else {
+                        alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
                     }
-                    window.location = ADMIN_LINK;
-                } else {
-                    alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+                } catch (e) {
+                    alert("Please try again later!");
                 }
             },
             fail: function (result) {
@@ -907,11 +911,15 @@ function getAllProducts() {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            var returnedData = JSON.parse(result);
-            if (returnedData.statusCode == PRODUCTS_GET_ALL_PRODUCTS_SUCCESS) {
-                ret = returnedData.result;
-            } else {
-                alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+            try {
+                var returnedData = JSON.parse(result);
+                if (returnedData.statusCode == PRODUCTS_GET_ALL_PRODUCTS_SUCCESS) {
+                    ret = returnedData.result;
+                } else {
+                    alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+                }
+            } catch (e) {
+                alert("Please try again later!");
             }
         },
         fail: function (result) {
@@ -950,11 +958,15 @@ function changeOrderStatus(orderID, newStatus) {
         },
         success: function (result) {
             console.log("DATA", result);
-            var returnedData = JSON.parse(result);
-            if (returnedData.statusCode == ORDERS_UPDATE_SUCCESS) {
-                statusChanged = true;
-            } else {
-                alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+            try {
+                var returnedData = JSON.parse(result);
+                if (returnedData.statusCode == ORDERS_UPDATE_SUCCESS) {
+                    statusChanged = true;
+                } else {
+                    alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+                }
+            } catch (e) {
+                alert("Please try again later!");
             }
         },
         fail: function (result) {
@@ -989,11 +1001,15 @@ function getDeliverymanOrders() {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            var returnedData = JSON.parse(result);
-            if (returnedData.statusCode == DELIVERYREQUESTS_GET_SUCCESSFUL) {
-                ret = returnedData.result;
-            } else {
-                alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+            try {
+                var returnedData = JSON.parse(result);
+                if (returnedData.statusCode == DELIVERYREQUESTS_GET_SUCCESSFUL) {
+                    ret = returnedData.result;
+                } else {
+                    alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+                }
+            } catch (e) {
+                alert("Please try again later!");
             }
         },
         fail: function (result) {
@@ -1027,11 +1043,15 @@ function getOrders(filters) {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            var returnedData = JSON.parse(result);
-            if (returnedData.statusCode == ORDERS_GET_SUCCESSFUL) {
-                ret = returnedData.result;
-            } else {
-                alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+            try {
+                var returnedData = JSON.parse(result);
+                if (returnedData.statusCode == ORDERS_GET_SUCCESSFUL) {
+                    ret = returnedData.result;
+                } else {
+                    alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+                }
+            } catch (e) {
+                alert("Please try again later!");
             }
         },
         fail: function (result) {
@@ -1066,11 +1086,15 @@ function getAllUsers(userType) {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            var returnedData = JSON.parse(result);
-            if (returnedData.statusCode == USER_GET_USERS_SUCCESSFUL) {
-                ret = returnedData.result;
-            } else {
-                alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+            try {
+                var returnedData = JSON.parse(result);
+                if (returnedData.statusCode == USER_GET_USERS_SUCCESSFUL) {
+                    ret = returnedData.result;
+                } else {
+                    alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+                }
+            } catch (e) {
+                alert("Please try again later!");
             }
         },
         fail: function (result) {
@@ -1110,11 +1134,15 @@ function changeUserBanStatus(userID, newStatus) {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            var returnedData = JSON.parse(result);
-            if (returnedData.statusCode == USER_UPDATE_STATUS_SUCCESSFUL) {
-                statusChanged = true;
-            } else {
-                alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+            try {
+                var returnedData = JSON.parse(result);
+                if (returnedData.statusCode == USER_UPDATE_STATUS_SUCCESSFUL) {
+                    statusChanged = true;
+                } else {
+                    alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+                }
+            } catch (e) {
+                alert("Please try again later!");
             }
         },
         fail: function (result) {
@@ -1152,11 +1180,15 @@ function deleteEmployee(empID) {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            var returnedData = JSON.parse(result);
-            if (returnedData.statusCode == USER_DELETE_SUCCESSFUL) {
-                deleted = true;
-            } else {
-                alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+            try {
+                var returnedData = JSON.parse(result);
+                if (returnedData.statusCode == USER_DELETE_SUCCESSFUL) {
+                    deleted = true;
+                } else {
+                    alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+                }
+            } catch (e) {
+                alert("Please try again later!");
             }
         },
         fail: function (result) {
@@ -1198,11 +1230,15 @@ function addEmployee(email, pass, empType) {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            var returnedData = JSON.parse(result);
-            if (returnedData.statusCode == USER_INSERT_SUCCESSFUL) {
-                newID = returnedData.result;
-            } else {
-                alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+            try {
+                var returnedData = JSON.parse(result);
+                if (returnedData.statusCode == USER_INSERT_SUCCESSFUL) {
+                    newID = returnedData.result;
+                } else {
+                    alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+                }
+            } catch (e) {
+                alert("Please try again later!");
             }
         },
         fail: function (result) {
@@ -1245,12 +1281,16 @@ function editEmployee(userID, email, pass) {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            var returnedData = JSON.parse(result);
-            if (returnedData.statusCode == USER_EDIT_ACCOUNT_SUCCESSFUL) {
-                edited = true;
-                alert(returnedData.result);
-            } else {
-                alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+            try {
+                var returnedData = JSON.parse(result);
+                if (returnedData.statusCode == USER_EDIT_ACCOUNT_SUCCESSFUL) {
+                    edited = true;
+                    alert(returnedData.result);
+                } else {
+                    alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+                }
+            } catch (e) {
+                alert("Please try again later!");
             }
         },
         fail: function (result) {
@@ -1288,11 +1328,15 @@ function addCategory(name) {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            var returnedData = JSON.parse(result);
-            if (returnedData.statusCode == CATEGORY_ADD_SUCCESS) {
-                newID = returnedData.result;
-            } else {
-                alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+            try {
+                var returnedData = JSON.parse(result);
+                if (returnedData.statusCode == CATEGORY_ADD_SUCCESS) {
+                    newID = returnedData.result;
+                } else {
+                    alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+                }
+            } catch (e) {
+                alert("Please try again later!");
             }
         },
         fail: function (result) {
@@ -1332,11 +1376,15 @@ function editCategory(id, name) {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            var returnedData = JSON.parse(result);
-            if (returnedData.statusCode == CATEGORY_UPDATE_SUCCESS) {
-                updated = true;
-            } else {
-                alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+            try {
+                var returnedData = JSON.parse(result);
+                if (returnedData.statusCode == CATEGORY_UPDATE_SUCCESS) {
+                    updated = true;
+                } else {
+                    alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+                }
+            } catch (e) {
+                alert("Please try again later!");
             }
         },
         fail: function (result) {
@@ -1372,11 +1420,15 @@ function deleteCategory(cateID) {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            var returnedData = JSON.parse(result);
-            if (returnedData.statusCode == CATEGORY_DELETE_SUCCESS) {
-                deleted = true;
-            } else {
-                alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+            try {
+                var returnedData = JSON.parse(result);
+                if (returnedData.statusCode == CATEGORY_DELETE_SUCCESS) {
+                    deleted = true;
+                } else {
+                    alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+                }
+            } catch (e) {
+                alert("Please try again later!");
             }
         },
         fail: function (result) {
@@ -1417,11 +1469,15 @@ function addCategorySpec(name, cateID) {
         },
         success: function (result) {
             console.log(result);
-            var returnedData = JSON.parse(result);
-            if (returnedData.statusCode == CATEGORY_SPECS_ADD_SUCCESS) {
-                newID = returnedData.result;
-            } else {
-                alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+            try {
+                var returnedData = JSON.parse(result);
+                if (returnedData.statusCode == CATEGORY_SPECS_ADD_SUCCESS) {
+                    newID = returnedData.result;
+                } else {
+                    alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+                }
+            } catch (e) {
+                alert("Please try again later!");
             }
         },
         fail: function (result) {
@@ -1464,11 +1520,15 @@ function editCategorySpec(id, cateID, name) {
         },
         success: function (result) {
             console.log(result);
-            var returnedData = JSON.parse(result);
-            if (returnedData.statusCode == CATEGORY_SPEC_UPDATE_SUCCESS) {
-                updated = true;
-            } else {
-                alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+            try {
+                var returnedData = JSON.parse(result);
+                if (returnedData.statusCode == CATEGORY_SPEC_UPDATE_SUCCESS) {
+                    updated = true;
+                } else {
+                    alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+                }
+            } catch (e) {
+                alert("Please try again later!");
             }
         },
         fail: function (result) {
@@ -1504,11 +1564,15 @@ function deleteCategorySpec(specID) {
         },
         success: function (result) {
             console.log(result);
-            var returnedData = JSON.parse(result);
-            if (returnedData.statusCode == CATEGORY_SPEC_DELETE_SUCCESS) {
-                deleted = true;
-            } else {
-                alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+            try {
+                var returnedData = JSON.parse(result);
+                if (returnedData.statusCode == CATEGORY_SPEC_DELETE_SUCCESS) {
+                    deleted = true;
+                } else {
+                    alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+                }
+            } catch (e) {
+                alert("Please try again later!");
             }
         },
         fail: function (result) {
@@ -1541,11 +1605,15 @@ function getCategoriesArray() {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            var returnedData = JSON.parse(result);
-            if (returnedData.statusCode == CATEGORY_GET_ALL_CATEGORIES_SUCCESS) {
-                ret = returnedData.result;
-            } else {
-                alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+            try {
+                var returnedData = JSON.parse(result);
+                if (returnedData.statusCode == CATEGORY_GET_ALL_CATEGORIES_SUCCESS) {
+                    ret = returnedData.result;
+                } else {
+                    alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+                }
+            } catch (e) {
+                alert("Please try again later!");
             }
         },
         fail: function (result) {
@@ -1582,14 +1650,18 @@ function addProduct(data) {
         },
         success: function (result) {
             console.log(result);
-            var returnedData = JSON.parse(result);
-            if (returnedData.statusCode == PRODUCT_ADD_SUCCESS) {
-                newID = returnedData.result;
-            } else if (returnedData.statusCode == USER_STATUS_BANNED) {
-                alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
-                logOut();
-            } else {
-                alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+            try {
+                var returnedData = JSON.parse(result);
+                if (returnedData.statusCode == PRODUCT_ADD_SUCCESS) {
+                    newID = returnedData.result;
+                } else if (returnedData.statusCode == USER_STATUS_BANNED) {
+                    alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+                    logOut();
+                } else {
+                    alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+                }
+            } catch (e) {
+                alert("Please try again later!");
             }
         },
         fail: function (result) {
@@ -1628,14 +1700,18 @@ function editProduct(data) {
         },
         success: function (result) {
             console.log(result);
-            var returnedData = JSON.parse(result);
-            if (returnedData.statusCode == PRODUCT_UPDATE_SUCCESS) {
-                edited = true;
-            } else if (returnedData.statusCode == USER_STATUS_BANNED) {
-                alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
-                logOut();
-            } else {
-                alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+            try {
+                var returnedData = JSON.parse(result);
+                if (returnedData.statusCode == PRODUCT_UPDATE_SUCCESS) {
+                    edited = true;
+                } else if (returnedData.statusCode == USER_STATUS_BANNED) {
+                    alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+                    logOut();
+                } else {
+                    alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+                }
+            } catch (e) {
+                alert("Please try again later!");
             }
         },
         fail: function (result) {
@@ -1671,14 +1747,18 @@ function deleteProduct(productID) {
         },
         success: function (result) {
             console.log(result);
-            var returnedData = JSON.parse(result);
-            if (returnedData.statusCode == PRODUCT_DELETE_SUCCESS) {
-                deleted = true;
-            } else if (returnedData.statusCode == USER_STATUS_BANNED) {
-                alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
-                logOut();
-            } else {
-                alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+            try {
+                var returnedData = JSON.parse(result);
+                if (returnedData.statusCode == PRODUCT_DELETE_SUCCESS) {
+                    deleted = true;
+                } else if (returnedData.statusCode == USER_STATUS_BANNED) {
+                    alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+                    logOut();
+                } else {
+                    alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
+                }
+            } catch (e) {
+                alert("Please try again later!");
             }
         },
         fail: function (result) {
