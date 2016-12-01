@@ -117,7 +117,7 @@
                     <div class="account-div">
                         <div class="account-currentpass"><p class="account-passtext">Current Pass: </p><input type="password" data-bind="textInput: userModel.currentPass, disable: !checkIfActiveUser()" placeholder="•••••••••••" class="account-currentpassinput account-input"></div>
                     </div>
-                    <div class="account-save" data-bind="if: checkIfActiveUser()"><button class="cart-checkout account-save" data-bind="click: saveProfile">Save</button></div>
+                    <div class="account-save" data-bind="if: checkIfActiveUser()"><button class="cart-checkout account-save" data-bind="click: function(){$parent.userModel[USERS_FLD_NAME](saveProfile());}">Save</button></div>
                 </div>
             </div>
         </template>

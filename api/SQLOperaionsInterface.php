@@ -58,10 +58,6 @@ interface SQLOperationsInterface {
 
     public function updateRate($buyerId, $productId, $increase);
 
-    public function getAvgRate($productId);
-
-    public function getProductRate($productId, $buyerId);
-
     public function addCategorySpec($categoryId, $name);
 
     public function updateCategorySpec($id, $categoryId, $name);
@@ -76,8 +72,6 @@ interface SQLOperationsInterface {
 
     public function addProductSpec($productId, $specs);
 
-    public function deleteProductSpec($productId);
-
     public function getProductSpec($productId);
 
     public function addProduct($name, $price, $size, $weight, $available_quantity, $origin, $provider, $image, $seller_id, $category_id, $specs, $description);
@@ -85,12 +79,6 @@ interface SQLOperationsInterface {
     public function updateProduct($id, $name, $price, $size, $weight, $availability_id, $available_quantity, $origin, $provider, $image, $seller_id, $desc, $more);
 
     public function deleteProduct($productId, $isAdmin = false, $sellerID = -1);
-
-    public function getTotalEarnings($productId, $sellerId);
-
-    public function getProductBySeller($sellerId);
-
-    public function getProductByCategory($catId);
 
     public function getProductByKey($key);
 

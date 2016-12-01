@@ -547,10 +547,11 @@ class SQLOperations implements SQLOperationsInterface {
      * This function gets all products in cart items
      * @param int $userID
      * @return array array of products in cart
+     * @checkedByIAR
      */
     function getCartProducts($userID) {
         $userID = Utilities::makeInputSafe($userID);
-        $query = "SELECT p.*, ps." . Constants::PRODUCT_SPEC_FLD_ID . " as '" . Constants::PRODUCT_SPEC_PSID . "',  cs." . Constants::CATEGORIES_SPEC_FLD_NAME . " as '" . Constants::PRODUCT_SPEC_CSNAME . "', ps." . Constants::PRODUCT_SPEC_FLD_VALUE . " as '" . Constants::PRODUCT_SPEC_PSVALUE . "' , u." . Constants::USERS_FLD_NAME . " as '" . Constants::PRODUCT_SELLER_NAME . "' , c." . Constants::CATEGORIES_FLD_NAME . " as '" . Constants::PRODUCT_CATEGORY_NAME . "' , a." . Constants::AVAILABILITY_FLD_STATUS . " as '" . Constants::PRODUCT_AVAILABILITY_STATUS . "', ct." . Constants::CART_ITEMS_QUANTITY . " FROM " . Constants::TBL_PRODUCTS . " p LEFT OUTER JOIN " . Constants::TBL_PRODUCT_SPEC . " ps ON ps." . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . " = p." . Constants::PRODUCTS_FLD_ID . " LEFT OUTER JOIN " . Constants::TBL_CATEGORIES_SPEC . " cs ON cs." . Constants::CATEGORIES_SPEC_FLD_CATID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " AND ps." . Constants::PRODUCT_SPEC_FLD_CAT_ID . " = cs." . Constants::CATEGORIES_SPEC_FLD_ID . " JOIN " . Constants::TBL_USERS . " u ON u." . Constants::USERS_FLD_ID . " = p." . Constants::PRODUCTS_FLD_SELLER_ID . " JOIN " . Constants::TBL_CATEGORIES . " c ON c." . Constants::CATEGORIES_FLD_ID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " JOIN " . Constants::TBL_AVAILABILITY_STATUS . " a ON a." . Constants::AVAILABILITY_FLD_ID . " = p." . Constants::PRODUCTS_FLD_AVA_STATUS . " JOIN " . Constants::TBL_CART_ITEMS . " ct ON ct." . Constants::CART_ITEMS_PRODUCT_ID . " = p." . Constants::PRODUCTS_FLD_ID . " WHERE ct.".Constants::CART_ITEMS_USER_ID." = '$userID' ORDER BY ct." . Constants::CART_ITEMS_ID . " DESC, p." . Constants::PRODUCTS_FLD_ID;
+        $query = "SELECT p.*, ps." . Constants::PRODUCT_SPEC_FLD_ID . " as '" . Constants::PRODUCT_SPEC_PSID . "',  cs." . Constants::CATEGORIES_SPEC_FLD_NAME . " as '" . Constants::PRODUCT_SPEC_CSNAME . "', ps." . Constants::PRODUCT_SPEC_FLD_VALUE . " as '" . Constants::PRODUCT_SPEC_PSVALUE . "' , u." . Constants::USERS_FLD_NAME . " as '" . Constants::PRODUCT_SELLER_NAME . "' , c." . Constants::CATEGORIES_FLD_NAME . " as '" . Constants::PRODUCT_CATEGORY_NAME . "' , a." . Constants::AVAILABILITY_FLD_STATUS . " as '" . Constants::PRODUCT_AVAILABILITY_STATUS . "', ct." . Constants::CART_ITEMS_QUANTITY . " FROM " . Constants::TBL_PRODUCTS . " p LEFT OUTER JOIN " . Constants::TBL_PRODUCT_SPEC . " ps ON ps." . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . " = p." . Constants::PRODUCTS_FLD_ID . " LEFT OUTER JOIN " . Constants::TBL_CATEGORIES_SPEC . " cs ON cs." . Constants::CATEGORIES_SPEC_FLD_CATID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " AND ps." . Constants::PRODUCT_SPEC_FLD_CAT_ID . " = cs." . Constants::CATEGORIES_SPEC_FLD_ID . " JOIN " . Constants::TBL_USERS . " u ON u." . Constants::USERS_FLD_ID . " = p." . Constants::PRODUCTS_FLD_SELLER_ID . " JOIN " . Constants::TBL_CATEGORIES . " c ON c." . Constants::CATEGORIES_FLD_ID . " = p." . Constants::PRODUCTS_FLD_CATEGORY_ID . " JOIN " . Constants::TBL_AVAILABILITY_STATUS . " a ON a." . Constants::AVAILABILITY_FLD_ID . " = p." . Constants::PRODUCTS_FLD_AVA_STATUS . " JOIN " . Constants::TBL_CART_ITEMS . " ct ON ct." . Constants::CART_ITEMS_PRODUCT_ID . " = p." . Constants::PRODUCTS_FLD_ID . " WHERE ct." . Constants::CART_ITEMS_USER_ID . " = '$userID' ORDER BY ct." . Constants::CART_ITEMS_ID . " DESC, p." . Constants::PRODUCTS_FLD_ID;
         if (!$result = $this->db_link->query($query)) {
             return $this->returnError(Constants::CART_GET_ITEMS_FAILED, "Please try again later!");
         } else {
@@ -853,7 +854,7 @@ class SQLOperations implements SQLOperationsInterface {
      * @param int $orderID the order id
      * @param int $userID the user id
      * @return Response with the operation code
-     * @checkedByIARButNotTestedYet
+     * @checkedByIAR
      */
     public function deleteOrder($orderID, $userID) {
         $userID = Utilities::makeInputSafe($userID);
@@ -875,11 +876,15 @@ class SQLOperations implements SQLOperationsInterface {
                 if (!$result = $this->db_link->query("UPDATE `" . Constants::TBL_PRODUCTS . "` SET `" . Constants::PRODUCTS_FLD_AVA_QUANTITY . "` = " . Constants::PRODUCTS_FLD_AVA_QUANTITY . " + $quantity, `" . Constants::PRODUCTS_FLD_EARNINGS . "` = " . Constants::PRODUCTS_FLD_EARNINGS . " - $totalproductprice WHERE`" . Constants::PRODUCTS_FLD_ID . "` = '$productId' LIMIT 1")) {
                     return $this->returnError(Constants::ORDERS_DELETE_FAILED, "Please try again later!", 0, 0, 0);
                 }
-                if (!$this->db_link->query('UPDATE ' . Constants::TBL_ORDERS . ' SET ' . Constants::ORDERS_STATUS_ID . ' = ' . Constants::ORDER_DELETED . ' WHERE ' . Constants::ORDERS_ID . ' = ' . $orderID)) {
-                    return $this->returnError(Constants::ORDERS_DELETE_FAILED, "Please try again later!", 0, 0, 0);
-                }
             }
 
+            if (!$this->db_link->query('UPDATE ' . Constants::TBL_ORDERS . ' SET ' . Constants::ORDERS_STATUS_ID . ' = ' . Constants::ORDER_DELETED . ' WHERE ' . Constants::ORDERS_ID . ' = ' . $orderID)) {
+                return $this->returnError(Constants::ORDERS_DELETE_FAILED, "Please try again later!", 0, 0, 0);
+            }
+
+            if (!$this->db_link->query('DELETE FROM ' . Constants::TBL_DELIVERYREQUESTS . ' WHERE ' . Constants::DELIVERYREQUESTS_ORDERID . ' = ' . $orderID)) {
+                return $this->returnError(Constants::ORDERS_DELETE_FAILED, "Please try again later!", 0, 0, 0);
+            }
             // @ToDo  (Don't return the deleted orders in the get functions)
             $theResponse = new Response(Constants::ORDERS_DELETE_SUCCESS, "", "");
             return json_encode($theResponse);
@@ -1266,10 +1271,6 @@ class SQLOperations implements SQLOperationsInterface {
         }
     }
 
-    function __destruct() {
-        $this->db_link->close();
-    }
-
     /**
      * This function updates rate of product
      * @parm integer $buyerId
@@ -1327,84 +1328,10 @@ class SQLOperations implements SQLOperationsInterface {
     }
 
     /**
-     * This function get product's average rate + updates it in the product
-     * @parm integer $productId
-     * @return response with average rate 
-     */
-    public function getAvgRate($productId) {
-
-        if (strlen(trim($productId) != 0)) {
-
-            $productId = Utilities::makeInputSafe($productId);
-            //checking if product exists
-            if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_RATE . "` WHERE `" . Constants::RATE_FLD_PRODUCT_ID . "` = '$productId' LIMIT 1")) {
-                return $this->returnError(Constants::RATE_AVGERAGE_FAILED, "Please try again later!");
-            }
-            //calculating average and sending it+updating it in products
-            if ($result->num_rows == 1) {
-
-                $Query = $this->db_link->query("UPDATE `" . Constants::TBL_PRODUCTS . "` SET `" . Constants::RATE_FLD_RATE . "` =  ( SELECT AVG ( " . Constants::RATE_FLD_RATE . " ) FROM " . Constants::TBL_RATE . " WHERE " . Constants::RATE_FLD_PRODUCT_ID . " = '$productId ' ) WHERE `" . Constants::TBL_PRODUCTS . "`.`" . Constants::PRODUCTS_FLD_ID . "` = " . $productId);
-
-                $Query1 = $this->db_link->query(" SELECT " . Constants::RATE_FLD_RATE . " FROM " . Constants::TBL_PRODUCTS . "  WHERE `" . Constants::TBL_PRODUCTS . "`.`" . Constants::PRODUCTS_FLD_ID . "` = " . $productId);
-                $row = $Query1->fetch_assoc();
-
-                $theResponse = new Response(Constants::RATE_AVERAGE_SUCCESS, $row, "");
-
-                return(json_encode($theResponse));
-            } else {
-                return $this->returnError(Constants::RATE_AVERAGE_INVALID_PRODUCT, "No such product  id");
-            }
-        } else {
-            return $this->returnError(Constants::RATE_AVERAGE_EMPTY_DATA, "All fields are required!");
-        }
-    }
-
-    /**
-     * This function get product's rate
-     * @parm integer $productId, integer $buyerId
-     * @return response with rate 
-     */
-    public function getProductRate($productId, $buyerId) {
-        if (strlen(trim($productId) != 0)) {
-            $productId = Utilities::makeInputSafe($productId);
-            $buyerId = Utilities::makeInputSafe($buyerId);
-            //checking if product id exists
-            if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_RATE . "` WHERE `" . Constants::RATE_FLD_PRODUCT_ID . "` = '$productId' LIMIT 1")) {
-                return $this->returnError(Constants::RATE_GET_FAILED, "Please try again later!");
-            }
-
-            if ($result->num_rows == 1) {
-                //checking if buyer id exists
-                if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_BUYERS . "` WHERE `" . Constants::BUYERS_FLD_USER_ID . "` = '$buyerId' LIMIT 1")) {
-                    return $this->returnError(Constants::RATE_GET_FAILED, "Please try again later!");
-                }
-
-                if ($result->num_rows == 1) {
-                    //selecting the rate
-
-                    $theQuery = $this->db_link->query("SELECT " . Constants::RATE_FLD_RATE . " FROM`" . Constants::TBL_RATE . "` WHERE " . Constants::RATE_FLD_PRODUCT_ID . " = '$productId' AND " . Constants::BUYERS_FLD_USER_ID . " = '$buyerId'");
-
-                    $row = $theQuery->fetch_assoc();
-
-                    $theResponse = new Response(Constants::RATE_GET_SUCCESS, $row, "");
-
-
-                    return(json_encode($theResponse));
-                } else {
-                    return $this->returnError(Constants::RATE_GET_INVALID_BUYER, "No such buyer  id");
-                }
-            } else {
-                return $this->returnError(Constants::RATE_GET_INVALID_PRODUCT, "No such product  id");
-            }
-        } else {
-            return $this->returnError(Constants::RATE_GET_EMPTY_DATA, "All fields are required!");
-        }
-    }
-
-    /**
      * This function takes products result and returns the corrosponding array
      * @param type $mainResult
      * @return array
+     * @checkedByIAR
      */
     private function fetchProductsFromResult($mainResult, $limit = 0) {
         $ret = array();
@@ -1544,29 +1471,10 @@ class SQLOperations implements SQLOperationsInterface {
     }
 
     /**
-     * This function deletes all product's specs
-     * @param integer $productId
-     * @return response
-     */
-    public function deleteProductSpec($productId) {
-        if (strlen(trim($productId)) != 0) {
-            $productId = Utilities::makeInputSafe($productId);
-            if (!$result = $this->db_link->query("DELETE FROM `" . Constants::TBL_PRODUCT_SPEC . "` WHERE `" . Constants::PRODUCT_SPEC_FLD_PRODUCT_ID . "` = '$productId' ")) {
-                return $this->returnError(Constants::PRODUCT_SPEC_DELETE_FAILED, "Please try again later!");
-            } else {
-                // successul response
-                $theResponse = new Response(Constants::PRODUCT_SPEC_DELETE_SUCCESS, array(), "");
-                return(json_encode($theResponse));
-            }
-        } else {
-            return $this->returnError(Constants::PRODUCT_SPEC_EMPTY_DATA, "All fields are required!");
-        }
-    }
-
-    /**
      * This function gets all product's specs
      * @param integer $productId
      * @return response with array
+     * @checkedByIAR
      */
     public function getProductSpec($productId) {
         if (strlen(trim($productId)) != 0) {
@@ -1766,104 +1674,10 @@ class SQLOperations implements SQLOperationsInterface {
     }
 
     /**
-     * This function gets total earnings of a product
-     * @param integer $productId
-     * @param integer $sellerId
-     * @return response with total earnings if succeeded
-     */
-    public function getTotalEarnings($productId, $sellerId) {
-
-        //input safe
-        if ((strlen(trim($productId)) != 0) && (strlen(trim($sellerId)) != 0)) {
-            //
-            $price = Utilities::makeInputSafe($price);
-            $productId = Utilities::makeInputSafe($productId);
-            //if  seller exists
-            if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_SELLERS . "` WHERE `" . Constants::SELLERS_FLD_USER_ID . "` ='$sellerId' LIMIT 1")) {
-
-                return $this->returnError(Constants::PRODUCT_GET_EARNINGS_FAILED, "Please try again later!");
-            }
-            if ($result->num_rows == 1) {
-                //check if product id (foreign key) exists
-                if (!$result = $this->db_link->query("SELECT * FROM `" . Constants::TBL_PRODUCTS . "` WHERE `" . Constants::PRODUCTS_FLD_ID . "` = '$productId' LIMIT 1")) {
-                    return $this->returnError(Constants::PRODUCT_GET_EARNINGS_FAILED, "Please try again later!");
-                }
-                if ($result->num_rows == 1) {
-                    //sold items*price
-                    if (!$result = $this->db_link->query("SELECT " . Constants::PRODUCTS_FLD_PRICE . " , " . Constants::PRODUCTS_FLD_SOLDITEMS . " FROM `" . Constants::TBL_PRODUCTS . "` WHERE `" . Constants::PRODUCTS_FLD_ID . "` = '$productId' AND `" . Constants::PRODUCTS_FLD_SELLER_ID . "` = '$sellerId' LIMIT 1")) {
-                        return $this->returnError(Constants::PRODUCT_GET_EARNINGS_FAILED, "Please try again later!");
-                    }
-                    if ($result->num_rows == 1) {
-                        //success sending total earnings
-                        $row = $result->fetch_assoc();
-                        $totalEarnings = $row["price"] * $row["solditems"];
-                        $theResponse = new Response(Constants::PRODUCT_TOTAL_EARNINGS_SUCCESS, $totalEarnings, "");
-                        return(json_encode($theResponse));
-                    }
-                } else {
-                    //cat does not exist
-                    return $this->returnError(Constants::PRODUCT_INVALID_CATEGORY, "Please, enter a valid category");
-                }
-            } else { //seller does not exist
-                return $this->returnError(Constants::PRODUCT_INVALID_SELLER, "Please,enter a valid seller");
-            }
-        } else {
-            return $this->returnError(Constants::PRODUCT_TOTAL_EARNINGS_EMPTY_DATA, "All fields are required!");
-        }
-    }
-
-    /**
-     * This function gets all the products by given seller
-     * @param integer $sellerId
-     * @return response with array of products
-     */
-    public function getProductBySeller($sellerId) {
-
-        if (strlen(trim($sellerId)) != 0) {
-            $sellerId = Utilities::makeInputSafe($sellerId);
-            if (!$result = $this->db_link->query('SELECT * FROM `' . Constants::TBL_PRODUCTS . "` WHERE `" . Constants::PRODUCTS_FLD_SELLER_ID . "` = '$sellerId' ")) {
-                return $this->returnError(Constants::PRODUCT_GET_FROM_SELLER_FAILED, "Please try again later!");
-            } else {
-                $ret = array();
-                while ($row = $result->fetch_assoc()) {
-                    array_push($ret, $row);
-                }
-                $theResponse = new Response(Constants::PRODUCT_GET_FROM_SELLER_SUCCESS, $ret, "");
-                return(json_encode($theResponse));
-            }
-        } else {
-            return $this->returnError(Constants::PRODUCT_GET_FROM_SELLER_EMPTY_DATA, "All fields are required!");
-        }
-    }
-
-    /**
-     * This function gets all the products by given category 
-     * @param integer $catId
-     * @return response with array of products
-     */
-    public function getProductByCategory($catId) {
-        if (strlen(trim($catId)) != 0) {
-            $catId = Utilities::makeInputSafe($catId);
-            if (!$result = $this->db_link->query('SELECT * FROM `' . Constants::TBL_PRODUCTS . "` WHERE `" . Constants::PRODUCTS_FLD_CATEGORY_ID . "` = '$catId' ")) {
-                return $this->returnError(Constants::PRODUCT_GET_FROM_CAT_FAILED, "Please try again later!");
-            } else {
-                $ret = array();
-
-                while ($row = $result->fetch_assoc()) {
-                    array_push($ret, $row);
-                }
-                $theResponse = new Response(Constants::PRODUCT_GET_FROM_CAT_SUCCESS, $ret, "");
-                return(json_encode($theResponse));
-            }
-        } else {
-            return $this->returnError(Constants::PRODUCT_GET_FROM_CAT_EMPTY_DATA, "All fields are required!");
-        }
-    }
-
-    /**
      * This function gets all the products by part of word or a close word
      * @param integer $keyword
      * @return response with array of products
+     * @checkedByIAR
      */
     public function getProductByKey($keyword) {
         if (strlen(trim($keyword)) != 0) {
@@ -1916,6 +1730,10 @@ class SQLOperations implements SQLOperationsInterface {
             $theResponse = new Response(Constants::PRODUCT_GET_TOP_3_IN_4_CAT_SUCCESS, $Cats4, "");
             return(json_encode($theResponse));
         }
+    }
+
+    function __destruct() {
+        $this->db_link->close();
     }
 
 }
