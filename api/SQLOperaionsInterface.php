@@ -66,7 +66,7 @@ interface SQLOperationsInterface {
 
     public function getCategorySpec($id);
 
-    public function getAllProducts($cateID = -1, $sellerID = -1);
+    public function getAllProducts($cateID = -1, $sellerID = -1, $isAdmin = false);
 
     public function updateProductSpec($id, $newSpecValue);
 

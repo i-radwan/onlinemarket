@@ -48,13 +48,6 @@ function authUsers($userType, Request $request, Response $response) {
     return false;
 }
 
-// For Testing @ToDo To be removed
-$app->get('/hello/{name}', function (Request $request, Response $response) {
-    //$name = $request->getAttribute("name");
-    //echo "Hello, $name";
-    return $response->write('Hello ' . $request->getAttribute("name"));
-});
-
 /**
  * Users requests
  */
@@ -147,7 +140,6 @@ $app->get('/user/{userType}', function (Request $request, Response $response) {
 });
 /**
  * Cart requests
- * @todo: handle banned user 
  */
 $app->get('/cart', function (Request $request, Response $response) {
     if (authUsers([Constants::USER_BUYER], $request, $response)) {
@@ -271,12 +263,14 @@ $app->delete('/product/{productID}', function (Request $request, Response $respo
     }
 });
 $app->get('/product', function (Request $request, Response $response) {
-    if (authUsers([Constants::USER_SELLER], $request, $response)) {
+     if (authUsers([Constants::USER_ADMIN], $request, $response)) {
+        $sqlOperations = new SQLOperations();
+        return $response->withStatus(200)->write($sqlOperations->getAllProducts(-1, -1, true));
+    } else if (authUsers([Constants::USER_SELLER], $request, $response)) {
         $sqlOperations = new SQLOperations();
         return $response->withStatus(200)->write($sqlOperations->getAllProducts(-1, getTokenData($request)[Constants::USERS_FLD_ID]));
     } else {
-        $sqlOperations = new SQLOperations();
-        return $response->withStatus(200)->write($sqlOperations->getAllProducts());
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
     }
 });
 $app->post('/product', function (Request $request, Response $response) {
@@ -370,18 +364,8 @@ $app->get('/orders', function (Request $request, Response $response, $args = [])
 });
 
 //This GET Request takes One ID only and returns the selected Columns about that Order 
-// @ToDo check and test and if not useful remove it 
-$app->get('/order/{id}', function (Request $request, Response $response, $args = []) {
-    $sqlOperations = new SQLOperations();
-    $id = $request->getAttribute('id');
-    //It takes an array of columns needed to be returned
-    $selectionCols = $request->getParam('fields');
-    //Return the response with the order object written in it in JSON 
-    return $response->withStatus(200)->write($sqlOperations->getOrder($id, $selectionCols));
-});
 
 //Delete Certain Order by the ID (Semi Finished) (Middleware Authorization)/ WithStatus 401 / Retuen respone
-// @ToDo authenticate and let users only delete their only orders
 $app->delete('/order/{id}', function (Request $request, Response $response, $args) {
     if (authUsers([Constants::USER_BUYER], $request, $response)) {
         $sqlOperations = new SQLOperations();
@@ -393,7 +377,6 @@ $app->delete('/order/{id}', function (Request $request, Response $response, $arg
     }
 });
 //Add Order
-// @ToDo check and test
 $app->post('/order', function (Request $request, Response $response) {
     if (authUsers([Constants::USER_BUYER], $request, $response)) {
         $sqlOperations = new SQLOperations();
@@ -416,16 +399,6 @@ $app->put('/order/{id}', function (Request $request, Response $response, $args) 
     }
 });
 /**
- * Order items requests
- */
-// @ToDo check if working, get user id from jwt
-$app->get('/orderitems/{orderid}/{buyerid}', function (Request $request, Response $response, $args) {
-    $sqlOperations = new SQLOperations();
-    $orderID = $request->getAttribute('orderid');
-    $buyerID = $request->getAttribute('buyerid');
-    return $response->withStatus(200)->write($sqlOperations->getOrderItems($orderID, $buyerID));
-});
-/**
  * Delivery Requests requests
  */
 //Get Delivery Requests Items
@@ -438,6 +411,5 @@ $app->get('/deliveryrequests', function (Request $request, Response $response) {
         return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
     }
 });
-
 // Run application
 $app->run();

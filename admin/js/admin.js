@@ -168,7 +168,6 @@ function deliveryRequestModel(deliveryRequest) {
 // ==========================================================================================================
 
 var controlPanelViewModel;
-/*ToDo remove unused*/
 function productsViewModel(params) {
     var self = this;
     self.params = params.value;
@@ -298,7 +297,6 @@ function profileViewModel(params) {
         data[USERS_FLD_PASS2] = self.userModel.newPass();
         if (self.userModel[USERS_FLD_USER_TYPE]() == USER_SELLER) {
             data[SELLERS_FLD_ADDRESS] = self.userModel[SELLERS_FLD_ADDRESS]();
-			// ToDo check if tedrab
             data[SELLERS_FLD_BANK_ACCOUNT] = self.userModel[SELLERS_FLD_BANK_ACCOUNT]();
         }
         $.ajax({
@@ -572,7 +570,6 @@ function usersViewModel(params) {
 
     self.blockUser = function (item, event) {
         if (confirm("Are you sure?")) {
-            // ToDo call API to delete category first, and check if it has no products
             if (changeUserBanStatus(item.params[USERS_FLD_ID], USER_BANNED)) {
                 item.params[USERS_FLD_STATUS](USER_BANNED);
             }
@@ -580,7 +577,6 @@ function usersViewModel(params) {
     }
     self.unblockUser = function (item, event) {
         if (confirm("Are you sure?")) {
-            // ToDo call API to delete category first, and check if it has no products
             if (changeUserBanStatus(item.params[USERS_FLD_ID], USER_ACTIVE)) {
                 item.params[USERS_FLD_STATUS](USER_ACTIVE);
             }
