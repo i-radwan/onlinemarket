@@ -118,6 +118,10 @@ class Constants {
     const PRODUCT_ADD_FAILED = 20013;
     const PRODUCTS_GET_ALL_PRODUCTS_SUCCESS = 20014;
     const PRODUCTS_GET_ALL_PRODUCTS_FAILED = 20015;
+    const PRODUCT_INVALID_PARAMETER = 20016;
+    const PRODUCT_ADD_EMPTY_DATA = 20017;
+    const PRODUCT_UPDATE_EMPTY_DATA = 20018;
+    const PRODUCT_INVALID_PRODUCT_ID = 20019;
 
     /**
      * Products Spec operation functions (60x) constants
