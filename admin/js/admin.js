@@ -135,6 +135,8 @@ function orderModel(order) {
             return "Shipped";
         if (self[ORDERS_STATUS_ID]() == ORDER_STATUS_DELIVERED)
             return "Delivered";
+		if (self[ORDERS_STATUS_ID]() == ORDER_STATUS_DELETED)
+            return "Deleted";
         else
             return "Error";
     });
@@ -158,6 +160,8 @@ function deliveryRequestModel(deliveryRequest) {
             return "Shipped";
         if (self[ORDERS_STATUS_ID]() == ORDER_STATUS_DELIVERED)
             return "Delivered";
+		if (self[ORDERS_STATUS_ID]() == ORDER_STATUS_DELETED)
+            return "Deleted";
         else
             return "Error";
     });
@@ -1652,6 +1656,8 @@ function addProduct(data) {
                 var returnedData = JSON.parse(result);
                 if (returnedData.statusCode == PRODUCT_ADD_SUCCESS) {
                     newID = returnedData.result;
+					alert("Product Added Successfully!");
+					window.location = ADMIN_LINK;
                 } else if (returnedData.statusCode == USER_STATUS_BANNED) {
                     alert(returnedData.errorMsg + "[" + returnedData.statusCode + "]");
                     logOut();

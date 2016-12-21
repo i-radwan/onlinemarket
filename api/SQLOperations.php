@@ -986,7 +986,7 @@ class SQLOperations implements SQLOperationsInterface {
      */
     public function getDeliveryRequests($deliveryManID) {
         $deliveryManID = Utilities::makeInputSafe($deliveryManID);
-        $result = $this->db_manager->queryWithResult("SELECT o." . Constants::ORDERS_ID . ", d." . Constants::DELIVERYREQUESTS_DUEDATE . ", o." . Constants::ORDERS_COST . ", o." . Constants::ORDERS_STATUS_ID . ", u." . Constants::USERS_FLD_NAME . ", u." . Constants::USERS_FLD_TEL . ", b." . Constants::BUYERS_FLD_ADDRESS . " FROM " . Constants::TBL_USERS . " u, " . Constants::TBL_BUYERS . " b, " . Constants::TBL_DELIVERYREQUESTS . " d, " . Constants::TBL_ORDERS . " o WHERE d." . Constants::DELIVERYREQUESTS_ORDERID . "=o." . Constants::ORDERS_ID . " AND u." . Constants::USERS_FLD_ID . " = o." . Constants::ORDERS_BUYER_ID . " AND u." . Constants::USERS_FLD_ID . " = b." . Constants::BUYERS_FLD_USER_ID . " AND d." . Constants::DELIVERYREQUESTS_DELIVERYMANID . " = " . $deliveryManID . " AND o." . Constants::ORDERS_STATUS_ID . " != " . Constants::ORDER_DELIVERED);
+        $result = $this->db_manager->queryWithResult("SELECT o." . Constants::ORDERS_ID . ", d." . Constants::DELIVERYREQUESTS_DUEDATE . ", o." . Constants::ORDERS_COST . ", o." . Constants::ORDERS_STATUS_ID . ", u." . Constants::USERS_FLD_NAME . ", u." . Constants::USERS_FLD_TEL . ", b." . Constants::BUYERS_FLD_ADDRESS . " FROM " . Constants::TBL_USERS . " u, " . Constants::TBL_BUYERS . " b, " . Constants::TBL_DELIVERYREQUESTS . " d, " . Constants::TBL_ORDERS . " o WHERE d." . Constants::DELIVERYREQUESTS_ORDERID . "=o." . Constants::ORDERS_ID . " AND u." . Constants::USERS_FLD_ID . " = o." . Constants::ORDERS_BUYER_ID . " AND u." . Constants::USERS_FLD_ID . " = b." . Constants::BUYERS_FLD_USER_ID . " AND d." . Constants::DELIVERYREQUESTS_DELIVERYMANID . " = " . $deliveryManID . " AND o." . Constants::ORDERS_STATUS_ID . " != " . Constants::ORDER_DELIVERED ." AND  o." . Constants::ORDERS_STATUS_ID . " != " . Constants::ORDER_DELETED);
         $ret = array();
         while ($row = $result->fetch_assoc()) {
             array_push($ret, $row);
@@ -1094,8 +1094,8 @@ class SQLOperations implements SQLOperationsInterface {
 
             if ($result == 1) {
                 //check if name is repeated
-                if (-1 == ($result = $this->db_manager->executeScalar("SELECT COUNT(*) as `count FROM `" . Constants::TBL_CATEGORIES . "` WHERE `" . Constants::CATEGORIES_FLD_NAME . "` = '$name' AND  `" . Constants::CATEGORIES_FLD_ID . "` != $id LIMIT 1"))) {
-                    return $this->returnError(Constants::CATEGORY_INSERT_FAILED, "Please try again later!");
+                if (-1 == ($result = $this->db_manager->executeScalar("SELECT COUNT(*) as `count` FROM `" . Constants::TBL_CATEGORIES . "` WHERE `" . Constants::CATEGORIES_FLD_NAME . "` = '$name' AND  `" . Constants::CATEGORIES_FLD_ID . "` != $id LIMIT 1"))) {
+                    return $this->returnError(Constants::CATEGORY_UPDATE_FAILED, "Please try again later!");
                 }
                 if ($result == 1) {
                     return $this->returnError(Constants::CATEGORY_NAME_REPETION, "Category's name already exists,Please enter another name.");
@@ -1512,7 +1512,12 @@ class SQLOperations implements SQLOperationsInterface {
     public function addProduct($name, $price, $size, $weight, $available_quantity, $origin, $provider, $image, $seller_id, $category_id, $specs, $description) {
 
         //checking if not empty
-        if ((strlen(trim($name)) != 0) && (strlen(trim($price)) != 0) && (strlen(trim($size)) != 0) && (strlen(trim($weight)) != 0) && (strlen(trim($available_quantity)) != 0) && (strlen(trim($origin)) != 0) && (strlen(trim($provider)) != 0) && (strlen(trim($image)) != 0) && (strlen(trim($seller_id)) != 0) && (strlen(trim($category_id)) != 0) && (strlen(trim($description)) != 0) && (strlen(trim($specs)) != 0)) {
+        if ((strlen(trim($name)) != 0) && (strlen(trim($price)) != 0) && (strlen(trim($size)) != 0)
+                && (strlen(trim($weight)) != 0) && (strlen(trim($available_quantity)) != 0) && 
+                (strlen(trim($origin)) != 0) && (strlen(trim($provider)) != 0) && 
+                (strlen(trim($image)) != 0) && (strlen(trim($seller_id)) != 0) &&
+                (strlen(trim($category_id)) != 0) && (strlen(trim($description)) != 0))
+            {
             //make input safe 
             $name = Utilities::makeInputSafe($name);
             $price = Utilities::makeInputSafe($price);
@@ -1562,11 +1567,13 @@ class SQLOperations implements SQLOperationsInterface {
                 } else {//seller's invalid
                     return $this->returnError(Constants::PRODUCT_INVALID_SELLER, "Please try again later!");
                 }
-            } else {
+            } 
+            else {
                 return $this->returnError(Constants::PRODUCT_INVALID_PARAMETER, "Please, enter a valid numeric value");
             }
-        } else {
-            return $this->returnError(Constants::PRODUCT_ADD_EMPTY_DATA, "Please ,all fields are required");
+        } 
+        else {
+            return $this->returnError(Constants::PRODUCT_ADD_EMPTY_DATA, "Please, all fields are required");
         }
     }
 
