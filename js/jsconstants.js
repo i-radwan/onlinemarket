@@ -2,7 +2,7 @@
  *		CONSTANTS
  */
 
-const API_LINK = "http://localhost/onlinemarket/api/api.php/";
+const API_LINK = "http://localhost/onlinemarket/api/";
 const WEBSITE_LINK = "http://localhost/onlinemarket/";
 const ADMIN_LINK = "http://localhost/onlinemarket/admin";
 const LOGIN_ENDPOINT = "login";
