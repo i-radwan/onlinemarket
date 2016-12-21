@@ -204,7 +204,7 @@
                     <p data-bind="click: function(){if($parents[1].cancelProduct($data))$parents[2].increaseCartAmount(-params[PRODUCTS_FLD_PRICE]() * params.quantity());}" class="cart-cancel-product">cancel</p>
                 </div>
 
-                <div data-bind="if: params.order && $parents[2][ORDERS_STATUS_ID] == ORDER_STATUS_DELIVERED">
+                <div data-bind="if: params.order && $parents[2][ORDERS_STATUS_ID] == ORDER_STATUS_DELIVERED && checkIfActiveUser()">
                     <div data-bind="css:{'cart-single-item--buy': params.order}" class="categories-single-item--buy" >
                         <i class="fa fa-minus cart-button-icon" data-bind="click: decreaseRate"></i>
                         <span class="cart-button-text">Rate: <span data-bind="text: params.formattedRate"></span></span>
