@@ -56,7 +56,7 @@ function authViewModel() {
         });
     }
     self.storeLocalStorageData = function (returnedData) {
-		console.log(returnedData);
+		//console.log(returnedData);
         returnedData = JSON.parse(returnedData);
         if (returnedData[AUTH_RESPONSE_STATUS_CODE] == LOGIN_SUCCESSFUL_LOGIN) {
             localStorage.setItem(OMARKET_JWT, returnedData[AUTH_RESPONSE_JWT]);
