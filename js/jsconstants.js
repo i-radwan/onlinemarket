@@ -1,10 +1,9 @@
 /**
  *		CONSTANTS
  */
-
-const API_LINK = "http://localhost/onlinemarket/api/";
-const WEBSITE_LINK = "http://localhost/onlinemarket/";
-const ADMIN_LINK = "http://localhost/onlinemarket/admin";
+const API_LINK = "http://"+window.location.hostname+"/onlinemarket/api/";
+const WEBSITE_LINK = "http://"+window.location.hostname+"/onlinemarket/";
+const ADMIN_LINK = "http://"+window.location.hostname+"/onlinemarket/admin";
 const LOGIN_ENDPOINT = "login";
 const SIGNUP_ENDPOINT = "signup";
 const USER_ENDPOINT = "user";

@@ -78,9 +78,9 @@ class SQLOperations implements SQLOperationsInterface {
                                     $ccMonth = Utilities::makeInputSafe($extraData[Constants::BUYERS_FLD_CC_MONTH]);
                                     $ccYear = Utilities::makeInputSafe($extraData[Constants::BUYERS_FLD_CC_YEAR]);
                                     if (strlen(trim($address)) != 0 && strlen(trim($ccNumber)) != 0 && strlen(trim($ccCCV)) != 0 && strlen(trim($ccMonth)) != 0 && strlen(trim($ccYear)) != 0) {
-                                        if (is_numeric($ccNumber)) {
+                                        if (is_numeric($ccNumber) && strlen($ccNumber) == 16) {
                                             if (is_numeric($ccCCV) && strlen($ccCCV) == 3) {
-                                                if (is_numeric($ccMonth) && $ccMonth > 0 && $ccMonth < 13 && is_numeric($ccYear) && $ccYear >= date("Y") && $ccYear < date("Y") + 10) {
+                                                if (is_numeric($ccMonth) && $ccMonth > 0 && $ccMonth < 13 && is_numeric($ccYear) && $ccYear >= date("Y") && $ccYear < date("Y") + 4) {
                                                     $result = $this->db_manager->queryWithNoResult("INSERT INTO `" . Constants::TBL_BUYERS . "` SET `" . Constants::BUYERS_FLD_ADDRESS . "` = '$address', `" . Constants::BUYERS_FLD_CCNUMBER . "` = '$ccNumber', `" . Constants::BUYERS_FLD_CC_CCV . "` = '$ccCCV',  `" . Constants::BUYERS_FLD_CC_MONTH . "` = '$ccMonth', `" . Constants::BUYERS_FLD_CC_YEAR . "` = '$ccYear', `" . Constants::BUYERS_FLD_USER_ID . "` = '$_id'");
                                                     if ($result > 0) {
                                                         return $this->login($email, $pass1);
@@ -324,6 +324,15 @@ class SQLOperations implements SQLOperationsInterface {
             if (strlen($address) <= 0 || strlen($ccNumber) <= 0 || strlen($ccCCV) <= 0 || strlen($ccMonth) <= 0 || strlen($ccYear) <= 0) {
                 return $this->returnError(Constants::USER_EDIT_ACCOUNT_EMPTY_DATA, "All data are required!", 0, 0, 0);
             }
+            if($ccMonth < 0  || $ccMonth > 12 || $ccYear < date("Y") || $ccYear > date("Y") + 4){
+                return $this->returnError(Constants::USER_EDIT_ACCOUNT_INVALID_DATES, "Please enter valid dates!", 0, 0, 0);
+            }
+            if($ccYear == date("Y") && $ccMonth <= date("M")){
+                return $this->returnError(Constants::USER_EDIT_ACCOUNT_INVALID_DATES, "Please enter valid dates!".date("M"), 0, 0, 0);
+            }
+            if(strlen($ccNumber) != 16 || strlen($ccCCV) != 3){
+                return $this->returnError(Constants::USER_EDIT_ACCOUNT_INVALID_CCNUMBER, "Please check your Credit Card info!", 0, 0, 0);
+            }
         }
         if (strlen($name) > 0 && strlen($tel) > 0 && strlen($pass1) > 0) {
             if (!$result = $this->db_manager->queryWithResult("SELECT * FROM `" . Constants::TBL_USERS . "` WHERE `" . Constants::USERS_FLD_ID . "` = $userID LIMIT 1")) {
@@ -505,6 +514,7 @@ class SQLOperations implements SQLOperationsInterface {
 
         return $this->returnError(Constants::USER_DELETE_FAILED, "Please try again later!" . $result->affected_rows, 0, 0, 0);
     }
+
 
     /**
      * This function allows the admin to insert employees to db
@@ -734,7 +744,7 @@ class SQLOperations implements SQLOperationsInterface {
             array_push($whereStringArray, $stringCost);
         }
         if ($appliedFilters['date']['status']) {
-            $stringDate = constants::ORDERS_ISSUEDATE . ' >= ' . "'" . Utilities::makeInputSafe($appliedFilters['date']['min']) . "'" . ' and ' . Constants::ORDERS_ISSUEDATE . ' <= ' . "'" . Utilities::makeInputSafe($appliedFilters['date']['max']) . "'";
+            $stringDate = constants::ORDERS_ISSUEDATE . ' >= ' . "'" . Utilities::makeInputSafe($appliedFilters['date']['min']) . "'" . ' and ' . Constants::ORDERS_ISSUEDATE . ' <= ' . "'" . Utilities::makeInputSafe($appliedFilters['date']['max']) . "' + INTERVAL 1 DAY";
             array_push($whereStringArray, $stringDate);
         }
         if ($appliedFilters['status']['pending'])
@@ -1052,7 +1062,7 @@ class SQLOperations implements SQLOperationsInterface {
         if (strlen($id) != 0) {
             //checking if there is a prodcut using that category's id
             $check = $this->db_manager->executeScalar("SELECT COUNT(*) as `count` FROM `" . Constants::TBL_PRODUCTS . "` WHERE " . Constants::PRODUCTS_FLD_CATEGORY_ID . " ='$id'");
-            if ($check->fetch_assoc()['count'] == 0) {
+            if ($check == 0) {
                 if (-1 == ($result = $this->db_manager->queryWithNoResult("DELETE FROM `" . Constants::TBL_CATEGORIES . "` WHERE `" . Constants::CATEGORIES_FLD_ID . "` = '$id' LIMIT 1"))) {
                     return $this->returnError(Constants::CATEGORY_DELETE_FAILED, "Please try again later!");
                 } else {
@@ -1061,7 +1071,7 @@ class SQLOperations implements SQLOperationsInterface {
                     return(json_encode($theResponse));
                 }
             } else {
-                return $this->returnError(Constants::CATEGORY_DELETE_FAILED_FOREIGNKEY, "Can't delete category.");
+                return $this->returnError(Constants::CATEGORY_DELETE_FAILED_FOREIGNKEY, "This category may contain products!");
             }
         } else {
             return $this->returnError(Constants::CATEGORY_EMPTY_DATA, "All fields are required!");
@@ -1618,11 +1628,15 @@ class SQLOperations implements SQLOperationsInterface {
                     return $this->returnError(Constants::PRODUCT_DELETE_FAILED, "Please try again later!");
                 }
                 if (-1 == ($result = $this->db_manager->queryWithNoResult("DELETE FROM `" . Constants::TBL_PRODUCTS . "` WHERE `" . Constants::PRODUCTS_FLD_ID . "` = '$productId'"))) {
-                    return $this->returnError(Constants::PRODUCT_DELETE_FAILED, "Please try again later!");
+                    return $this->returnError(Constants::PRODUCT_DELETE_FAILED, "Please try again later!".$this->db_manager->db_link->error);
                 } else {
 
-                    $theResponse = new Response(Constants::PRODUCT_DELETE_SUCCESS, "", "");
-                    return(json_encode($theResponse));
+                    if (-1 == ($result = $this->db_manager->queryWithNoResult("DELETE FROM `" . Constants::TBL_ORDERS . "` WHERE `" . Constants::ORDERS_COST . "` = '0'"))) {
+                        return $this->returnError(Constants::PRODUCT_DELETE_FAILED, "Please try again later!");
+                    } else {
+                        $theResponse = new Response(Constants::PRODUCT_DELETE_SUCCESS, "", "");
+                        return(json_encode($theResponse));
+                    }
                 }
             }
         } else {

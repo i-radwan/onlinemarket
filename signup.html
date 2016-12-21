@@ -65,7 +65,7 @@
 
 					<div class="auth-container--input-div" data-bind="fadeVisible: userModel[USERS_FLD_USER_TYPE]() == '1'">
 						<i class="fa fa-credit-card-alt auth-container--inputicon auth-container--inputicon-marginedtop"></i>
-						<input type="text" class="auth-container--input auth-container--ccnumber" placeholder="Credit Card No." required data-bind="textInput: userModel[BUYERS_FLD_CCNUMBER]">
+                                                <input type="text" class="auth-container--input auth-container--ccnumber" maxlength="16" placeholder="Credit Card No." required data-bind="textInput: userModel[BUYERS_FLD_CCNUMBER]">
 						<input type="text" class="auth-container--input auth-container--ccccv" maxlength="3" placeholder="CCV" required data-bind="textInput: userModel[BUYERS_FLD_CC_CCV]">
 					</div>
 
