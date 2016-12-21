@@ -124,7 +124,7 @@ function leftMenuViewModel(params) {
      * @param {object} event click event
      */
     self.categoryClick = function (item, event) {
-        console.log(item);
+        //console.log(item);
         sammyApp.setLocation('#/' + item[CATEGORIES_FLD_ID]);
     };
 
@@ -405,7 +405,7 @@ function profileViewModel(params) {
 
 
     self.deleteOrder = function (order) {
-        console.log(order.params);
+        //console.log(order.params);
         self.ordersArray.remove(order.params);
     }
     self.saveProfile = function () {
@@ -463,9 +463,9 @@ function orderViewModel(params) {
         self.params.isMoreDivVisible(!self.params.isMoreDivVisible());
     }
     self.init = function () {
-        console.log("ORDER", self.params);
+        //console.log("ORDER", self.params);
         var products = self.params.products;
-        console.log(self.params);
+        //console.log(self.params);
         products.forEach(function (product) {
             self.params.totalItemsCount += 1;
             self.params.productsArray.push(new productModel(product));
@@ -703,7 +703,7 @@ function getSearchProducts(searchWord) {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            console.log(result);
+            //console.log(result);
             var returnedData = JSON.parse(result);
             if (returnedData.statusCode == PRODUCT_GET_FROM_KEY_SUCCESS) {
                 ret = returnedData.result;
@@ -763,7 +763,7 @@ function getUserOrders() {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            console.log("DATA", result);
+            //console.log("DATA", result);
 
             var returnedData = JSON.parse(result);
 
@@ -794,7 +794,7 @@ function getCategoriesArray() {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            console.log(result);
+            //console.log(result);
             var returnedData = JSON.parse(result);
             if (returnedData.statusCode == CATEGORY_GET_ALL_CATEGORIES_SUCCESS) {
                 ret = returnedData.result;
@@ -822,7 +822,7 @@ function getTopCategories() {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            console.log(result);
+            //console.log(result);
             var returnedData = JSON.parse(result);
             if (returnedData.statusCode == PRODUCT_GET_TOP_3_IN_4_CAT_SUCCESS) {
                 ret = returnedData.result;
@@ -852,7 +852,7 @@ function getCategoryProducts(categoryID, limit) {
                 'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
             },
             success: function (result) {
-                console.log(result);
+                //console.log(result);
                 var returnedData = JSON.parse(result);
                 if (returnedData.statusCode == PRODUCTS_GET_ALL_PRODUCTS_SUCCESS) {
                     ret = returnedData.result;
@@ -882,7 +882,7 @@ function getCartProducts() {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            console.log(result);
+//            console.log(result);
             var returnedData = JSON.parse(result);
             if (returnedData.statusCode == CART_GET_ITEMS_SUCCESSFUL) {
                 ret = returnedData.result;
@@ -915,7 +915,7 @@ function addProductToCart(productID, status = {}) {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            console.log(result);
+            //console.log(result);
             var returnedData = JSON.parse(result);
             if (returnedData.statusCode == CART_ADD_ITEM_SUCCESSFUL) {
                 newCartID = returnedData.result;
@@ -963,7 +963,7 @@ function decreaseProductInCart(productID) {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            console.log(result);
+            //console.log(result);
             var returnedData = JSON.parse(result);
             if (returnedData.statusCode == CART_DECREASE_ITEM_SUCCESSFUL) {
                 decreased = true;
@@ -1007,7 +1007,7 @@ function cancelProductInCart(productID) {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            console.log(result);
+            //console.log(result);
             var returnedData = JSON.parse(result);
             if (returnedData.statusCode == CART_DELETE_ITEM_SUCCESSFUL) {
                 deleted = true;
@@ -1049,7 +1049,7 @@ function addOrder() {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            console.log(result);
+            //console.log(result);
             var returnedData = JSON.parse(result);
             if (returnedData.statusCode == ORDERS_ADD_SUCCESS) {
                 ret = returnedData.result;
@@ -1093,7 +1093,7 @@ function deleteOrder(orderID) {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            console.log(result);
+            //console.log(result);
             var returnedData = JSON.parse(result);
             if (returnedData.statusCode == ORDERS_DELETE_SUCCESS) {
                 deleted = true;
@@ -1142,7 +1142,7 @@ function updateRate(productID, rate) {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            console.log(result);
+            //console.log(result);
             var returnedData = JSON.parse(result);
             if (returnedData.statusCode == RATE_UPDATE_SUCCESS) {
                 updated = true;
