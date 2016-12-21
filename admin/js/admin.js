@@ -307,7 +307,7 @@ function profileViewModel(params) {
                 'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
             },
             success: function (result) {
-				console.log(result);
+				//console.log(result);
                 try {
                     var returnedData = JSON.parse(result);
                     if (returnedData.statusCode == USER_EDIT_ACCOUNT_SUCCESSFUL) {
@@ -677,10 +677,10 @@ function ordersViewModel(params) {
     shouter.subscribe(function (deliveredOrderID) {
         ko.utils.arrayForEach(self.ordersArray(), function (order, index) {
             if (order && order[ORDERS_ID] == deliveredOrderID) {
-                console.log("TEST", order, order[ORDERS_ID], deliveredOrderID);
+                //console.log("TEST", order, order[ORDERS_ID], deliveredOrderID);
                 self.ordersArray.remove(order);
             } else {
-                console.log(order);
+                //console.log(order);
             }
         });
     }, self, "removeDeliveredOrder");
@@ -955,7 +955,7 @@ function changeOrderStatus(orderID, newStatus) {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            console.log("DATA", result);
+            //console.log("DATA", result);
             try {
                 var returnedData = JSON.parse(result);
                 if (returnedData.statusCode == ORDERS_UPDATE_SUCCESS) {
@@ -1466,7 +1466,7 @@ function addCategorySpec(name, cateID) {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            console.log(result);
+            //console.log(result);
             try {
                 var returnedData = JSON.parse(result);
                 if (returnedData.statusCode == CATEGORY_SPECS_ADD_SUCCESS) {
@@ -1517,7 +1517,7 @@ function editCategorySpec(id, cateID, name) {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            console.log(result);
+            //console.log(result);
             try {
                 var returnedData = JSON.parse(result);
                 if (returnedData.statusCode == CATEGORY_SPEC_UPDATE_SUCCESS) {
@@ -1561,7 +1561,7 @@ function deleteCategorySpec(specID) {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            console.log(result);
+            //console.log(result);
             try {
                 var returnedData = JSON.parse(result);
                 if (returnedData.statusCode == CATEGORY_SPEC_DELETE_SUCCESS) {
@@ -1647,7 +1647,7 @@ function addProduct(data) {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            console.log(result);
+            //console.log(result);
             try {
                 var returnedData = JSON.parse(result);
                 if (returnedData.statusCode == PRODUCT_ADD_SUCCESS) {
@@ -1697,7 +1697,7 @@ function editProduct(data) {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            console.log(result);
+            //console.log(result);
             try {
                 var returnedData = JSON.parse(result);
                 if (returnedData.statusCode == PRODUCT_UPDATE_SUCCESS) {
@@ -1744,7 +1744,7 @@ function deleteProduct(productID) {
             'Authorization': 'Bearer ' + localStorage.getItem(OMARKET_JWT)
         },
         success: function (result) {
-            console.log(result);
+            //console.log(result);
             try {
                 var returnedData = JSON.parse(result);
                 if (returnedData.statusCode == PRODUCT_DELETE_SUCCESS) {
